@@ -592,7 +592,7 @@ VA_VCF=
 #       for information on version requirements and compatibility
 
 #   Do we have GNU parallel installed
-module load parallel/20160822
+module load parallel/20190122
 #PARALLEL=
 #export PATH=${PARALLEL}:${PATH}
 
