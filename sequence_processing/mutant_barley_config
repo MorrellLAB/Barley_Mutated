@@ -299,7 +299,7 @@ TMP=
 
 #   What are our Qsub settings for Coverage_Mapping?
 #       Below are the recommended settings
-CM_QSUB="mem=22gb,nodes=1:ppn=16,walltime=24:00:00"
+CM_QSUB="mem=56gb,nodes=1:ppn=20,walltime=08:00:00"
 
 #   Where is the list of finished BAM files?
 #       To generate this list, use sample_list_generator.sh
@@ -309,7 +309,7 @@ BAM_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/m
 #   For exome capture, use the capture regions file (BED format)
 #   For whole-genome sequencing, leave this blank
 #   Coverage_Mapping should not be used for GBS data
-REGIONS_FILE=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex/barley_RefSeq_v1.0/Hv_IBSC_PGSB_r1_HighConf_parts_sorted.gff3
+REGIONS_FILE=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex/barley_RefSeq_v1.0/Hv_IBSC_PGSB_r1_HighConf_parts_sorted.bed
 
 ############################################
 ########  Realigner_Target_Creator  ########
