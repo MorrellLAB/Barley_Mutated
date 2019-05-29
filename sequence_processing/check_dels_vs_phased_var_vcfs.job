@@ -1,0 +1,20 @@
+#!/bin/bash
+#PBS -l mem=22gb,nodes=1:ppn=12,walltime=05:00:00
+#PBS -m abe
+#PBS -M liux1299@umn.edu
+#PBS -q mesabi
+
+set -e
+set -o pipefail
+
+# Dependencies
+module load bcftools/1.9
+
+# User provided input arguments
+VCF_DELS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_dels.vcf.gz
+VCF_PHASED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_phased_variants.vcf.gz
+OUT_DIR=/home/morrellp/liux1299/scratch/temp_mutated
+
+# Create intersection and complements of two sets
+# And save the output file in OUT_DIR
+bcftools isec -p ${OUT_DIR} ${VCF_DELS} ${VCF_PHASED}
