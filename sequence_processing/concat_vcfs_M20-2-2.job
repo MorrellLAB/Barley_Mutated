@@ -18,4 +18,4 @@ OUT_DIR=/home/morrellp/liux1299/scratch/temp_mutated
 
 SAMPLE_PREFIX=$(basename ${VCF_DELS} _dels.vcf.gz)
 
-bcftools concat ${VCF_DELS} ${VCF_LARGE_SVS} ${VCF_PHASED} -o ${OUT_DIR}/${SAMPLE_PREFIX}_concat.vcf.gz -O z
+bcftools concat -a ${VCF_DELS} ${VCF_LARGE_SVS} ${VCF_PHASED} -o ${OUT_DIR}/${SAMPLE_PREFIX}_concat.vcf.gz -O z
