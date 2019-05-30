@@ -1,0 +1,21 @@
+#!/bin/bash
+#PBS -l mem=12gb,nodes=1:ppn=12,walltime=01:00:00
+#PBS -m abe
+#PBS -M liux1299@umn.edu
+#PBS -q mesabi
+
+set -e
+set -o pipefail
+
+# Dependencies
+module load bcftools/1.9
+
+# User provided input arguments
+# List of VCF files to merge
+VCF1=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_new_samp_name_concat.vcf.gz
+VCF2=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_concat.vcf.gz
+VCF3=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M29-2-2-self5/M29-2-2_new_samp_name_concat.vcf.gz
+OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/processing
+PREFIX="mutated_barley_M01_M20_M29"
+
+bcftools merge ${VCF1} ${VCF2} ${VCF3} -o ${OUT_DIR}/${PREFIX}_merged.vcf.gz -O z --threads 12
