@@ -21,6 +21,6 @@ OUT_DIR=/home/morrellp/liux1299/Shared/Projects/Mutant_Barley/longranger/M01-3-3
 
 SAMPLE_PREFIX=$(basename ${VCF_DELS} _dels.vcf.gz)
 
-bcftools reheader -s ${NEW_NAME_FILE} ${VCF_DELS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_dels.vcf -O z --threads 12
-bcftools reheader -s ${NEW_NAME_FILE} ${VCF_LARGE_SVS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_large_svs.vcf -O z --threads 12
-bcftools reheader -s ${NEW_NAME_FILE} ${VCF_PHASED} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_phased_variants.vcf -O z --threads 12
+bcftools reheader -s ${NEW_NAME_FILE} ${VCF_DELS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_dels.vcf --threads 12
+bcftools reheader -s ${NEW_NAME_FILE} ${VCF_LARGE_SVS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_large_svs.vcf --threads 12
+bcftools reheader -s ${NEW_NAME_FILE} ${VCF_PHASED} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_phased_variants.vcf --threads 12
