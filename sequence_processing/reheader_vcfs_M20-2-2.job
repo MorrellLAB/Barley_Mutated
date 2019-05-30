@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l mem=12gb,nodes=1:ppn=12,walltime=02:00:00
+#PBS -l mem=12gb,nodes=1:ppn=12,walltime=00:10:00
 #PBS -m abe
 #PBS -M liux1299@umn.edu
 #PBS -q mesabi
@@ -21,6 +21,6 @@ OUT_DIR=/home/morrellp/liux1299/Shared/Projects/Mutant_Barley/longranger/M20-2-2
 
 SAMPLE_PREFIX=$(basename ${VCF_DELS} _dels.vcf.gz)
 
-bcftools reheader -s ${NEW_NAME_FILE} ${VCF_DELS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_dels.vcf --threads 12
-bcftools reheader -s ${NEW_NAME_FILE} ${VCF_LARGE_SVS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_large_svs.vcf --threads 12
-bcftools reheader -s ${NEW_NAME_FILE} ${VCF_PHASED} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_phased_variants.vcf --threads 12
+bcftools reheader -s ${NEW_NAME_FILE} ${VCF_DELS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_dels.vcf.gz --threads 12
+bcftools reheader -s ${NEW_NAME_FILE} ${VCF_LARGE_SVS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_large_svs.vcf.gz --threads 12
+bcftools reheader -s ${NEW_NAME_FILE} ${VCF_PHASED} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_phased_variants.vcf.gz --threads 12
