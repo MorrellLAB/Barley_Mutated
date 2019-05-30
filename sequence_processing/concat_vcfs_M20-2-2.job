@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l mem=22gb,nodes=1:ppn=12,walltime=02:00:00
+#PBS -l mem=8gb,nodes=1:ppn=8,walltime=00:30:00
 #PBS -m abe
 #PBS -M liux1299@umn.edu
 #PBS -q mesabi
@@ -11,10 +11,10 @@ set -o pipefail
 module load bcftools/1.9
 
 # User provided input arguments
-VCF_DELS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_dels.vcf.gz
-VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_large_svs.vcf.gz
-VCF_PHASED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_phased_variants.vcf.gz
-OUT_DIR=/home/morrellp/liux1299/scratch/temp_mutated
+VCF_DELS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_dels.vcf.gz
+VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_large_svs.vcf.gz
+VCF_PHASED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_phased_variants.vcf.gz
+OUT_DIR=/home/morrellp/liux1299/Shared/Projects/Mutant_Barley/longranger/M20-2-2-self5
 
 SAMPLE_PREFIX=$(basename ${VCF_DELS} _dels.vcf.gz)
 
