@@ -6,20 +6,20 @@
 
 #   Where are we storing the output files?
 #       Final directory is ${OUT_DIR}/Name_of_Handler
-OUT_DIR=
+OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/morex_10x
 
 #   Name this project
-PROJECT=
+PROJECT=morex_10x
 
 #   What email should we use for job notifications?
-EMAIL=
+EMAIL=liux1299@umn.edu
 
 #   What encoding is used for quality values?
 #       Look at the FastQC files to determine the sequence encoding.
 #       Choose from: 'sanger', 'illumina', 'solexa', or 'phred'
 #           Illumina 1.8+ and Oxford Nanopore use 'sanger' encoding.
 #
-QUAL_ENCODING=
+QUAL_ENCODING=sanger
 
 #   Sequencing platform technology
 #       What platform were the reads produced?
@@ -27,7 +27,7 @@ QUAL_ENCODING=
 #           CAPILLARY, LS454, ILLUMINA,
 #           SOLID, HELICOS, IONTORRENT,
 #           ONT, and PACBIO
-SEQ_PLATFORM=
+SEQ_PLATFORM=ILLUMINA
 
 #   What reference genome are we using?
 #       Include the full physical file path.
@@ -35,15 +35,15 @@ REF_GEN=
 
 #   Is this organism barley?
 #       Choose from: "true" or "false"
-BARLEY=
+BARLEY=true
 
 #   Are you running the analysis on the Minnesota Supercomputing Institute (MSI)?
 #       Choose from: "true" or "false"
-MSI=
+MSI=true
 
 #   Are you submitting the job with qsub from PBS (Portable Batch System)
 #       Choose from: "true" or "false"
-USE_PBS=
+USE_PBS=true
 
 #   Do the quality scores need to be adjusted for GATK? Default: false
 #       Change to true if you get errors from GATK like:
@@ -86,12 +86,13 @@ QA_QSUB="mem=1gb,nodes=1:ppn=4,walltime=6:00:00"
 
 #   Provide a list of FastQ, SAM, or BAM files to be used
 #       Include the full file path.
-QA_SAMPLES=
+# Raw 10x fastqs
+QA_SAMPLES=/panfs/roc/groups/9/morrellp/shared/Datasets/10x_Genomics/Barley/Morex/morex_10x_fastq_list.txt
 
 #   What is the size of the genome in basepairs (for whole-genome sequencing)
 #   or capture region (for exome capture)?
 #   If unavailable, put "NA"
-TARGET=
+TARGET="NA"
 
 ############################################
 ##########    Adapter_Trimming    ##########
