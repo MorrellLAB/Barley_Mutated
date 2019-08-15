@@ -82,7 +82,7 @@ FILE_TYPE=
 
 #   What are our QSub settings for Quality_Assessment?
 #       Below are the recommended settings
-QA_QSUB="mem=1gb,nodes=1:ppn=4,walltime=6:00:00"
+QA_QSUB="mem=22gb,nodes=1:ppn=8,walltime=12:00:00"
 
 #   Provide a list of FastQ, SAM, or BAM files to be used
 #       Include the full file path.
