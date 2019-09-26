@@ -14,13 +14,19 @@ module load bcftools/1.9
 
 # User provided input arguments
 VCF_DELS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_dels.vcf.gz
-VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_large_svs.vcf.gz
+VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_large_svs_no_ref_mismatch.recode.vcf
 VCF_PHASED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_phased_variants.vcf.gz
 NEW_NAME_FILE=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_new_sample_names.txt
 OUT_DIR=/home/morrellp/liux1299/Shared/Projects/Mutant_Barley/longranger/M01-3-3-self5
 
 SAMPLE_PREFIX=$(basename ${VCF_DELS} _dels.vcf.gz)
 
+# Reheader
 bcftools reheader -s ${NEW_NAME_FILE} ${VCF_DELS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_dels.vcf.gz --threads 12
 bcftools reheader -s ${NEW_NAME_FILE} ${VCF_LARGE_SVS} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_large_svs.vcf.gz --threads 12
 bcftools reheader -s ${NEW_NAME_FILE} ${VCF_PHASED} -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_phased_variants.vcf.gz --threads 12
+
+# Index renamed files
+bcftools index ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_dels.vcf.gz -t -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_dels.vcf.gz.tbi
+bcftools index ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_large_svs.vcf.gz -t -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_large_svs.vcf.gz.tbi
+bcftools index ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_phased_variants.vcf.gz -t -o ${OUT_DIR}/${SAMPLE_PREFIX}_new_samp_name_phased_variants.vcf.gz.tbi
