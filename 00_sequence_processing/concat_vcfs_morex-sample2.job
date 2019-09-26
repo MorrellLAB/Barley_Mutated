@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l mem=22gb,nodes=1:ppn=12,walltime=02:00:00
+#PBS -l mem=8gb,nodes=1:ppn=8,walltime=00:30:00
 #PBS -m abe
 #PBS -M liux1299@umn.edu
 #PBS -q mesabi
@@ -12,10 +12,14 @@ module load bcftools/1.9
 
 # User provided input arguments
 VCF_DELS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2/morex-sample2_dels.vcf.gz
-VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2/morex-sample2_large_svs.vcf.gz
+VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2/morex-sample2_large_svs_no_ref_mismatch.recode.vcf.gz
 VCF_PHASED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2/morex-sample2_phased_variants.vcf.gz
-OUT_DIR=/home/morrellp/liux1299/scratch/temp_mutated
+OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2
 
 SAMPLE_PREFIX=$(basename ${VCF_DELS} _dels.vcf.gz)
 
+# Concatenate VCF files
 bcftools concat -a ${VCF_DELS} ${VCF_LARGE_SVS} ${VCF_PHASED} -o ${OUT_DIR}/${SAMPLE_PREFIX}_concat.vcf.gz -O z
+
+# Index concatenated files
+bcftools index ${OUT_DIR}/${SAMPLE_PREFIX}_concat.vcf.gz -t -o ${OUT_DIR}/${SAMPLE_PREFIX}_concat.vcf.gz.tbi

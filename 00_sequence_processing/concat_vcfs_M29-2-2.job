@@ -18,4 +18,8 @@ OUT_DIR=/home/morrellp/liux1299/Shared/Projects/Mutant_Barley/longranger/M29-2-2
 
 SAMPLE_PREFIX=$(basename ${VCF_DELS} _dels.vcf.gz)
 
+# Concatenate VCF files
 bcftools concat -a ${VCF_DELS} ${VCF_LARGE_SVS} ${VCF_PHASED} -o ${OUT_DIR}/${SAMPLE_PREFIX}_concat.vcf.gz -O z
+
+# Index concatenated files
+bcftools index ${OUT_DIR}/${SAMPLE_PREFIX}_concat.vcf.gz -t -o ${OUT_DIR}/${SAMPLE_PREFIX}_concat.vcf.gz.tbi
