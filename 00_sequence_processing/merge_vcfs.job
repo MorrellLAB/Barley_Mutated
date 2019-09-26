@@ -18,4 +18,8 @@ VCF3=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M29-2
 OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/processing
 PREFIX="mutated_barley_M01_M20_M29"
 
+# Check if out dir exists, if not make it
+mkdir -p ${OUT_DIR}
+
+# Merge VCF files
 bcftools merge ${VCF1} ${VCF2} ${VCF3} -o ${OUT_DIR}/${PREFIX}_merged.vcf.gz -O z --threads 12
