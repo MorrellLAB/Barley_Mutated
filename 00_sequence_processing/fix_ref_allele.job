@@ -17,8 +17,9 @@ OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/c
 VCF=$(cat ${VCF_LIST} | sed "${PBS_ARRAYID}q;d")
 NAME=$(basename ${VCF} .vcf.gz)
 
+# Warn, exclude, and set/fix when incorrect or missing REF allele
 bcftools norm \
-    -c wxs \ # warn, exclude, and set/fix when incorrect or missing REF allele
+    -c wxs \
     -f ${REF} \
     -o ${OUT_DIR}/${NAME}_fixRef.vcf.gz \
     -O z \
