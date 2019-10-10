@@ -4,6 +4,9 @@
 #PBS -M liux1299@umn.edu
 #PBS -q mesabi
 
+set -e
+set -o pipefail
+
 module load bcftools/1.9
 module load htslib/1.9
 
