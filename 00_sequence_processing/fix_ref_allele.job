@@ -1,0 +1,32 @@
+#!/bin/bash
+#PBS -l mem=16gb,nodes=1:ppn=12,walltime=02:00:00
+#PBS -m abe
+#PBS -M liux1299@umn.edu
+#PBS -q mesabi
+
+module load bcftools/1.9
+module load htslib/1.9
+
+# Checks and corrects REF alleles using job arrays.
+
+# User provided arguments
+VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated/morex_and_mutated_vcf_list.txt"
+REF="/home/morrellp/liux1299/Shared/References/Reference_Sequences/Barley/Morex/barley_RefSeq_v1.0/barley_pseudomolecules_parts.fa"
+OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated"
+
+VCF=$(cat ${VCF_LIST} | sed "${PBS_ARRAYID}q;d")
+NAME=$(basename ${VCF} .vcf.gz)
+
+bcftools norm \
+    -c wxs \ # warn, exclude, and set/fix when incorrect or missing REF allele
+    -f ${REF} \
+    -o ${OUT_DIR}/${NAME}_fixRef.vcf.gz \
+    -O z \
+    ${VCF} \
+    >& ${OUT_DIR}/ref_check_warn_${NAME}.log
+
+# Index vcf files
+bcftools index \
+    ${OUT_DIR}/${NAME}_fixRef.vcf.gz \
+    -t \
+    -o ${OUT_DIR}/${NAME}_fixRef.vcf.gz.tbi
