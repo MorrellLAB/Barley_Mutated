@@ -27,7 +27,7 @@ bcftools norm \
     -o ${OUT_DIR}/${NAME}_fixRef.vcf.gz \
     -O z \
     ${VCF} \
-    >& ${OUT_DIR}/ref_check_warn_${NAME}.log
+    >& ${OUT_DIR}/ref_check_excluded_${NAME}.log
 
 # Index vcf files
 bcftools index \
