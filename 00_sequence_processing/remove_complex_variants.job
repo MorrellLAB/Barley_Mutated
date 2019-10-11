@@ -17,6 +17,7 @@ module load htslib/1.9
 VCF1="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_new_samp_name_phased_variants_fixRef.vcf.gz"
 VCF2="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_phased_variants_fixRef.vcf.gz"
 VCF3="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M29-2-2-self5/M29-2-2_new_samp_name_phased_variants_fixRef.vcf.gz"
+VCF4="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2/morex-sample2_phased_variants_fixRef.vcf.gz"
 
 function RemoveComplexVar() {
     local vcf="$1"
@@ -50,3 +51,4 @@ export -f RemoveComplexVar
 RemoveComplexVar ${VCF1}
 RemoveComplexVar ${VCF2}
 RemoveComplexVar ${VCF3}
+RemoveComplexVar ${VCF4}
