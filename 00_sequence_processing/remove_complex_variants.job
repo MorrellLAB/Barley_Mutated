@@ -1,0 +1,52 @@
+#!/bin/bash
+#PBS -l mem=16gb,nodes=1:ppn=12,walltime=02:00:00
+#PBS -m abe
+#PBS -M liux1299@umn.edu
+#PBS -q mesabi
+
+set -e
+set -o pipefail
+
+module load bcftools/1.9
+module load htslib/1.9
+
+# Removes complex variants (>=3 in length) in REF and ALT alleles columns
+
+# User provided arguments
+# Use full filepaths
+VCF1="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_new_samp_name_phased_variants_fixRef.vcf.gz"
+VCF2="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_phased_variants_fixRef.vcf.gz"
+VCF3="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M29-2-2-self5/M29-2-2_new_samp_name_phased_variants_fixRef.vcf.gz"
+
+function RemoveComplexVar() {
+    local vcf="$1"
+    out_dir=$(dirname ${vcf})
+    file_name=$(basename ${vcf} .vcf.gz)
+    accession=$(basename ${vcf} _new_samp_name_phased_variants_fixRef.vcf.gz)
+    # Keep a record of complex variants we removed
+    bcftools filter \
+        -i 'STRLEN(REF) > 2 && STRLEN(ALT) > 2' \
+        -o ${out_dir}/removed_complex_variants_${accession}.vcf \
+        -O v \
+        ${vcf}
+    # Create a VCF that excludes the complex variants
+    # We want to keep SNDs: STRLEN(REF) == 2 && STRLEN(ALT) == 1
+    # and keep SNIs: STRLEN(REF) == 1 && STRLEN(ALT) == 2
+    bcftools filter \
+        -e 'STRLEN(REF) > 2 && STRLEN(ALT) > 2' \
+        -o ${out_dir}/${file_name}_noComplex.vcf.gz \
+        -O z \
+        ${vcf}
+    # Index the vcf file
+    bcftools index \
+        ${out_dir}/${file_name}_noComplex.vcf.gz \
+        -t \
+        -o ${out_dir}/${file_name}_noComplex.vcf.gz.tbi
+}
+
+export -f RemoveComplexVar
+
+# Run function on each VCF file
+RemoveComplexVar ${VCF1}
+RemoveComplexVar ${VCF2}
+RemoveComplexVar ${VCF3}
