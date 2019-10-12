@@ -16,7 +16,7 @@ VCF1=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3
 VCF2=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_concat.vcf.gz
 VCF3=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M29-2-2-self5/M29-2-2_new_samp_name_concat.vcf.gz
 OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated
-PREFIX="mutated_merged"
+PREFIX="mutated_3_lines"
 
 # Check if out dir exists, if not make it
 mkdir -p ${OUT_DIR}
