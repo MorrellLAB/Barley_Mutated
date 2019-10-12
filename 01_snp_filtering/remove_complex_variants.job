@@ -8,7 +8,6 @@ set -e
 set -o pipefail
 
 module load bcftools/1.9
-module load htslib/1.9
 
 # Removes complex variants (>=3 in length) in REF and ALT alleles columns
 

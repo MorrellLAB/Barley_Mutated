@@ -8,7 +8,6 @@ set -e
 set -o pipefail
 
 module load bcftools/1.9
-module load htslib/1.9
 
 # Checks and corrects REF alleles using job arrays.
 
