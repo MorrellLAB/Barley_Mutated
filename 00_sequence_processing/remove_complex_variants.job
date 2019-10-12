@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l mem=16gb,nodes=1:ppn=12,walltime=02:00:00
+#PBS -l mem=16gb,nodes=1:ppn=12,walltime=01:00:00
 #PBS -m abe
 #PBS -M liux1299@umn.edu
 #PBS -q mesabi
@@ -13,11 +13,10 @@ module load htslib/1.9
 # Removes complex variants (>=3 in length) in REF and ALT alleles columns
 
 # User provided arguments
-# Use full filepaths
-VCF1="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5/M01-3-3_new_samp_name_phased_variants_fixRef.vcf.gz"
-VCF2="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_phased_variants_fixRef.vcf.gz"
-VCF3="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M29-2-2-self5/M29-2-2_new_samp_name_phased_variants_fixRef.vcf.gz"
-VCF4="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2/morex-sample2_phased_variants_fixRef.vcf.gz"
+# List of full filepaths to VCF files
+VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated/phased_variants_fixRef_vcf_list.txt"
+
+VCF=$(cat "${VCF_LIST}" | sed "${PBS_ARRAYID}q;d")
 
 function RemoveComplexVar() {
     local vcf="$1"
@@ -26,7 +25,7 @@ function RemoveComplexVar() {
     accession=$(basename ${vcf} _new_samp_name_phased_variants_fixRef.vcf.gz)
     # Keep a record of complex variants we removed
     bcftools filter \
-        -i 'STRLEN(REF) > 2 && STRLEN(ALT) > 2' \
+        -i 'STRLEN(REF) > 2 | STRLEN(ALT) > 2' \
         -o ${out_dir}/removed_complex_variants_${accession}.vcf \
         -O v \
         ${vcf}
@@ -34,7 +33,7 @@ function RemoveComplexVar() {
     # We want to keep SNDs: STRLEN(REF) == 2 && STRLEN(ALT) == 1
     # and keep SNIs: STRLEN(REF) == 1 && STRLEN(ALT) == 2
     bcftools filter \
-        -e 'STRLEN(REF) > 2 && STRLEN(ALT) > 2' \
+        -e 'STRLEN(REF) > 2 | STRLEN(ALT) > 2' \
         -o ${out_dir}/${file_name}_noComplex.vcf.gz \
         -O z \
         ${vcf}
@@ -48,7 +47,4 @@ function RemoveComplexVar() {
 export -f RemoveComplexVar
 
 # Run function on each VCF file
-RemoveComplexVar ${VCF1}
-RemoveComplexVar ${VCF2}
-RemoveComplexVar ${VCF3}
-RemoveComplexVar ${VCF4}
+RemoveComplexVar ${VCF}
