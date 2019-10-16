@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l mem=12gb,nodes=1:ppn=8,walltime=03:00:00
+#PBS -l mem=12gb,nodes=1:ppn=8,walltime=00:20:00
 #PBS -m abe
 #PBS -M liux1299@umn.edu
 #PBS -q lab
@@ -9,35 +9,33 @@ set -o pipefail
 
 # Dependencies
 module load bcftools/1.9
+module load parallel
 
 # User provided input arguments
 # List of VCF files to merge
-VCF1_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5
-VCF2_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5
-VCF3_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M29-2-2-self5
-OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated
+VCF_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated/mut_phased_noComplex_vcf_list.txt
+# VCF1_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M01-3-3-self5
+# VCF2_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5
+# VCF3_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M29-2-2-self5
 PREFIX=test_mutated_3_lines
 
-# VCF1
-cd ${VCF1_DIR}
-bcftools filter -T ^more_problem_positions.txt -o M01-3-3_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz -O z M01-3-3_new_samp_name_phased_variants_fixRef_noComplex.vcf.gz
-bcftools index M01-3-3_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz -t -o M01-3-3_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz.tbi
+VCF_ARR=($(cat ${VCF_LIST}))
 
-# VCF2
-cd ${VCF2_DIR}
-bcftools filter -T ^more_problem_positions.txt -o M20-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz -O z M20-2-2_new_samp_name_phased_variants_fixRef_noComplex.vcf.gz
-bcftools index M20-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz -t -o M20-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz.tbi
+function filter_problem_sites() {
+    local vcf=$1
+    local out_dir=$(dirname ${vcf})
+    name=$(basename ${vcf} .vcf.gz)
+    bcftools filter -T ^${out_dir}/more_problem_positions.txt \
+        -o ${out_dir}/${name}_f1.vcf.gz \
+        -O z \
+        ${vcf}
 
-# VCF3
-cd ${VCF3_DIR}
-bcftools filter -T ^more_problem_positions.txt -o M29-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz -O z M29-2-2_new_samp_name_phased_variants_fixRef_noComplex.vcf.gz
-bcftools index M29-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz -t -o M29-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz.tbi
+    # Index samples
+    bcftools index ${out_dir}/${name}_f1.vcf.gz \
+        -t \
+        -o ${out_dir}/${name}_f1.vcf.gz.tbi
+}
 
-# Test merge phased variants VCF files
-bcftools merge ${VCF1_DIR}/M01-3-3_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz \
-    ${VCF2_DIR}/M20-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz \
-    ${VCF3_DIR}/M29-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz \
-    -o ${OUT_DIR}/${PREFIX}_merged.vcf -O v --threads 8
+export -f filter_problem_sites
 
-# Index concatenated files
-bcftools index ${OUT_DIR}/${PREFIX}_merged.vcf -t -o ${OUT_DIR}/${PREFIX}_merged.vcf.tbi
+parallel filter_problem_sites {} ::: ${VCF_ARR[@]}
