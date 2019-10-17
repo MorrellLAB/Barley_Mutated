@@ -1,0 +1,37 @@
+#!/bin/bash
+#PBS -l mem=12gb,nodes=1:ppn=8,walltime=00:20:00
+#PBS -m abe
+#PBS -M liux1299@umn.edu
+#PBS -q lab
+
+set -e
+set -o pipefail
+
+# Dependencies
+module load bcftools/1.9
+module load parallel
+
+# User provided input arguments
+# List of VCF files to merge
+VCF_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated/mut_largeSVs_noRefMismatch_vcf_list.txt
+
+VCF_ARR=($(cat ${VCF_LIST}))
+
+function filter_problem_sites() {
+    local vcf=$1
+    local out_dir=$(dirname ${vcf})
+    name=$(basename ${vcf} .vcf.gz)
+    bcftools filter -T ^${out_dir}/ref_prefix_differs_positions.txt \
+        -o ${out_dir}/${name}_f1.vcf.gz \
+        -O z \
+        ${vcf}
+
+    # Index samples
+    bcftools index ${out_dir}/${name}_f1.vcf.gz \
+        -t \
+        -o ${out_dir}/${name}_f1.vcf.gz.tbi
+}
+
+export -f filter_problem_sites
+
+parallel filter_problem_sites {} ::: ${VCF_ARR[@]}
