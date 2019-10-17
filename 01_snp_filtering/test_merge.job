@@ -23,6 +23,3 @@ bcftools merge ${VCF1_DIR}/M01-3-3_new_samp_name_phased_variants_fixRef_noComple
     ${VCF2_DIR}/M20-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz \
     ${VCF3_DIR}/M29-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz \
     -o ${OUT_DIR}/${PREFIX}_merged.vcf -O v --threads 8
-
-# Index concatenated files
-bcftools index ${OUT_DIR}/${PREFIX}_merged.vcf -t -o ${OUT_DIR}/${PREFIX}_merged.vcf.tbi
