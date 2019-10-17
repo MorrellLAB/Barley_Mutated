@@ -16,7 +16,8 @@ VCF1_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M
 VCF2_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5
 VCF3_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M29-2-2-self5
 OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated
-PREFIX=test_mutated_3_lines
+#PREFIX=test_mutated_3_lines_large_svs
+PREFIX=test_mutated_3_lines_dels
 
 # Test merge phased variants VCF files
 # phased variants
@@ -30,3 +31,9 @@ bcftools merge ${VCF1_DIR}/M01-3-3_new_samp_name_large_svs_noRefMismatch_f1.vcf.
     ${VCF2_DIR}/M20-2-2_new_samp_name_large_svs_noRefMismatch_f1.vcf.gz \
     ${VCF3_DIR}/M29-2-2_new_samp_name_large_svs_noRefMismatch_f1.vcf.gz \
     -o ${OUT_DIR}/${PREFIX}_merged.vcf -O v --threads 8
+
+# dels
+bcftools merge ${VCF1_DIR}/M01-3-3_new_samp_name_dels.vcf.gz \
+    ${VCF2_DIR}/M20-2-2_new_samp_name_dels.vcf.gz \
+    ${VCF3_DIR}/M29-2-2_new_samp_name_dels.vcf.gz \
+    -o ${OUT_DIR}/${PREFIX}_merged.vcf -O v
