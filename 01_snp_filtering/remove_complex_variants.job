@@ -13,7 +13,7 @@ module load bcftools/1.9
 
 # User provided arguments
 # List of full filepaths to VCF files
-VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated/phased_variants_fixRef_vcf_list.txt"
+VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/phased_var_mut_vcf_list.txt"
 
 VCF=$(cat "${VCF_LIST}" | sed "${PBS_ARRAYID}q;d")
 
@@ -21,7 +21,7 @@ function RemoveComplexVar() {
     local vcf="$1"
     out_dir=$(dirname ${vcf})
     file_name=$(basename ${vcf} .vcf.gz)
-    accession=$(basename ${vcf} _new_samp_name_phased_variants_fixRef.vcf.gz)
+    accession=$(basename ${vcf} _phased_variants.vcf.gz)
     # Keep a record of complex variants we removed
     bcftools filter \
         -i '(STRLEN(REF) >= 2 & STRLEN(ALT) >= 2) | (STRLEN(REF) > 2 | STRLEN(ALT) > 2)' \
