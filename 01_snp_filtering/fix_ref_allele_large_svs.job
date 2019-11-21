@@ -14,10 +14,10 @@ module load bcftools/1.9
 # User provided arguments
 # IMPORTANT: Make sure vcf list and log list are sorted in the same order
 # List of large_svs vcfs
-VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated/largeSVs_vcf_list.txt"
+VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/largeSVs_mutated_vcf_list.txt"
 # List of log files containing REF_MISMATCH identifiers
 # See CL notes for how log files were created
-LOG_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/combined_mutated/largeSVs_targets_log_list.txt"
+LOG_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/largeSVs_targets_log_list.txt"
 
 VCF=$(cat ${VCF_LIST} | sed "${PBS_ARRAYID}q;d")
 TARGETS=$(cat ${LOG_LIST} | sed "${PBS_ARRAYID}q;d")
