@@ -17,7 +17,7 @@ module load bcftools/1.9
 VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/largeSVs_mut_vcf_list.txt"
 # List of log files containing REF_MISMATCH identifiers
 # See CL README on Github for how log files were created, these files should be named something
-# like: ref_mismatch_M01-3-3_large_svs_targets.txt
+# like: temp_ref_check_warn_M01-3-3_large_svs.log
 LOG_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/largeSVs_mut_ref_mismatch_targets_list.txt"
 
 VCF=$(cat ${VCF_LIST} | sed "${PBS_ARRAYID}q;d")
