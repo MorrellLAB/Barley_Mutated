@@ -23,7 +23,7 @@ LOG_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_
 VCF=$(cat ${VCF_LIST} | sed "${PBS_ARRAYID}q;d")
 TARGETS=$(cat ${LOG_LIST} | sed "${PBS_ARRAYID}q;d")
 FILE_NAME=$(basename ${VCF} .vcf.gz)
-SAMPLE_NAME=$(basename ${VCF} _new_samp_name_large_svs.vcf.gz)
+SAMPLE_NAME=$(basename ${VCF} _large_svs.vcf.gz)
 OUT_DIR=$(dirname ${VCF})
 
 # Create targets file of REF_MISMATCH from log files
