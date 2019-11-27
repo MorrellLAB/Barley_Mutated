@@ -2,7 +2,7 @@
 #PBS -l mem=8gb,nodes=1:ppn=8,walltime=00:30:00
 #PBS -m abe
 #PBS -M liux1299@umn.edu
-#PBS -q lab
+#PBS -q mesabi
 
 set -e
 set -o pipefail
@@ -11,9 +11,9 @@ set -o pipefail
 module load bcftools/1.9
 
 # User provided input arguments
-VCF_DELS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_dels.vcf.gz
-VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_large_svs_noRefMismatch_f1.vcf.gz
-VCF_PHASED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/M20-2-2-self5/M20-2-2_new_samp_name_phased_variants_fixRef_noComplex_f1.vcf.gz
+VCF_DELS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/M20-2-2/M20-2-2_dels.vcf.gz
+VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/M20-2-2/M20-2-2_large_svs_noRefMismatch.vcf.gz
+VCF_PHASED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/M20-2-2/M20-2-2_phased_variants_noComplex_filt.vcf.gz
 
 SAMPLE_PREFIX=$(basename ${VCF_DELS} _dels.vcf.gz)
 OUT_DIR=$(dirname ${VCF_DELS})
