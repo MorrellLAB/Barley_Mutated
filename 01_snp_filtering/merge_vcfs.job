@@ -22,7 +22,7 @@ PREFIX="mut_3_lines"
 mkdir -p ${OUT_DIR}
 
 # Merge VCF files
-bcftools merge ${VCF1} ${VCF2} ${VCF3} -o ${OUT_DIR}/${PREFIX}_merged.vcf.gz -O z --threads 12
+bcftools merge ${VCF1} ${VCF2} ${VCF3} -o ${OUT_DIR}/${PREFIX}.vcf.gz -O z --threads 12
 
 # Index concatenated files
-bcftools index ${OUT_DIR}/${PREFIX}_merged.vcf.gz -t -o ${OUT_DIR}/${PREFIX}_merged.vcf.gz.tbi
+bcftools index ${OUT_DIR}/${PREFIX}_merged.vcf.gz -t -o ${OUT_DIR}/${PREFIX}.vcf.gz.tbi
