@@ -11,9 +11,9 @@ set -o pipefail
 module load bcftools/1.9
 
 # User provided input arguments
-VCF_DELS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2/morex-sample2_dels.vcf.gz
-VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2/morex-sample2_large_svs_noRefMismatch.vcf.gz
-VCF_PHASED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger/morex-sample2/morex-sample2_phased_variants_fixRef_noComplex.vcf.gz
+VCF_DELS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/morex-sample2_dels.vcf.gz
+VCF_LARGE_SVS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/morex-sample2_large_svs_noRefMismatch.vcf.gz
+VCF_PHASED=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/morex-sample2_phased_variants_noComplex.vcf.gz
 
 SAMPLE_PREFIX=$(basename ${VCF_DELS} _dels.vcf.gz)
 OUT_DIR=$(dirname ${VCF_DELS})
