@@ -10,11 +10,6 @@ This script outputs files in the same directory as the [VCF_to_update] file.
 Usage: ./port_over_positions.py [BOPA_VCF] [9k_VCF] [VCF_to_update]
 """
 
-# Filepaths for testing
-# VCF_BOPA = "/Users/chaochih/Dropbox/GitHub/morex_reference/morex_v2/50k_9k_BOPA_SNP/BOPA_morex_v2_idt95_sorted.vcf"
-# VCF_9K = "/Users/chaochih/Dropbox/GitHub/morex_reference/morex_v2/50k_9k_BOPA_SNP/9k_morex_v2_idt90_sorted.vcf"
-# VCF_TO_UPDATE = "/Users/chaochih/Dropbox/Projects/Barley_Mutated/notes/potential_crossing_parents/T3_info/download_HWVH/t3_genotype_388_lines.vcf"
-
 import os
 import sys
 import gzip
