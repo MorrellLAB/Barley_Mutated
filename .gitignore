@@ -1,3 +1,4 @@
 # Ignore tracking error files
 *error_files
 *DS_Store
+*scratch
