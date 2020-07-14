@@ -8,6 +8,7 @@ set -o pipefail
 
 # Dependencies
 module load bcftools/1.9
+module load bedops_ML/2.4.38
 
 # User provided input arguments
 RAW_VCF=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/morex-sample2_concat_sorted.vcf
@@ -26,6 +27,8 @@ bcftools filter -e 'FILTER=="10X_QUAL_FILTER" || FILTER=="10X_ALLELE_FRACTION_FI
 bcftools filter -e 'INFO/DP < 5' ${OUT_DIR}/${PREFIX}_filtered_pass1.vcf > ${OUT_DIR}/${PREFIX}_filtered_pass2.vcf
 
 # Third pass filtering
-# Filter out sites that are homozygous reference
-# We want to identify sites that are differences from reference
+# Remove sites that are homozygous reference, we want to identify sites that are differences from reference
 bcftools view -e 'GT[*]="RR"' ${OUT_DIR}/${PREFIX}_filtered_pass2.vcf > ${OUT_DIR}/${PREFIX}_diffs_from_ref.vcf
+
+# Convert diffs from ref VCF to BED using bedops tool
+vcf2bed < ${OUT_DIR}/${PREFIX}_diffs_from_ref.vcf | cut -f 1,2,3 > ${OUT_DIR}/${PREFIX}_diffs_from_ref.bed
