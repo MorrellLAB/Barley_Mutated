@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 
-# Filter VCF file and identify differences between 10x Morex and Morex reference
+# Filter 10x Genomics VCF file (includes SNPs, dels, and SVs) and identify differences between 10x Morex and Morex reference
 #   This script outputs a VCF with differences from reference
 
 # Dependencies
