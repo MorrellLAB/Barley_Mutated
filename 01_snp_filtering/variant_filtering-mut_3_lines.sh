@@ -7,11 +7,20 @@ set -o pipefail
 
 # Dependencies
 module load bcftools/1.9
+module load bedtools/2.29.2
+module load vcftools_ML/0.1.16
+# Required for vcf-annotate that is part of vcftools
+export PERL5LIB=$PERL5LIB:/panfs/roc/groups/9/morrellp/public/Software/vcftools_ML-0.1.16/share/perl5
 
 # User provided input arguments
 RAW_VCF=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/combined_mutated/mut_3_lines_sorted.vcf
+# Full filepath to output directory
 OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/combined_mutated/Filtered
+# Output file prefix
 PREFIX=mut_3_lines
+# BED file containing sites that differ between 10x Morex and Morex reference
+BED_EXCLUSION_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/Filtered/morex-sample2_diffs_from_ref.bed
+VCFTOOLS_CUSTOM_FILTER=~/GitHub/Barley_Mutated/01_snp_filtering/filters.txt
 
 # Check if out dir exists, if not make it
 mkdir -p ${OUT_DIR}
@@ -24,6 +33,16 @@ bcftools filter -e 'FILTER=="10X_QUAL_FILTER" || FILTER=="10X_ALLELE_FRACTION_FI
 # Filter out sites with DP < 5
 bcftools filter -e 'INFO/DP < 5' ${OUT_DIR}/${PREFIX}_filtered_pass1.vcf > ${OUT_DIR}/${PREFIX}_filtered_pass2.vcf
 
-# Third pass
-# Filter out sites with greater than 25% missing entries
-bcftools filter -e 'F_PASS(GT="mis") > 0.25' ${OUT_DIR}/${PREFIX}_filtered_pass2.vcf > ${OUT_DIR}/${PREFIX}_filtered_pass3.vcf
+# Exclude sites that differ between 10x Morex and Morex reference
+# Prepare header line first since bedtools doesn't preserve the header line
+grep "#" ${OUT_DIR}/${PREFIX}_filtered_pass2.vcf > ${OUT_DIR}/${PREFIX}_filtered_no_morex_diffs.vcf
+bedtools intersect -v -a ${OUT_DIR}/${PREFIX}_filtered_pass2.vcf -b ${BED_EXCLUSION_LIST} >> ${OUT_DIR}/${PREFIX}_filtered_no_morex_diffs.vcf
+
+# Exclude non-unique variants (i.e., variants that are present in more than 1 of the mutated lines)
+cat ${OUT_DIR}/${PREFIX}_filtered_no_morex_diffs.vcf | vcf-annotate -f ${VCFTOOLS_CUSTOM_FILTER} > ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf
+# Create a file containing only singletons
+grep "#" ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf > ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf
+grep -v "#" ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf | grep "SINGLETON" >> ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf
+
+# Pull out homozygous sites only
+bcftools view -i 'GT[*]="hom"' ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf > ${OUT_DIR}/${PREFIX}_filtered_hom_singletons_only.vcf

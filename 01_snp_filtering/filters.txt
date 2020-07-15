@@ -1,0 +1,27 @@
+# Examples of user-defined filters. Edit and run with -f filters.txt when calling vcf-annotate.
+# The examples below are self-explanatory. Notice the use of the predefined
+#  variables ($PASS, $FAIL, $MATCH, $RECORD) and methods (error).
+
+# Annotate INFO field with SINGLETON flag when one and only one sample is different from the reference
+{
+    header   => [
+        qq[key=INFO,ID=SINGLETON,Number=0,Type=Flag,Description="Only one non-ref sample"],
+    ],
+    tag      => 'FORMAT/GT',
+    name     => 'Dummy',
+    desc     => 'Dummy',
+    test     => sub {
+        my $nalt = 0;
+        for my $gt (@$MATCH)
+        {
+            my @gt = $VCF->split_gt($gt);
+            for my $allele (@gt)
+            {
+                if ( $allele ne 0 && $allele ne '.' ) { $nalt++; last; }
+            }
+            if ( $nalt>1 ) { last; }
+        }
+        if ( $nalt==1 ) { $$RECORD[7] = $VCF->add_info_field($$RECORD[7],'SINGLETON'=>''); }
+        return $PASS;
+    },
+},
