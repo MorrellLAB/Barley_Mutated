@@ -4,6 +4,7 @@ set -e
 set -o pipefail
 
 # Filter 10x Genomics VCF file containing 3 mutated lines (includes SNPs, dels, and SVs)
+# Output VCF file containing singletons
 
 # Dependencies
 module load bcftools/1.9
@@ -22,14 +23,15 @@ PREFIX=mut_3_lines
 BED_EXCLUSION_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/Filtered/morex-sample2_diffs_from_ref.bed
 VCFTOOLS_CUSTOM_FILTER=~/GitHub/Barley_Mutated/01_snp_filtering/filters.txt
 
+#----------------------------------------
 # Check if out dir exists, if not make it
 mkdir -p ${OUT_DIR}
 
-# First pass filtering
+# Pass 1 filtering
 # Filter out sites using 10x Genomics custom filters
-bcftools filter -e 'FILTER=="10X_QUAL_FILTER" || FILTER=="10X_ALLELE_FRACTION_FILTER" || FILTER=="10X_HOMOPOLYMER_UNPHASED_INSERTION" || FILTER=="10X_RESCUED_MOLECULE_HIGH_DIVERSITY" || FILTER=="LOWQ"' ${RAW_VCF} > ${OUT_DIR}/${PREFIX}_filtered_pass1.vcf
+bcftools filter -e 'FILTER=="10X_QUAL_FILTER" || FILTER=="10X_ALLELE_FRACTION_FILTER" || FILTER=="10X_PHASING_INCONSISTENT" || FILTER=="10X_HOMOPOLYMER_UNPHASED_INSERTION" || FILTER=="10X_RESCUED_MOLECULE_HIGH_DIVERSITY" || FILTER=="LOWQ"' ${RAW_VCF} > ${OUT_DIR}/${PREFIX}_filtered_pass1.vcf
 
-# Second pass
+# Pass 2
 # Filter out sites with DP < 5
 bcftools filter -e 'INFO/DP < 5' ${OUT_DIR}/${PREFIX}_filtered_pass1.vcf > ${OUT_DIR}/${PREFIX}_filtered_pass2.vcf
 
