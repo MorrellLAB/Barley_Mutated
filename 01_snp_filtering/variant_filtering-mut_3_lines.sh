@@ -43,8 +43,9 @@ bedtools intersect -v -a ${OUT_DIR}/${PREFIX}_filtered_pass2.vcf -b ${BED_EXCLUS
 # Exclude non-unique variants (i.e., variants that are present in more than 1 of the mutated lines)
 cat ${OUT_DIR}/${PREFIX}_filtered_no_morex_diffs.vcf | vcf-annotate -f ${VCFTOOLS_CUSTOM_FILTER} > ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf
 # Create a file containing only singletons
+# and remove chrUn variants
 grep "#" ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf > ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf
-grep -v "#" ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf | grep "SINGLETON" >> ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf
+grep -v "#" ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf | grep -v "chrUn" | grep "SINGLETON" >> ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf
 
 # Pull out homozygous sites only
 bcftools view -i 'GT[*]="hom"' ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf > ${OUT_DIR}/${PREFIX}_filtered_hom_singletons_only.vcf
