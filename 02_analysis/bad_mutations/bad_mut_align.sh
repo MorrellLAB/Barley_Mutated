@@ -38,7 +38,7 @@ MAX_ARRAY_LIMIT=$[${#FASTA_LISTS_ARR[@]} - 1]
 echo "Maximum array limit is ${MAX_ARRAY_LIMIT}."
 
 # Get current FASTA list we are processing
-CURR_FASTA_LIST=${FASTA_ARR[${SLURM_ARRAY_TASK_ID}]}
+CURR_FASTA_LIST=${FASTA_LISTS_ARR[${SLURM_ARRAY_TASK_ID}]}
 # Generate array for current FASTA list we are processing
 CURR_FASTA_ARR=($(cat ${CURR_FASTA_LIST}))
 

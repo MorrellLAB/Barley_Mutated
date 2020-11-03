@@ -6,7 +6,11 @@ Run [BAD_Mutations](https://github.com/MorrellLAB/BAD_Mutations) to predict dele
 
 ```bash
 # In dir: ~/Software/BAD_Mutations
-./BAD_Mutations.py setup -b ~/Shared/Projects/Mutant_Barley/results/bad_mutations/cds_database -t "Hvulgare" -e 0.05 -c ~/Shared/Projects/Mutant_Barley/results/bad_mutations/config.txt
+./BAD_Mutations.py setup \
+    -b ~/Shared/Projects/Mutant_Barley/results/bad_mutations/cds_database \
+    -t "Hvulgare" \
+    -e 0.05 \
+    -c ~/Shared/Projects/Mutant_Barley/results/bad_mutations/config.txt
 ```
 
 #### Step 2: Download CDS files
@@ -20,9 +24,9 @@ This step converts the VeP .txt files to a format that can be included in BAD_Mu
 ```bash
 # In dir: ~/Software/BAD_Mutations
 python ./Supporting/VeP_to_Subs.py \
-       /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/Morex_Mutants-singletons_only_missense.txt.gz \
-       /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/long_substitutions.txt \
-       /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/per-transcript_substitutions
+    /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/Morex_Mutants-singletons_only_missense.txt.gz \
+    /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/long_substitutions.txt \
+    /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/per-transcript_substitutions
 ```
 
 #### Step 4: Generate alignments and trees
