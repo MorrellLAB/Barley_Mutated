@@ -2,4 +2,9 @@
 *error_files
 *DS_Store
 *scratch
+<<<<<<< HEAD
 *.vscode
+=======
+*.vscode
+*sftp.json
+>>>>>>> 693ad1ebff45606877ec5674c076a4ad7a6c87bf

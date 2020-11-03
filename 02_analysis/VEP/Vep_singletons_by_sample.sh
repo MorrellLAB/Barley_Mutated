@@ -19,7 +19,11 @@ REF=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Mo
 # What species are we running?
 SPECIES=hordeum_vulgare
 # Where do we want our output files to go?
+<<<<<<< HEAD
 OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/per_sample-singletons
+=======
+OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/per_sample
+>>>>>>> 693ad1ebff45606877ec5674c076a4ad7a6c87bf
 
 #--------------------------------
 # Check if out dir exists, if not make it
