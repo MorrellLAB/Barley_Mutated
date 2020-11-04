@@ -2,11 +2,11 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=20
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=32gb
-#SBATCH -t 48:00:00
+#SBATCH --mem=22gb
+#SBATCH -t 60:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
-#SBATCH -p small,ram256g
+#SBATCH -p small,ram256g,ram1t,max
 #SBATCH -o %A_%a.out
 #SBATCH -e %A_%a.err
 

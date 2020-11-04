@@ -45,8 +45,8 @@ Now, we will generate the lists and list of lists to parallelize over.
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare
 find $(pwd -P) -name "*.fa" | sort -V > ../align_lists/all_cds_hvulgare_list.txt
-# Generate lists containing 1000 sequence records each file
-split -l 1000 --numeric-suffixes all_cds_hvulgare_list.txt hvulgare_cds_list- --suffix-length=3 --additional-suffix=.txt
+# Generate lists containing 500 sequence records each file
+split -l 500 --numeric-suffixes all_cds_hvulgare_list.txt hvulgare_cds_list- --suffix-length=3 --additional-suffix=.txt
 # Create list of lists
 find $(pwd -P) -name "*list-*.txt" | sort -V > all_cds_hvulgare_list_of_lists.txt
 ```
@@ -54,6 +54,6 @@ find $(pwd -P) -name "*list-*.txt" | sort -V > all_cds_hvulgare_list_of_lists.tx
 Run the alignment.
 
 ```bash
-sbatch --array=0-236 bad_mut_align.sh
+sbatch --array=0-472 bad_mut_align.sh
 ```
 
