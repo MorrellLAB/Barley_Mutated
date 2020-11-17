@@ -28,6 +28,8 @@ CONFIG_FILE=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/b
 OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/MSA_output
 # Full path to the BAD_Mutations.py script
 BAD_MUT_SCRIPT=~/Software/BAD_Mutations/BAD_Mutations.py
+# Full path to where we want to store the log files output from parallel
+LOG_FILE_DIR=${OUT_DIR}/all_log_files
 
 #------------------------------
 # Prepare array for list of lists
@@ -44,9 +46,6 @@ CURR_FASTA_ARR=($(cat ${CURR_FASTA_LIST}))
 # Make subdirectory for current FASTA list we are processing (for easier tracking)
 CURR_LIST_PREFIX=$(basename ${CURR_FASTA_LIST} .txt)
 
-# Set log file directory
-SCRIPT_DIR=$(dirname ${BAD_MUT_SCRIPT})
-LOG_FILE_DIR=${SCRIPT_DIR}/log_files
 # Check if out directories exist, if not make them
 mkdir -p ${OUT_DIR} ${OUT_DIR}/${CURR_LIST_PREFIX} ${LOG_FILE_DIR}
 
