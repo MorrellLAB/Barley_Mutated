@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=20
-#SBATCH --mem=12gb
-#SBATCH -t 12:00:00
+#SBATCH --mem=16gb
+#SBATCH -t 16:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t,max
@@ -71,4 +71,4 @@ export -f bad_mut_align
 # For each fasta list, parallelize across each fasta sequence record (one record per file in this list)
 # Keep job log for parallel processes so upon resubmitting job, parallel can just re-run
 #   samples that don't have an exit status of 0.
-parallel --resume-failed --joblog ${LOG_FILE_DIR}/bad_mut_align.sh.${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.log bad_mut_align ${BAD_MUT_SCRIPT} ${CONFIG_FILE} {} ${OUT_DIR} ${CURR_LIST_PREFIX} ::: ${CURR_FASTA_ARR[@]}
+parallel --resume-failed --joblog ${LOG_FILE_DIR}/bad_mut_align.sh.${SLURM_ARRAY_TASK_ID}.log bad_mut_align ${BAD_MUT_SCRIPT} ${CONFIG_FILE} {} ${OUT_DIR} ${CURR_LIST_PREFIX} ::: ${CURR_FASTA_ARR[@]}
