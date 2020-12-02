@@ -13,13 +13,13 @@ export PATH=$PATH:/panfs/roc/groups/9/morrellp/liux1299/Software/ensembl-vep
 # Note: VeP only works on bgzipped and tabix indexed VCF files
 VCF_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/combined_mutated/Filtered/by_sample/mut_3_lines_hom_singletons_gz_vcf_list.txt
 # Full filepath to GFF file
-GFF=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_gene_annotation_PGSB.all.parts.gff3.gz
+GFF=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/gene_annotation/Barley_Morex_V2_gene_annotation_PGSB.HC.parts.gff3.gz
 # Reference FASTA file
 REF=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta
 # What species are we running?
 SPECIES=hordeum_vulgare
 # Where do we want our output files to go?
-OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/per_sample-hom_singletons
+OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_parts_gff/per_sample-hom_singletons
 
 #--------------------------------
 # Check if out dir exists, if not make it

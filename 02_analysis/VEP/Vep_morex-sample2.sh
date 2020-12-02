@@ -10,9 +10,9 @@ export PATH=$PATH:/panfs/roc/groups/9/morrellp/liux1299/Software/ensembl-vep
 
 # User provided input arguments
 # Note: VeP only works on bgzipped and tabix indexed VCF files
-VCF=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/combined_mutated/Filtered/mut_3_lines_filtered_singletons_only.vcf.gz
+VCF=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/Filtered/morex-sample2_filtered_pass2.vcf.gz
 # Output file prefix
-OUT_PREFIX=Morex_Mutants-singletons_only
+OUT_PREFIX=morex-sample2
 # Full filepath to GFF file
 GFF=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/gene_annotation/Barley_Morex_V2_gene_annotation_PGSB.HC.parts.gff3.gz
 # Reference FASTA file
