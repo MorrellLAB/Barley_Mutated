@@ -31,4 +31,5 @@ bcftools filter -e 'INFO/DP < 5' ${OUT_DIR}/${PREFIX}_filtered_pass1.vcf > ${OUT
 bcftools view -e 'GT[*]="RR"' ${OUT_DIR}/${PREFIX}_filtered_pass2.vcf > ${OUT_DIR}/${PREFIX}_diffs_from_ref.vcf
 
 # Convert diffs from ref VCF to BED using bedops tool
+# This file will be used as an exclusion list
 vcf2bed < ${OUT_DIR}/${PREFIX}_diffs_from_ref.vcf | cut -f 1,2,3 > ${OUT_DIR}/${PREFIX}_diffs_from_ref.bed
