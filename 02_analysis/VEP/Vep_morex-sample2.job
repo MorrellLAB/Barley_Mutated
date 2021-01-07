@@ -10,9 +10,9 @@ export PATH=$PATH:/panfs/roc/groups/9/morrellp/liux1299/Software/ensembl-vep
 
 # User provided input arguments
 # Note: VeP only works on bgzipped and tabix indexed VCF files
-VCF=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/combined_mutated/Filtered/mut_3_lines_filtered_hom_singletons_only.vcf.gz
+VCF=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/Filtered/morex-sample2_filtered_pass2.vcf.gz
 # Output file prefix
-OUT_PREFIX=Morex_Mutants-hom_singletons_only
+OUT_PREFIX=morex-sample2
 # Full filepath to GFF file
 GFF=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/gene_annotation/Barley_Morex_V2_gene_annotation_PGSB.HC.parts.gff3.gz
 # Reference FASTA file
@@ -21,6 +21,8 @@ REF=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Mo
 SPECIES=hordeum_vulgare
 # Where do we want our output files to go?
 OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_parts_gff
+# Run_Vep.sh script
+RUN_VEP_SCRIPT=~/GitHub/Barley_Mutated/02_analysis/VEP/Run_Vep.sh
 
 #--------------------------------
 # Check if out dir exists, if not make it
@@ -28,18 +30,7 @@ mkdir -p ${OUT_DIR}
 # Go into output directory
 cd ${OUT_DIR}
 
-# Run VeP
-vep -i ${VCF} \
-    --format vcf \
-    --check_svs \
-    --custom ${GFF},,gff \
-    --fasta ${REF} \
-    --gff ${GFF} \
-    --output_file ${OUT_PREFIX} \
-    --species ${SPECIES} \
-    --total_length \
-    --verbose \
-    --warning_file ${OUT_PREFIX}.log
-
-# Rename txt file output
-mv ${OUT_PREFIX} ${OUT_PREFIX}.txt
+# Pull run_vep function from script
+source ${RUN_VEP_SCRIPT}
+# Run function
+run_vep ${VCF} ${GFF} ${REF} ${SPECIES}
