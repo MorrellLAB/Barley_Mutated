@@ -19,14 +19,11 @@ Normally, we would download the files, but since we already have the genomes ava
 
 #### Step 3: Generate substitutions files
 
-This step converts the VeP .txt files to a format that can be included in BAD_Mutations.
+This step converts the VeP .txt.gz files to a format that can be included in BAD_Mutations.
 
 ```bash
-# In dir: ~/Software/BAD_Mutations
-python ./Supporting/VeP_to_Subs.py \
-    /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/Morex_Mutants-singletons_only_missense.txt.gz \
-    /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/long_substitutions.txt \
-    /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/per-transcript_substitutions
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+./vep_to_subs.sh
 ```
 
 #### Step 4: Generate alignments and trees
@@ -57,3 +54,36 @@ Run the alignment.
 sbatch --array=0-472 bad_mut_align.sh
 ```
 
+There were some transcripts that took >1 week walltime and the pasta align step still didn't finish. It is known that some transcripts just don't work, so we will make note of the 9 that didn't work and proceed to the predict step. Below is a list of ones that didn't work.
+
+FASTA list: `/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-252.txt`
+
+Array indices from above list: 22,27,30,32,33,34,35,36,37 corresponding to the following fasta files respectively:
+
+```bash
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.1.fa
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.6.fa
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.9.fa
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.11.fa
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.12.fa
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.13.fa
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.14.fa
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.15.fa
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.16.fa
+```
+
+#### Step 5: Predict substitutions
+
+Generate a list of directories that contain the `*.subs` files. In this case, each subdirectory corresponds to one sample.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs
+find $(pwd -P) -mindepth 1 -maxdepth 1 -type d > subs_dir_list.txt
+```
+
+BAD_Mutations `predict` step only works with fasta files that end in `.fasta` and NOT `.fa`. Rename fasta files.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+./rename_fasta_extension.sh
+```
