@@ -28,10 +28,10 @@ MSA_DIR_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/
 
 # Full path to per transcript substitutions .subs files
 #	This output is from the VeP_to_Subs.py supporting script
-SUBS_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs/per_transcript_subs_M20-2-2_filtered_singletons_only_missense_and_stoplost
+SUBS_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs/per_transcript_subs_mut_3_lines_filtered_singletons_only_missense_and_stoplost
 
 # Sample name will be used as a prefix for outputs
-SAMPLE_NAME="M20-2-2"
+SAMPLE_NAME="mut_3_lines"
 
 # Full path to output directory
 OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/predict_output_${SAMPLE_NAME}

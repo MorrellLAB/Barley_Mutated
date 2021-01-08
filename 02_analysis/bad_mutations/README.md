@@ -92,5 +92,5 @@ Run BAD_Mutations predict. The `.job` script stores filepaths and calls on the m
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
-sbatch --array=0-2364 bad_mut_predict-M20-2-2.job
+sbatch --array=0-4729 bad_mut_predict-mut_3_lines.job
 ```
