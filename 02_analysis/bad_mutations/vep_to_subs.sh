@@ -13,8 +13,10 @@ module load python3/3.6.3_anaconda5.0.1
 source activate /home/morrellp/liux1299/.conda/envs/bad_mutations
 
 # User defined input arguments
-VEP_REPORT_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_parts_gff/vep_reports_missense_variants.txt
+VEP_REPORT_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_parts_gff/per_sample-singletons/for_bad_mut/vep_reports_list_missense_and_stoplost_variants.txt
+# Full path to out directory
 OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs
+# Path to VeP_to_Subs.py script directory
 SCRIPT_DIR=~/Software/BAD_Mutations/Supporting
 
 #------------------------------
