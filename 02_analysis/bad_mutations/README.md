@@ -87,3 +87,10 @@ BAD_Mutations `predict` step only works with fasta files that end in `.fasta` an
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
 ./rename_fasta_extension.sh
 ```
+
+Run BAD_Mutations predict. The `.job` script stores filepaths and calls on the main script `bad_mut_predict.sh`.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+sbatch --array=0-2364 bad_mut_predict-M20-2-2.job
+```
