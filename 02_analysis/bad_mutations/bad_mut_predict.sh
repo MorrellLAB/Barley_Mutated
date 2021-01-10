@@ -32,7 +32,7 @@ LOG_FILE_DIR="$8"
 
 #------------------------------
 # Check if out dir exist, if not make them
-mkdir -p ${OUT_DIR} ${LOG_FILE_DIR}
+mkdir -p ${OUT_DIR} ${LOG_FILE_DIR} ${OUT_DIR}/all_predict_log
 
 # Preparation steps
 # Build array of substutions files
@@ -97,7 +97,7 @@ function predict_sub() {
 	subs_name=$(basename ${subs_file})
 	subdir_name="${curr_list_prefix}_${subs_name}"
 	# Check if out subdirectory exists, if not make it
-	mkdir -p ${out_dir}/${subdir_name}
+	mkdir -p ${out_dir}/${subdir_name} ${out_dir}/all_predict_log/${subdir_name}
 
 	# Predict substitutions
 	echo "Start predict step: ${out_dir}/${subdir_name}."
@@ -107,7 +107,8 @@ function predict_sub() {
 		-a ${msa_fasta} \
 		-r ${msa_tree} \
 		-s ${subs_file} \
-		-o ${out_dir}/${subdir_name}
+		-o ${out_dir}/${subdir_name} \
+        2> ${out_dir}/all_predict_log/${subdir_name}/${msa_name}_predict.log
 	echo "Done: ${out_dir}/${subdir_name}"
 }
 
