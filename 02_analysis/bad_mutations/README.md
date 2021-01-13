@@ -88,6 +88,13 @@ BAD_Mutations `predict` step only works with fasta files that end in `.fasta` an
 ./rename_fasta_extension.sh
 ```
 
+To reduce the number of files we need to run, generate a list of primary transcripts only. The primary transcripts can be downloaded from Phytozome13 (https://phytozome-next.jgi.doe.gov/).
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+./get_primary_transcripts_only.sh
+```
+
 Run BAD_Mutations predict. The `.job` script stores filepaths and calls on the main script `bad_mut_predict.sh`.
 
 ```bash

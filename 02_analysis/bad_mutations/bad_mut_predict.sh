@@ -21,14 +21,16 @@ MSA_DIR_LIST="$3"
 # Full path to per transcript substitutions .subs files
 #	This output is from the VeP_to_Subs.py supporting script
 SUBS_DIR="$4"
+# Full path to a list of primary transcripts, one per line
+PRIMARY_TRANSCRIPTS="$5"
 # Sample name will be used as a prefix for outputs
-SAMPLE_NAME="$5"
+SAMPLE_NAME="$6"
 # Full path to output directory
-OUT_DIR="$6"
+OUT_DIR="$7"
 # Full path to the BAD_Mutations.py script
-BAD_MUT_SCRIPT="$7"
+BAD_MUT_SCRIPT="$8"
 # Full path to where we want to store the log files output from parallel
-LOG_FILE_DIR="$8"
+LOG_FILE_DIR="$9"
 
 #------------------------------
 # Check if out dir exist, if not make them
@@ -66,7 +68,17 @@ CURR_DIR_ID=$(basename ${CURR_MSA_DIR})
 CURR_FASTA_LIST=$(grep -w ${CURR_DIR_ID} ${FASTA_LIST_OF_LISTS})
 
 # Build array of MSA_output .fa and .tree files from current subdirectory (e.g., hvulgare_cds_list-000)
-TRANSCRIPT_MSA_FASTA_ARR=($(find ${CURR_MSA_DIR} -name "*.fasta" | sort -V))
+#TRANSCRIPT_MSA_FASTA_ARR=($(find ${CURR_MSA_DIR} -name "*.fasta" | sort -V))
+TRANSCRIPT_MSA_FASTA_ARR=()
+for i in $(find ${CURR_MSA_DIR} -name "*.fasta" | sort -V)
+do
+	curr_fasta_name=$(basename ${i} .fasta)
+	# If current fasta file is a primary transcript, add to array for processing
+	if grep -qw ${curr_fasta_name} ${PRIMARY_TRANSCRIPTS}
+	then
+		TRANSCRIPT_MSA_FASTA_ARR+=("${i}")
+	fi
+done
 
 function predict_sub() {
 	local bad_mut_script="$1"
@@ -92,7 +104,7 @@ function predict_sub() {
 	# Get current list prefix
 	curr_list_prefix=$(basename ${fasta_list} .txt)
 	# Get fasta file that corresponds with MSA fasta file
-	fasta_file=$(grep ${msa_name} ${fasta_list})
+	fasta_file=$(grep -w ${msa_name} ${fasta_list})
 	# Get subs filename
 	subs_name=$(basename ${subs_file})
 	subdir_name="${curr_list_prefix}_${subs_name}"

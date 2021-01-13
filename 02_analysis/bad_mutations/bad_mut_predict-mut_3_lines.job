@@ -30,11 +30,14 @@ MSA_DIR_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/
 #	This output is from the VeP_to_Subs.py supporting script
 SUBS_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs/per_transcript_subs_mut_3_lines_filtered_singletons_only_missense_and_stoplost
 
+# Full path to a list of primary transcripts, one per line
+PRIMARY_TRANSCRIPTS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/hvulgare_primary_transcripts_only.txt
+
 # Sample name will be used as a prefix for outputs
 SAMPLE_NAME="mut_3_lines"
 
 # Full path to output directory
-OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/predict_output_${SAMPLE_NAME}
+OUT_DIR=/scratch.global/liux1299/bad_mutations/predict_output_${SAMPLE_NAME}
 
 # Full path to the BAD_Mutations.py script
 BAD_MUT_SCRIPT=~/Software/BAD_Mutations/BAD_Mutations.py
@@ -51,6 +54,7 @@ ${PREDICT_SCRIPT} ${FASTA_LIST_OF_LISTS} \
 	${CONFIG_FILE} \
 	${MSA_DIR_LIST} \
 	${SUBS_DIR} \
+	${PRIMARY_TRANSCRIPTS} \
 	${SAMPLE_NAME} \
 	${OUT_DIR} \
 	${BAD_MUT_SCRIPT} \
