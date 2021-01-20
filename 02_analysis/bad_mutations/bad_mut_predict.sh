@@ -147,7 +147,7 @@ function predict_sub() {
     if [[ -f ${out_dir}/${subdir_name}/${msa_name}_Predictions.txt ]]
     then
         # Predict output file got written
-        echo "Done: ${out_dir}/${subdir_name}"
+        echo "Done: ${out_dir}/${subdir_name}/${msa_name}_Predictions.txt"
     else
         # Predict output file failed to get written to file, exiting
         echo "The following predict output file didn't successfully get written to a file: ${out_dir}/${subdir_name}/${msa_name}_Predictions.txt"
