@@ -79,6 +79,18 @@ do
     fi
 done
 
+function check_filepaths() {
+    local curr_file="$1"
+    # If file doesn't exist, return error and exit
+    if ! [[ -f ${curr_file} ]]
+    then
+        echo "File doesn't exist: ${curr_file}, exiting..."
+        exit 2
+    fi
+}
+
+export -f check_filepaths
+
 function predict_sub() {
     local bad_mut_script="$1"
     local config_file="$2"
@@ -97,7 +109,7 @@ function predict_sub() {
     if [[ ${msa_name} != ${tree_name} ]]
     then
         echo "There is a mismatch between the MSA fasta ${msa_name} and tree file ${tree_name}, exiting..."
-        exit 31
+        exit 1
     fi
 
     # Get current list prefix
@@ -110,6 +122,13 @@ function predict_sub() {
     # Check if out subdirectory exists, if not make it
     mkdir -p ${out_dir}/${subdir_name} ${out_dir}/all_predict_log/${subdir_name}
 
+    # Check that all files exist
+    check_filepaths ${config_file}
+    check_filepaths ${fasta_file}
+    check_filepaths ${msa_fasta}
+    check_filepaths ${msa_tree}
+    check_filepaths ${subs_file}
+
     # Predict substitutions
     # Redirect only stdout to log file and NOT stderr
     echo "Start predict step: ${out_dir}/${subdir_name}."
@@ -121,7 +140,20 @@ function predict_sub() {
         -s ${subs_file} \
         -o ${out_dir}/${subdir_name} \
         1> ${out_dir}/all_predict_log/${subdir_name}/${msa_name}_predict.log
-    echo "Done: ${out_dir}/${subdir_name}"
+    # Stricter error checking so when predict file doesn't get written, the job doesn't
+    #   return a zero exit status
+    # Currently (2021-01-19), the predict output files should have the naming scheme: ${msa_name}_Predictions.txt
+    #   Barley Example: HORVU0Hr1G000020.5_Predictions.txt
+    if [[ -f ${out_dir}/${subdir_name}/${msa_name}_Predictions.txt ]]
+    then
+        # Predict output file got written
+        echo "Done: ${out_dir}/${subdir_name}"
+    else
+        # Predict output file failed to get written to file, exiting
+        echo "The following predict output file didn't successfully get written to a file: ${out_dir}/${subdir_name}/${msa_name}_Predictions.txt"
+        echo "Exiting..."
+        exit 2
+    fi
 }
 
 export -f predict_sub
