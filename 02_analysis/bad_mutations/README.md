@@ -95,7 +95,9 @@ To reduce the number of files we need to run, generate a list of primary transcr
 ./get_primary_transcripts_only.sh
 ```
 
-Run BAD_Mutations predict. The `.job` script stores filepaths and calls on the main script `bad_mut_predict.sh`.
+Run BAD_Mutations predict. The `.job` script stores filepaths and calls on the main script `bad_mut_predict.sh`. The general command to submit arrays is as below, but in practice we submitted them in batches of 200 array indices for trackability.
+
+**USEFUL:** For each batch of array indices submitted, there will be some array indices that have timed out or failed and need to be re-run. To generate a list of re-run array indices, run the script `get_re-run_array_indices.sh`.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
