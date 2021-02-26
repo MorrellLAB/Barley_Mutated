@@ -15,7 +15,7 @@ require(grid)
 m01_fp <- "~/Dropbox/Projects/Barley_Mutated/analyses/VEP/per_sample-singletons/M01-3-3_filtered_singletons_only.txt"
 m20_fp <- "~/Dropbox/Projects/Barley_Mutated/analyses/VEP/per_sample-singletons/M20-2-2_filtered_singletons_only.txt"
 m29_fp <- "~/Dropbox/Projects/Barley_Mutated/analyses/VEP/per_sample-singletons/M29-2-2_filtered_singletons_only.txt"
-morex_fp <- "~/Dropbox/Projects/Barley_Mutated/analyses/VEP/morex-sample2.txt"
+morex_fp <- "~/Dropbox/Projects/Barley_Mutated/analyses/VEP/morex-sample2_filtered_pass2.txt"
 # Where do we want to save our plots?
 out_dir <- "~/Dropbox/Projects/Barley_Mutated/analyses/VEP/plots/HC_parts_gff"
 
