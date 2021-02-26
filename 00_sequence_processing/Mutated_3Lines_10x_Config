@@ -6,10 +6,10 @@
 
 #   Where are we storing the output files?
 #       Final directory is ${OUT_DIR}/Name_of_Handler
-OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/morex_10x
+OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mutated_morex
 
 #   Name this project
-PROJECT=morex_10x
+PROJECT=mutants
 
 #   What email should we use for job notifications?
 EMAIL=liux1299@umn.edu
@@ -51,43 +51,18 @@ USE_PBS=true
 FIX_QUALITY_SCORES=false
 
 ############################################
-##########     GBS_Demultiplex    ##########
-############################################
-
-#   What are our QS
-GD_QSUB="mem=1gb,nodes=1:ppn=4,walltime=6:00:00"
-
-GBS_SAMPLES=
-
-#   A key file with the following columns:
-#       Flowcell Lane Barcode Sample PlateName Row Column
-KEY_FILE=
-
-#   Are the barcodes at the beginning or the end of the sequence?
-#       Choose from: 'beginning' or 'end'
-LINE_ENDING=
-
-#   How many mismatches are allowed?
-MISMATCH_TOL=1
-
-#   Do we allow partial overlap?
-PARTIAL=0
-
-#   What extension or naming convention do the samples have?
-FILE_TYPE=
-
-############################################
 ##########   Quality_Assessment   ##########
 ############################################
 
 #   What are our QSub settings for Quality_Assessment?
 #       Below are the recommended settings
-QA_QSUB="mem=2gb,nodes=1:ppn=4,walltime=24:00:00"
+QA_QSUB="mem=22gb,nodes=1:ppn=8,walltime=12:00:00"
 
 #   Provide a list of FastQ, SAM, or BAM files to be used
 #       Include the full file path.
 # Raw 10x fastqs
-QA_SAMPLES=/panfs/roc/groups/9/morrellp/shared/Datasets/10x_Genomics/Barley/Morex/morex_10x_fastq_list.txt
+QA_SAMPLES=
+
 
 #   What is the size of the genome in basepairs (for whole-genome sequencing)
 #   or capture region (for exome capture)?
