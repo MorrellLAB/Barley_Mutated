@@ -165,8 +165,7 @@ function predict_sub() {
             # Move problematic prediction to subdirectory for easy troubleshooting
             mv ${out_dir}/${subdir_name}/${msa_name}_Predictions.txt ${out_dir}/${subdir_name}/problematic_predictions
             echo "The following prediction resulted in an error: ${out_dir}/${subdir_name}/problematic_predictions/${msa_name}_Predictions.txt"
-            echo "Please troubleshoot, exiting..."
-            exit 1
+            echo "Please troubleshoot."
         fi
     else
         # Predict output file failed to get written to file, exiting
