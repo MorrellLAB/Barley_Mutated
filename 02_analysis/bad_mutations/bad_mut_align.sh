@@ -2,7 +2,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=20
 #SBATCH --mem=16gb
-#SBATCH -t 16:00:00
+#SBATCH --tmp=6gb
+#SBATCH -t 60:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t,max
@@ -29,7 +30,7 @@ OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_m
 # Full path to the BAD_Mutations.py script
 BAD_MUT_SCRIPT=~/Software/BAD_Mutations/BAD_Mutations.py
 # Full path to where we want to store the log files output from parallel
-LOG_FILE_DIR=${OUT_DIR}/all_log_files
+LOG_FILE_DIR=${OUT_DIR}/all_parallel_log_files
 
 #------------------------------
 # Prepare array for list of lists
@@ -47,7 +48,10 @@ CURR_FASTA_ARR=($(cat ${CURR_FASTA_LIST}))
 CURR_LIST_PREFIX=$(basename ${CURR_FASTA_LIST} .txt)
 
 # Check if out directories exist, if not make them
-mkdir -p ${OUT_DIR} ${OUT_DIR}/${CURR_LIST_PREFIX} ${LOG_FILE_DIR}
+mkdir -p ${OUT_DIR} \
+    ${OUT_DIR}/${CURR_LIST_PREFIX} \
+    ${OUT_DIR}/${CURR_LIST_PREFIX}/all_log_files \
+    ${LOG_FILE_DIR}
 
 # For experimenting with Slurm job arrays
 echo "This is array index ${SLURM_ARRAY_TASK_ID}. Processing the list: ${CURR_FASTA_LIST}."
@@ -58,12 +62,16 @@ function bad_mut_align() {
     local curr_fasta_file="$3"
     local out_dir="$4"
     local curr_list_prefix="$5"
+    # Generate log file prefix
+    log_prefix=$(basename ${curr_fasta_file} .fa)
+    set -x
     echo "Start processing: ${curr_fasta_file}"
     ${bad_mut_script} align \
         -c ${config_file} \
         -f ${curr_fasta_file} \
-        -o ${out_dir}/${curr_list_prefix}
+        -o ${out_dir}/${curr_list_prefix} &> ${out_dir}/${curr_list_prefix}/all_log_files/${log_prefix}.log
     echo "Done: ${curr_fasta_file}"
+    set +x
 }
 
 export -f bad_mut_align
