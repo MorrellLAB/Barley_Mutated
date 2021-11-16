@@ -1,0 +1,48 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=5gb
+#SBATCH --tmp=3gb
+#SBATCH -t 01:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=liux1299@umn.edu
+#SBATCH -p small,ram256g,ram1t
+#SBATCH -o %j.out
+#SBATCH -e %j.err
+
+set -e
+set -o pipefail
+
+# Dependencies
+# Installed and ran NanoPlot 1.38.1 with python3/3.8.3_anaconda2020.07_mamba because existing NanoPlot version installed by MSI had issues running due to one of the packages being too new for that version of NanoPlot
+module load python3/3.8.3_anaconda2020.07_mamba
+module load parallel
+
+# User provided input arguments
+FASTQ_LIST=/panfs/roc/groups/9/morrellp/shared/Datasets/Nanopore/Barley_mk1c/mutated_barley_fastq_list.txt
+PROJECT="mutated_barley"
+OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/quality_assessment_raw
+
+#-----------------
+# Generate plots
+function quality_assessment() {
+    local fastq="$1"
+    local out_dir="$2"
+    local project="$3"
+    # Current sample_name
+    sample_name=$(basename ${fastq} .fastq.gz)
+    # Quality Assessment
+    NanoPlot --outdir "${out_dir}/${sample_name}" \
+        --prefix "${sample_name}_" \
+        --format pdf \
+        --plots dot \
+        --plots kde \
+        --plots hex \
+        --N50 \
+        --title "${project} ${sample_name} Quality Assessment" \
+        --fastq_rich "${fastq}"
+}
+
+export -f quality_assessment
+
+parallel --verbose quality_assessment {} ${OUT_DIR} ${PROJECT} :::: ${FASTQ_LIST}
