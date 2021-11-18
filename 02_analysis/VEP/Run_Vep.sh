@@ -22,6 +22,7 @@ function run_vep() {
         --output_file ${out_prefix} \
         --species ${species} \
         --verbose \
+        --force \
         --warning_file ${out_prefix}.log
     # Rename txt file output
     mv ${out_prefix} ${out_prefix}.txt
