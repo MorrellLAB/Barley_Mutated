@@ -1,0 +1,56 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=6
+#SBATCH --mem=90gb
+#SBATCH --tmp=80gb
+#SBATCH -t 24:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=liux1299@umn.edu
+#SBATCH -p ram256g,ram1t
+#SBATCH -o %j.out
+#SBATCH -e %j.err
+
+set -e
+set -o pipefail
+
+# This script aligns Nanopore trimmed fastq files using Minimap2 and outputs in SAM format.
+
+# Dependencies
+module load minimap2/2.17
+
+# User provided input arguments
+trimmed_fastq="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/trimmed_fastq/M20-2-2-20-53_trimmed.fastq.gz"
+# Full filepath to output directory
+out_dir="/scratch.global/liux1299/nanopore_mutated_barley/read_mapping"
+#   Full filepath to reference fasta file
+reference_fasta="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta"
+# Parameters specified
+#   Below are the defaults which are the same as map-ont
+bandwidth="500"
+matching_score="2"
+mismatch_penalty="4"
+gap_open_penalty="4,24"
+gap_extension_penalty="2,1"
+z_drop_score="400,200"
+minimal_peak_dp_score="80"
+threads="4"
+
+#-----------------
+# Check if out dir exists, if not make it
+mkdir -p ${out_dir}
+
+sample_basename=$(basename ${trimmed_fastq} _trimmed.fastq.gz)
+
+minimap2 -r "${bandwidth}" \
+    -A "${matching_score}" \
+    -B "${mismatch_penalty}" \
+    -O "${gap_open_penalty}" \
+    -E "${gap_extension_penalty}" \
+    -z "${z_drop_score}" \
+    -s "${minimal_peak_dp_score}" \
+    -t "${threads}" \
+    --MD \
+    -L \
+    -a \
+    "${reference_fasta}" \
+    "${trimmed_fastq}" > "${out_dir}/${sample_basename}.sam"
