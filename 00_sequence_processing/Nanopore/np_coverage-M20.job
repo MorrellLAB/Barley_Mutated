@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=6
+#SBATCH --mem=12gb
+#SBATCH --tmp=10gb
+#SBATCH -t 01:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=liux1299@umn.edu
+#SBATCH -p small,ram256g,ram1t
+#SBATCH -o %j.out
+#SBATCH -e %j.err
+
+set -e
+set -o pipefail
+
+# This script calculates coverage
+
+# Dependencies
+export PATH=${PATH}:/panfs/roc/groups/9/morrellp/shared/Software/mosdepth
+
+# User provided input arguments
+bam_file="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/sam_processing/M20-2-2-20-53.bam"
+# The size of the window in bp for coverage estimation
+win_size=500
+# Full filepath to output directory
+out_dir="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/nanopore_coverage"
+
+#-----------------
+# Check if out dir exists, if not make it
+mkdir -p ${out_dir}
+
+sample_basename=$(basename ${bam_file} .bam)
+
+# Go into out directory
+cd ${out_dir}
+# Calculate coverage
+mosdepth --no-per-base --threads 4 --fast-mode --by ${win_size} ${sample_basename} ${bam_file}
