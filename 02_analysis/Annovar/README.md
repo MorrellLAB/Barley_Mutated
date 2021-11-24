@@ -63,8 +63,9 @@ Prepare VCF file for Annovar. Convert VCF to Annovar's input format using Annova
 sbatch vcf_to_annovar_input.job
 ```
 
-Annotation with Annovar. This will also need to be submitted as a job to MSI.
+Annotation with Annovar using the script `annotate_variation.pl`. This will also need to be submitted as a job to MSI.
 
 ```bash
-
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/Annovar
+sbatch annotate_with_annovar.job
 ```
