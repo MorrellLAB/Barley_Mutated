@@ -31,4 +31,4 @@ mkdir -p ${out_dir}
 # Generate output file pfrefix
 out_prefix=$(basename ${vcf_file} .vcf)
 
-annotate_variation.pl --geneanno --dbtype ensGene --buildver ${build_version} ${annovar_input} ${out_dir}
+annotate_variation.pl --geneanno --dbtype refGene --buildver ${build_version} ${annovar_input} ${out_dir}/

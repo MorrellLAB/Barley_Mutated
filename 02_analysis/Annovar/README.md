@@ -53,7 +53,7 @@ genePred_file="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/result
 out_prefix="HV_Morex_v2_HC_genePred"
 
 # Run annovar script
-retrieve_seq_from_fasta.pl --format ensGene --seqfile ${ref_fasta} ${genePred_file} --outfile ${out_prefix}_annDB.fa
+retrieve_seq_from_fasta.pl --format refGene --seqfile ${ref_fasta} ${genePred_file} --outfile ${out_prefix}_annDB.fa
 ```
 
 Prepare VCF file for Annovar. Convert VCF to Annovar's input format using Annovar's `convert2annovar.pl` script. We'll need to submit this as a job to MSI.
@@ -66,6 +66,9 @@ sbatch vcf_to_annovar_input.job
 Annotation with Annovar using the script `annotate_variation.pl`. This will also need to be submitted as a job to MSI.
 
 ```bash
+# First download the database
+annotate_variation.pl --downdb ensGene /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/barleydb --buildver hv2
+
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/Annovar
 sbatch annotate_with_annovar.job
 ```
