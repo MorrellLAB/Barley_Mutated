@@ -61,6 +61,8 @@ AGAT outputs an unsorted GTF file, but it seems like most downstream tools don't
 rm *.unsorted.gtf
 ```
 
+*Note:* The reason we are using [gff3sort](https://github.com/billzt/gff3sort) to sort the GTF files instead of UNIX `sort` is because GFF/GTF files have lines with the same chromosomes and start positions. With UNIX `sort`, these lines would be place randomly and sometimes parent features can end up getting place after their children lines. So, we use the [gff3sort](https://github.com/billzt/gff3sort) tool to make sure the GTF is sorted correctly.
+
 ### ANNOVAR Steps
 
 Load dependencies for ANNOVAR.
