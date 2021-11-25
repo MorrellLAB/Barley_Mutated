@@ -7,7 +7,7 @@ Run [BAD_Mutations](https://github.com/MorrellLAB/BAD_Mutations) to predict dele
 ```bash
 # In dir: ~/Software/BAD_Mutations
 ./BAD_Mutations.py setup \
-    -b ~/Shared/Projects/Mutant_Barley/results/bad_mutations/cds_database \
+    -b ~/Shared/Projects/Mutant_Barley/results/bad_mutations/Genomes \
     -t "Hvulgare" \
     -e 0.05 \
     -c ~/Shared/Projects/Mutant_Barley/results/bad_mutations/config.txt
@@ -15,7 +15,64 @@ Run [BAD_Mutations](https://github.com/MorrellLAB/BAD_Mutations) to predict dele
 
 #### Step 2: Download CDS files
 
-Normally, we would download the files, but since we already have the genomes available as part of another project we will use those instead. The path is: `/panfs/roc/groups/9/morrellp/shared/Projects/Selective_Sweeps/BAD_Mutations_Genomes`.
+Download the CDS files.
+
+```bash
+~/Software/BAD_Mutations/BAD_Mutations.py fetch \
+    -c /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/config.txt
+
+# Then remove the target species, in this case "Hvulgare"
+# This is a bug that needs to be fixed, but we will manually remove it for now
+cd ~/Projects/Mutant_Barley/results/bad_mutations/Genomes
+rm -rf Hvulgare/
+```
+
+Make sure to exclude pangenomes and any species that gets listed twice ("duplicate" species) but are just different accessions (in this case, pick one of them to use, preferably finished assemblies). If the species gets listed twice because of female/male isolates (e.g., CpurpureusGG and CpurpureusR), for running BAD_Mutations it is better to pick the female isolate (if applicable). This information can be found through JGI Phytozome 13: https://phytozome-next.jgi.doe.gov/
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/Genomes
+# Remove "duplicate" species
+# We'll put it in scratch space for now in case we make a mistake
+mv CpurpureusR ~/scratch/bad_mutations/duplicate_genomes
+mv MpusillaCCMP ~/scratch/bad_mutations/duplicate_genomes
+
+# Check the total number of genomes as of March 17, 2021 download
+ls | wc -l
+112
+```
+
+Since we had issues with runtime including all 112 species, we will reduce the number of species. But since we have already downloaded the genomes, we'll just remove the ones we don't want to include.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations
+mv Genomes excluded_genomes
+mkdir Genomes
+
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/excluded_genomes
+# Only include genomes on the list
+for i in $(cat ~/GitHub/Barley_Mutated/02_analysis/bad_mutations/combined_phytozome_ensembl_list.txt)
+do
+    # Check if directory exists
+    if [[ -d "${i}" ]]; then
+        mv ${i} ~/Projects/Mutant_Barley/results/bad_mutations/Genomes
+    else
+        echo "${i}" >> genomes_missing_from_list.txt
+    fi
+done
+```
+
+The following genomes on our original list wasn't already downloaded:
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/excluded_genomes
+cat genomes_missing_from_list.txt 
+Claxum
+Platifolius
+Pvaginatum
+Ufusca
+```
+
+We'll exclude Claxum, Platifolius, Pvaginatum, and Ufusca since they have data restrictions.
 
 #### Step 3: Generate substitutions files
 
@@ -32,8 +89,11 @@ To take advantage of GNU parallel and job arrays, we will first split the *H. vu
 
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/bad_mutations
+module load python3/3.6.3_anaconda5.0.1
+
+mkdir cds_database_hvulgare
 ~/GitHub/Barley_Mutated/02_analysis/bad_mutations/split_cds_fasta.py \
-    ~/Projects/Selective_Sweeps/BAD_Mutations_Genomes/Hordeum_vulgare/Hordeum_vulgare.IBSC_v2.cds.all.fa \
+    /panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/gene_annotation/Barley_Morex_V2_gene_annotation_PGSB.HC.cds.fasta \
     ~/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare
 ```
 
@@ -42,8 +102,8 @@ Now, we will generate the lists and list of lists to parallelize over.
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare
 find $(pwd -P) -name "*.fa" | sort -V > ../align_lists/all_cds_hvulgare_list.txt
-# Generate lists containing 500 sequence records each file
-split -l 500 --numeric-suffixes all_cds_hvulgare_list.txt hvulgare_cds_list- --suffix-length=3 --additional-suffix=.txt
+# Generate lists containing 300 sequence records each file
+split -l 300 --numeric-suffixes all_cds_hvulgare_list.txt hvulgare_cds_list- --suffix-length=3 --additional-suffix=.txt
 # Create list of lists
 find $(pwd -P) -name "*list-*.txt" | sort -V > all_cds_hvulgare_list_of_lists.txt
 ```
@@ -51,7 +111,8 @@ find $(pwd -P) -name "*list-*.txt" | sort -V > all_cds_hvulgare_list_of_lists.tx
 Run the alignment.
 
 ```bash
-sbatch --array=0-472 bad_mut_align.sh
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+sbatch --array=0-109 bad_mut_align.sh
 ```
 
 There were some transcripts that took >1 week walltime and the pasta align step still didn't finish. It is known that some transcripts just don't work, so we will make note of the 9 that didn't work and proceed to the predict step. Below is a list of ones that didn't work.
