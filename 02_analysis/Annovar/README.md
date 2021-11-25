@@ -69,3 +69,17 @@ Annotation with Annovar using the script `annotate_variation.pl`. This will also
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/Annovar
 sbatch annotate_with_annovar.job
 ```
+
+Make a unified table using the script: https://github.com/MorrellLAB/File_Conversions/blob/master/ANNOVAR_To_Effects.py
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/results/Annovar/HC
+module load python3/3.8.3_anaconda2020.07_mamba
+
+# Define some variables
+var_fun="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/mut_3_lines_filtered_singletons_only_annovar_input.txt.variant_function"
+exon_var_fun="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/mut_3_lines_filtered_singletons_only_annovar_input.txt.exonic_variant_function"
+out_prefix="mut_3_lines_filtered_singletons_only_annovar"
+
+~/GitHub/Barley_Mutated/02_analysis/Annovar/ANNOVAR_To_Effects.py ${var_fun} ${exon_var_fun} > ${out_prefix}_unified.table
+```
