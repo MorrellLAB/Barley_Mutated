@@ -2,6 +2,14 @@
 
 Run [BAD_Mutations](https://github.com/MorrellLAB/BAD_Mutations) to predict deleterious variants.
 
+Load dependencies for BAD_Mutations.
+
+```bash
+module load python3/3.6.3_anaconda5.0.1
+# Activate conda environment
+source activate /home/morrellp/liux1299/.conda/envs/bad_mutations
+```
+
 #### Step 1: Make config
 
 ```bash
@@ -17,6 +25,8 @@ Run [BAD_Mutations](https://github.com/MorrellLAB/BAD_Mutations) to predict dele
 
 Download the CDS files.
 
+*Note:* If you have a list of favorite species you have picked out, you can modify the `BAD_Mutations/lrt_predict/Fetch/phytozome_species.py` script to only include your favorite species. Then, only your favorite species will be downloaded. We'll use various shortcuts in VSCode (including adding text to the start and end of every line: https://shouts.dev/how-to-add-text-at-start-and-end-of-all-lines-in-vs-code) to format our `combined_phytozome_ensembl_list.txt` to match the syntax in `BAD_Mutations/lrt_predict/Fetch/phytozome_species.py`. Remember, this is the phytozome list only not the ensemble list, so we'll need to remove the lines that contain species naming from Ensembl. These should just be `Aegilops_tauschii`, `Leersia_perrieri`, and `Triticum_urartu` on our combined list.
+
 ```bash
 ~/Software/BAD_Mutations/BAD_Mutations.py fetch \
     -c /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/config.txt
@@ -27,36 +37,34 @@ cd ~/Projects/Mutant_Barley/results/bad_mutations/Genomes
 rm -rf Hvulgare/
 ```
 
-Make sure to exclude pangenomes and any species that gets listed twice ("duplicate" species) but are just different accessions (in this case, pick one of them to use, preferably finished assemblies). If the species gets listed twice because of female/male isolates (e.g., CpurpureusGG and CpurpureusR), for running BAD_Mutations it is better to pick the female isolate (if applicable). This information can be found through JGI Phytozome 13: https://phytozome-next.jgi.doe.gov/
+Since we had issues with runtime when including all 112 species available for download at the time, we will reduce the number of species. But since we have already downloaded the genomes, we'll just keep the ones we want to include and remove the ones we don't want to include.
 
-```bash
-# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/Genomes
-# Remove "duplicate" species
-# We'll put it in scratch space for now in case we make a mistake
-mv CpurpureusR ~/scratch/bad_mutations/duplicate_genomes
-mv MpusillaCCMP ~/scratch/bad_mutations/duplicate_genomes
-
-# Check the total number of genomes as of March 17, 2021 download
-ls | wc -l
-112
-```
-
-Since we had issues with runtime including all 112 species, we will reduce the number of species. But since we have already downloaded the genomes, we'll just remove the ones we don't want to include.
+We selected only Angiosperm genomes available on Phytozome 13 (https://phytozome-next.jgi.doe.gov/) because more closely related species adds to the quality of annotation more than very distantly related species. Genomes that aren't Angiosperms also seem to be very difficult to align, which we suspect was causing the extremely long runtimes (some genes took longer than 10 days to align).
 
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/bad_mutations
-mv Genomes excluded_genomes
-mkdir Genomes
+mkdir excluded_genomes
+#mv Genomes/* excluded_genomes/
 
-# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/excluded_genomes
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/Genomes
+cd Genomes
 # Only include genomes on the list
+for i in $(ls -d * | grep -v ".txt")
+do
+    # If genome is not on our list, move it to the excluded_genomes directory
+    if ! grep -w -q "${i}" ~/GitHub/Barley_Mutated/02_analysis/bad_mutations/combined_phytozome_ensembl_list.txt
+    then
+        # Move excluded genome
+        echo "Moving excluded genome: ${i}"
+        mv "${i}" ~/Projects/Mutant_Barley/results/bad_mutations/excluded_genomes
+    fi
+done
+
+# Check which genomes on our list was not downloaded by BAD_Mutations fetch
 for i in $(cat ~/GitHub/Barley_Mutated/02_analysis/bad_mutations/combined_phytozome_ensembl_list.txt)
 do
-    # Check if directory exists
-    if [[ -d "${i}" ]]; then
-        mv ${i} ~/Projects/Mutant_Barley/results/bad_mutations/Genomes
-    else
-        echo "${i}" >> genomes_missing_from_list.txt
+    if ! [[ -d "${i}" ]]; then
+        echo "${i}" >> genomes_not_downloaded.txt
     fi
 done
 ```
@@ -65,14 +73,41 @@ The following genomes on our original list wasn't already downloaded:
 
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/bad_mutations/excluded_genomes
-cat genomes_missing_from_list.txt 
+cat genomes_not_downloaded.txt 
 Claxum
+Pacutifolius
 Platifolius
 Pvaginatum
 Ufusca
 ```
 
-We'll exclude Claxum, Platifolius, Pvaginatum, and Ufusca since they have data restrictions.
+We'll add these 5 species manually to the BAD_Mutations script that contains a list of Phytozome species. IMPORTANT!!! Make sure to remove species not on our list too! Otherwise, the species not on our list will also be downloaded too. We'll use various shortcuts in VSCode (including adding text to the start and end of every line: https://shouts.dev/how-to-add-text-at-start-and-end-of-all-lines-in-vs-code) to format our `combined_phytozome_ensembl_list.txt` to match the syntax in `BAD_Mutations/lrt_predict/Fetch/phytozome_species.py`. Remember, this is the phytozome list only not the ensemble list, so we'll need to remove the lines that contain species naming from Ensembl. These should just be `Aegilops_tauschii`, `Leersia_perrieri`, and `Triticum_urartu` on our combined list.
+
+```bash
+# In MSI dir: ~/Software/BAD_Mutations/lrt_predict/Fetch
+# Create a copy of the phytozome list that was originally in the directory in case something goes wrong
+cp phytozome_species.py original_copy_phytozome_species.py
+# Copy our custom list of species and name it the same way as the original file
+cp ~/GitHub/Barley_Mutated/02_analysis/bad_mutations/my_phytozome_species.py phytozome_species.py
+
+# Note: Now looking back, I could have just generated a version of the phytozome_species.py
+#   that includes just my favorite species, but I already had all 112 species downloaded so
+#   I used the code above to remove species we wanted to exclude.
+
+# Now, re-run the fetch command to fetch remaining genomes
+~/Software/BAD_Mutations/BAD_Mutations.py fetch \
+    -c /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/config.txt
+
+# One last check to see if we are still missing some genomes we wanted to include
+for i in $(cat ~/GitHub/Barley_Mutated/02_analysis/bad_mutations/combined_phytozome_ensembl_list.txt)
+do
+    if ! [[ -d "${i}" ]]; then
+        echo "${i}"
+    fi
+done
+```
+
+We'll also need to check that each species directory doesn't contain more than two versions of the genome and only contains the latest version of the genome.
 
 #### Step 3: Generate substitutions files
 
