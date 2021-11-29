@@ -15,6 +15,7 @@ Bsylvaticum
 Carietinum
 Cclementina
 Cgrandiflora
+Claxum
 Cpapaya
 Crubella
 Csativus
@@ -44,6 +45,7 @@ Phallii
 Platifolius
 Plunatus
 Ppersica
+Pvaginatum
 Pvirgatum
 Pvulgaris
 Ptrichocarpa
@@ -60,6 +62,7 @@ Taestivum
 Tcacao
 Tintermedium
 Tpratense
+Ufusca
 Vvinifera
 Vunguiculata
 Zmarina
