@@ -109,6 +109,12 @@ done
 
 We'll also need to check that each species directory doesn't contain more than two versions of the genome and only contains the latest version of the genome.
 
+We'll proceed with 72 species for alignment located in the following directory:
+
+```bash
+/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/Genomes
+```
+
 #### Step 3: Generate substitutions files
 
 This step converts the VeP .txt.gz files to a format that can be included in BAD_Mutations.
