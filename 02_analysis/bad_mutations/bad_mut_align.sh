@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=20
 #SBATCH --mem=16gb
 #SBATCH --tmp=6gb
-#SBATCH -t 60:00:00
+#SBATCH -t 06:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t,max
@@ -66,7 +66,7 @@ function bad_mut_align() {
     log_prefix=$(basename ${curr_fasta_file} .fa)
     set -x
     echo "Start processing: ${curr_fasta_file}"
-    ${bad_mut_script} align \
+    ${bad_mut_script} -v DEBUG align \
         -c ${config_file} \
         -f ${curr_fasta_file} \
         -o ${out_dir}/${curr_list_prefix} &> ${out_dir}/${curr_list_prefix}/all_log_files/${log_prefix}.log
