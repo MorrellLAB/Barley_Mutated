@@ -156,23 +156,7 @@ Run the alignment.
 sbatch --array=0-109 bad_mut_align.sh
 ```
 
-There were some transcripts that took >1 week walltime and the pasta align step still didn't finish. It is known that some transcripts just don't work, so we will make note of the 9 that didn't work and proceed to the predict step. Below is a list of ones that didn't work.
-
-FASTA list: `/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-252.txt`
-
-Array indices from above list: 22,27,30,32,33,34,35,36,37 corresponding to the following fasta files respectively:
-
-```bash
-/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.1.fa
-/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.6.fa
-/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.9.fa
-/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.11.fa
-/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.12.fa
-/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.13.fa
-/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.14.fa
-/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.15.fa
-/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare/HORVU4Hr1G053250.16.fa
-```
+Check to see if there are any transcripts that didn't work, if so make a note of the ones that didn't work and proceed to the predict step. It is known that some transcripts just don't work.
 
 #### Step 5: Predict substitutions
 
