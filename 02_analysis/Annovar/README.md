@@ -70,7 +70,7 @@ Annotation with Annovar using the script `annotate_variation.pl`. This will also
 sbatch annotate_with_annovar.job
 ```
 
-Make a unified table using the script: https://github.com/MorrellLAB/File_Conversions/blob/master/ANNOVAR_To_Effects.py
+Make a unified table using the script: `ANNOVAR_To_Effects.py` (Note: this script needs to be modified from Tom and Li's previous versions to handel deletions correctly). This unified table will be used in BAD_Mutations.
 
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/Annovar/HC
