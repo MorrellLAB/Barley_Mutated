@@ -153,8 +153,88 @@ Run the alignment.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+# For barley Morex v2, a set of 300 transcripts in each job array took less than 4 hours
 sbatch --array=0-109 bad_mut_align.sh
 ```
+
+Each subdirectory in `MSA_Output` a subdirectory called `all_log_files` (e.g., `MSA_Output/hvulgare_cds_list-000/all_log_files`, `MSA_Output/hvulgare_cds_list-001/all_log_files`, `MSA_Output/hvulgare_cds_list-002/all_log_files`, etc.) that keeps a log of the align output (i.e., the stdout from BAD_Mutations align) for each transcript in that batch. The log files have basenames that match the name of the transcript in that batch. For example `HORVU.MOREX.r2.1HG0000020.1.log` is the log file for a transcript from the list `/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-000.txt`. This makes it a little easier to troubleshoot if needed. The `MSA_output/all_parallel_log_files` is a log to keep track of the parallel tasks being run and where to pick up the run in case we run out of walltime and need to re-submit the job.
+
+Check that we have the expected number of `*.fa` and `*.tree` files written to the `MSA_Output` directory. These files occur in pairs, so if each batch has 300 transcripts run, we would expect 300 `*.fa` files and 300 `*.tree` files in the output directory. CAUTION: Exit statuses shouldn't be the sole metric you use to determine if a job ran to completion successfully, which is why we are running these additional checks.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
+for i in $(ls -d hvulgare_cds_list-*)
+do
+    echo $i
+    ls ${i}/*.tree | wc -l
+done
+
+# The number of *.tree files in each subdirectory should be the same as the
+#   input list of lists
+wc -l ~/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-*.txt
+
+# We'll programmatically check that we have the expected number of output files
+# We'll need the Fasta list of lists defined in the bad_mut_align.sh script
+FASTA_LIST_OF_LISTS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/all_cds_hvulgare_list_of_lists.txt
+# Figure out which ones need to be investigated/re-run
+# Make sure we are in the MSA_Output directory when we run this!
+cd ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
+for i in $(cat ${FASTA_LIST_OF_LISTS})
+do
+    msa_subdir_name=$(basename ${i} .txt)
+    fa_dir_name=$(dirname ${i})
+    msa_output_dir=$(pwd)
+    # The .tree files get written last and should be the same as the number of transcripts
+    expected_tree_count=$(wc -l ${i} | cut -d' ' -f 1)
+    actual_tree_count=$(ls ${msa_subdir_name}/*.tree | wc -l)
+    if [ ${actual_tree_count} -ne ${expected_tree_count} ]; then
+        echo "${msa_subdir_name}: ${actual_tree_count}"
+        echo "${msa_subdir_name}: ${actual_tree_count}" >> temp_msa_output_problem_dirs.txt
+        # Figure out which transcripts didn't get run to completion
+        # Since we are appending, make sure we start from a clean list every time
+        if [ -f ${msa_subdir_name}/all_log_files/temp_completed_tree_list.txt ]; then
+            # File exists, remove before proceeding
+            rm ${msa_subdir_name}/all_log_files/temp_completed_tree_list.txt
+        fi
+        for t in $(ls ${msa_subdir_name}/*.tree)
+        do
+            basename ${t} .tree >> ${msa_subdir_name}/all_log_files/temp_completed_tree_list.txt
+        done
+        # Again, start from a clean list in case we re-run this same command
+        if [ -f ${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt ]; then
+            rm ${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt
+        fi
+        # Create a list of log files for transcripts that didn't get run to completion
+        grep -vf ${msa_subdir_name}/all_log_files/temp_completed_tree_list.txt ${i} >> ${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt
+        if [ -f ${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt ]; then
+            rm ${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt
+        fi
+        for lf in $(cat ${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt)
+        do
+            tname=$(basename ${lf} .fa)
+            find ${msa_output_dir}/${msa_subdir_name}/all_log_files -name "${tname}*" >> ${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt
+        done
+        echo "Printing list of filepaths to transcript log files:"
+        cat ${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt
+        echo "Missing transcripts are available here: ${msa_output_dir}/${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt"
+        echo "List of log files associated with missing transcripts are available here: ${msa_output_dir}/${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt"
+        printf "\n"
+    fi
+done
+```
+
+For transcripts where the `*.log` file indicates there was an error but the exit status was `0`, find the transcript name in the `MSA_output/all_parallel_log_files` list that is associated with that list number and delete the line for that transcript before re-running.
+
+Here's an example:
+
+The missing tree file we identified is associated with the log file `/home/morrellp/liux1299/Projects/Mutant_Barley/results/bad_mutations/MSA_output/hvulgare_cds_list-003/all_log_files/HORVU.MOREX.r2.1HG0024570.1.log`. There seems to be some error here and we want to re-run it to try and reproduce the error or see if it will resolve on its own. This is a transcript in the batch `hvulgare_cds_list-003`, so we'll go to the GNU parallel log file:
+
+```bash
+# hvulgare_cds_list-003 corresponds to index 3 in bad_mut_align.sh.3.log
+vim /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/MSA_output/all_parallel_log_files/bad_mut_align.sh.3.log
+```
+
+Then do a search for the transcript `HORVU.MOREX.r2.1HG0024570.1` within Vim and delete that line so that GNU parallel will know to re-run that transcript when we resubmit the align script. We'll repeat this process for the transcripts that did not run to completion.
 
 Check to see if there are any transcripts that didn't work, if so make a note of the ones that didn't work and proceed to the predict step. It is known that some transcripts just don't work.
 
