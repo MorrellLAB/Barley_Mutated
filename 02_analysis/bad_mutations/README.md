@@ -223,7 +223,7 @@ do
 done
 ```
 
-For transcripts where the `*.log` file indicates there was an error but the exit status was `0`, find the transcript name in the `MSA_output/all_parallel_log_files` list that is associated with that list number and delete the line for that transcript before re-running.
+For transcripts where the `MSA_output/all_parallel_log_files/*.log` files indicate there was an error but the exit status was `0`, find the transcript name in the `MSA_output/all_parallel_log_files` list that is associated with that list number and delete the line for that transcript before re-running.
 
 Here's an example:
 
