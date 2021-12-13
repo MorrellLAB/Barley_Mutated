@@ -1,0 +1,37 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=8
+#SBATCH --mem=10gb
+#SBATCH --tmp=4gb
+#SBATCH -t 02:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=liux1299@umn.edu
+#SBATCH -p small,ram256g,ram1t
+#SBATCH -o %j.out
+#SBATCH -e %j.err
+
+set -e
+set -o pipefail
+
+# User defined input arguments
+FASTQ_PASS_LIST="/panfs/roc/groups/9/morrellp/shared/Datasets/Nanopore/Barley_mk1c/m01-3-3-12-41/concat_fastqs_from_runs/M01-3-3-12-41_run3_fastq_pass_list.txt"
+OUT_PREFIX="M01-3-3-12-41_run3"
+OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Datasets/Nanopore/Barley_mk1c/m01-3-3-12-41/concat_fastqs_from_runs"
+
+#-----------------
+# Start from clean slate since we are appending to a file
+#   If file exists at start of this job, delete it
+if [ -f ${OUT_DIR}/${OUT_PREFIX}.fastq ]
+then
+    # File exists, remove before concatenating and appending
+    rm ${OUT_DIR}/${OUT_PREFIX}.fastq
+fi
+
+# Concatenate FASTQ files into single file
+for i in $(cat ${FASTQ_PASS_LIST})
+do
+    zcat ${i} >> ${OUT_DIR}/${OUT_PREFIX}.fastq
+done
+
+# Compress FASTQ file
+gzip ${OUT_DIR}/${OUT_PREFIX}.fastq
