@@ -51,7 +51,7 @@ OUT_DIR=/scratch.global/liux1299/bad_mutations/predict_output_${SAMPLE_NAME}
 BAD_MUT_SCRIPT=~/Software/BAD_Mutations/BAD_Mutations.py
 
 # Full path to where we want to store the log files output from parallel
-LOG_FILE_DIR=${OUT_DIR}/all_log_files
+LOG_FILE_DIR=${OUT_DIR}/all_parallel_log_files
 
 # Script that stores predict_sub function
 PREDICT_SCRIPT=~/GitHub/Barley_Mutated/02_analysis/bad_mutations/bad_mut_predict.sh

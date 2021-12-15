@@ -117,6 +117,8 @@ We'll proceed with 72 species for alignment located in the following directory:
 
 #### Step 3: Generate substitutions files
 
+Make sure the substitutions file is ready before generating the alignments. The info output from ANNOVAR will tell us if there are premature stop codons (although they also get labeled as nonsynonymous), we'll need to remove these prior to the align step otherwise we'll run into errors. We'll need to remove anything that changes basepair to "*".
+
 This step converts the VeP .txt.gz files to a format that can be included in BAD_Mutations.
 
 ```bash
