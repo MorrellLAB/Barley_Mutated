@@ -147,7 +147,7 @@ Now, we will generate the lists and list of lists to parallelize over.
 find $(pwd -P) -name "*.fa" | sort -V > ../align_lists/all_cds_hvulgare_list.txt
 
 # In dir: ~/Shared/Projects/Mutant_Barley/results/bad_mutations/align_lists
-# Generate lists containing 300 sequence records each file
+# Generate lists containing 400 sequence records each file
 split -l 400 --numeric-suffixes all_cds_hvulgare_list.txt hvulgare_cds_list- --suffix-length=3 --additional-suffix=.txt
 # Create list of lists
 find $(pwd -P) -name "*list-*.txt" | sort -V > all_cds_hvulgare_list_of_lists.txt
@@ -161,9 +161,11 @@ Run the alignment. Our max array index should be the last list number is our lis
 sbatch --array=0-159 bad_mut_align.sh
 ```
 
+*Note:* BAD_Mutations align combines both Slurm job arrays and GNU parallel. This allows re-submitting the same array index and picking up where the job left off if we run out of walltime. It does this by keeping a GNU parallel log file in the `${OUT_DIR}/all_parallel_log_files`. Each array index will have its own log file that track the exit status of each GNU parallel task.
+
 Each subdirectory in `MSA_Output` a subdirectory called `all_log_files` (e.g., `MSA_Output/hvulgare_cds_list-000/all_log_files`, `MSA_Output/hvulgare_cds_list-001/all_log_files`, `MSA_Output/hvulgare_cds_list-002/all_log_files`, etc.) that keeps a log of the align output (i.e., the stdout from BAD_Mutations align) for each transcript in that batch. The log files have basenames that match the name of the transcript in that batch. For example `HORVU.MOREX.r2.1HG0000020.1.log` is the log file for a transcript from the list `/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-000.txt`. This makes it a little easier to troubleshoot if needed. The `MSA_output/all_parallel_log_files` is a log to keep track of the parallel tasks being run and where to pick up the run in case we run out of walltime and need to re-submit the job.
 
-Check that we have the expected number of `*.fa` and `*.tree` files written to the `MSA_Output` directory. These files occur in pairs, so if each batch has 300 transcripts run, we would expect 300 `*.fa` files and 300 `*.tree` files in the output directory. CAUTION: Exit statuses shouldn't be the sole metric you use to determine if a job ran to completion successfully, which is why we are running these additional checks.
+Check that we have the expected number of `*.fa` and `*.tree` files written to the `MSA_Output` directory. These files occur in pairs, so if each batch has 400 transcripts run, we would expect 400 `*.fa` files and 400 `*.tree` files in the output directory. CAUTION: Exit statuses shouldn't be the sole metric you use to determine if a job ran to completion successfully, which is why we are running these additional checks.
 
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
