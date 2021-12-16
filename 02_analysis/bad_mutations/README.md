@@ -229,7 +229,7 @@ For transcripts where the `MSA_output/all_parallel_log_files/*.log` files indica
 
 Here's an example:
 
-The missing tree file we identified is associated with the log file `/home/morrellp/liux1299/Projects/Mutant_Barley/results/bad_mutations/MSA_output/hvulgare_cds_list-003/all_log_files/HORVU.MOREX.r2.1HG0024570.1.log`. There seems to be some error here and we want to re-run it to try and reproduce the error or see if it will resolve on its own. This is a transcript in the batch `hvulgare_cds_list-003`, so we'll go to the GNU parallel log file:
+The missing tree file we identified is associated with the log file `/home/morrellp/liux1299/Projects/Mutant_Barley/results/bad_mutations/MSA_output/hvulgare_cds_list-003/all_log_files/HORVU.MOREX.r2.1HG0024570.1.log`. There seems to be some error here and we want to pull it out and investigate what's going on. This is a transcript in the batch `hvulgare_cds_list-003`, so we'll go to the GNU parallel log file:
 
 ```bash
 # hvulgare_cds_list-003 corresponds to index 3 in bad_mut_align.sh.3.log
@@ -237,6 +237,8 @@ vim /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutat
 ```
 
 Then do a search for the transcript `HORVU.MOREX.r2.1HG0024570.1` within Vim and delete that line so that GNU parallel will know to re-run that transcript when we resubmit the align script. We'll repeat this process for the transcripts that did not run to completion.
+
+For this case, we identified 11 transcripts that we want to try re-running with a higher e-value threshold. This process is a bit customized, so contact Chaochih for how she did this if it applies to your dataset.
 
 Check to see if there are any transcripts that didn't work, if so make a note of the ones that didn't work and proceed to the predict step. It is known that some transcripts just don't work.
 
