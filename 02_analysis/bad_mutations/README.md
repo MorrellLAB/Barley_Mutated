@@ -117,7 +117,7 @@ We'll proceed with 72 species for alignment located in the following directory:
 
 #### Step 3: Generate substitutions files
 
-Make sure the substitutions file is ready before generating the alignments. The info output from ANNOVAR will tell us if there are premature stop codons (although they also get labeled as nonsynonymous), we'll need to remove these prior to the align step otherwise we'll run into errors. We'll need to remove anything that changes basepair to "*".
+We may decide to go with either ANNOVAR annotations instead of VeP ones or some version of an intersect between the two.
 
 This step converts the VeP .txt.gz files to a format that can be included in BAD_Mutations.
 
@@ -136,7 +136,7 @@ module load python3/3.6.3_anaconda5.0.1
 
 mkdir cds_database_hvulgare
 ~/GitHub/Barley_Mutated/02_analysis/bad_mutations/split_cds_fasta.py \
-    /panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/gene_annotation/Barley_Morex_V2_gene_annotation_PGSB.HC.cds.fasta \
+    /panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/gene_annotation/Barley_Morex_V2_gene_annotation_PGSB.all.cds.fasta \
     ~/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare
 ```
 
@@ -145,18 +145,20 @@ Now, we will generate the lists and list of lists to parallelize over.
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/bad_mutations/cds_database_hvulgare
 find $(pwd -P) -name "*.fa" | sort -V > ../align_lists/all_cds_hvulgare_list.txt
+
+# In dir: ~/Shared/Projects/Mutant_Barley/results/bad_mutations/align_lists
 # Generate lists containing 300 sequence records each file
-split -l 300 --numeric-suffixes all_cds_hvulgare_list.txt hvulgare_cds_list- --suffix-length=3 --additional-suffix=.txt
+split -l 400 --numeric-suffixes all_cds_hvulgare_list.txt hvulgare_cds_list- --suffix-length=3 --additional-suffix=.txt
 # Create list of lists
 find $(pwd -P) -name "*list-*.txt" | sort -V > all_cds_hvulgare_list_of_lists.txt
 ```
 
-Run the alignment.
+Run the alignment. Our max array index should be the last list number is our lists of lists above (this is because our list numbering starts at "000"), but the max array index will also get printed to the `*.out` file that gets generated once the job starts running.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
-# For barley Morex v2, a set of 300 transcripts in each job array took less than 4 hours
-sbatch --array=0-109 bad_mut_align.sh
+# For barley Morex v2, a set of 400 transcripts in each job array took less than 8 hours
+sbatch --array=0-159 bad_mut_align.sh
 ```
 
 Each subdirectory in `MSA_Output` a subdirectory called `all_log_files` (e.g., `MSA_Output/hvulgare_cds_list-000/all_log_files`, `MSA_Output/hvulgare_cds_list-001/all_log_files`, `MSA_Output/hvulgare_cds_list-002/all_log_files`, etc.) that keeps a log of the align output (i.e., the stdout from BAD_Mutations align) for each transcript in that batch. The log files have basenames that match the name of the transcript in that batch. For example `HORVU.MOREX.r2.1HG0000020.1.log` is the log file for a transcript from the list `/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-000.txt`. This makes it a little easier to troubleshoot if needed. The `MSA_output/all_parallel_log_files` is a log to keep track of the parallel tasks being run and where to pick up the run in case we run out of walltime and need to re-submit the job.
