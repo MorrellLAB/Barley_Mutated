@@ -71,7 +71,82 @@ Annotation with Annovar using the script `annotate_variation.pl`. This will also
 sbatch annotate_with_annovar.job
 ```
 
-Make a unified table using the script: `ANNOVAR_To_Effects.py` (Note: this script needs to be modified from Tom and Li's previous versions to handle deletions correctly). This unified table will be used in BAD_Mutations.
+### Steps to prepare for BAD_Mutations run
+
+Separate insertions and deletions into a separate file from SNPs, SNPs will be run separately through BAD_Mutations.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/results/Annovar/HC
+# Get a sense of the unqiue types of annotations in the file
+cut -f 2 mut_3_lines_filtered_singletons_only_annovar_input.txt.exonic_variant_function | sort -uV
+# Output
+frameshift deletion
+frameshift insertion
+nonframeshift deletion
+nonsynonymous SNV
+stopgain
+stoploss
+synonymous SNV
+
+cut -f 1 mut_3_lines_filtered_singletons_only_annovar_input.txt.variant_function | sort -uV
+# Output
+downstream
+exonic
+intergenic
+intronic
+splicing
+upstream
+upstream;downstream
+
+# Check that we're only pulling insertions and deletions
+grep -w 'deletion\|insertion' mut_3_lines_filtered_singletons_only_annovar_input.txt.exonic_variant_function | cut -f 2 | sort -uV
+# Output
+frameshift deletion
+frameshift insertion
+nonframeshift deletion
+
+# Check that we're only pulling everything that's not an indel
+grep -vw 'deletion\|insertion' mut_3_lines_filtered_singletons_only_annovar_input.txt.exonic_variant_function | cut -f 2 | sort -uV
+# Output
+nonsynonymous SNV
+stopgain
+stoploss
+synonymous SNV
+
+# Save to file
+# Indels
+grep -w 'deletion\|insertion' mut_3_lines_filtered_singletons_only_annovar_input.txt.exonic_variant_function > mut_3_lines_filtered_singletons_only_annovar_input.txt.indels.exonic_variant_function
+# SNVs
+grep -vw 'deletion\|insertion' mut_3_lines_filtered_singletons_only_annovar_input.txt.exonic_variant_function > mut_3_lines_filtered_singletons_only_annovar_input.txt.SNVs.exonic_variant_function
+```
+
+We'll also generate some toy files of the ANNOVAR output and put it in a subdirectory called `toy_datasets` so it's easier to track file format changes in the future and modify the `ANNOVAR_To_Effects.py` script accordingly.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/results/Annovar/HC
+# Generate toy files
+head -n 20 mut_3_lines_filtered_singletons_only_annovar_input.txt.SNVs.exonic_variant_function > toy.SNVs.exonic_variant_function
+
+head -n 20 mut_3_lines_filtered_singletons_only_annovar_input.txt.indels.exonic_variant_function > toy.indels.exonic_variant_function
+
+# From the variant_function file, we'll want to make sure we include all variants present in the indels and SNVs file above
+head -n 60 mut_3_lines_filtered_singletons_only_annovar_input.txt.variant_function > toy.variant_function
+```
+
+Determine whether and where pre-mature stop codons could be located. See documentation for details: https://annovar.openbioinformatics.org/en/latest/misc/accessory/#coding_change-infer-mutated-protein-sequence
+
+```bash
+# Define variables
+exon_var_fn_file="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/mut_3_lines_filtered_singletons_only_annovar_input.txt.exonic_variant_function"
+ref_gene_file="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/HV_Morex_v2_HC_refGene.txt"
+ref_gene_mrna_fa_file="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/HV_Morex_v2_HC_refGeneMrna.fa"
+# Run script
+coding_change.pl "${exon_var_fn_file}" "${ref_gene_file}" "${ref_gene_mrna_fa_file}"
+```
+
+Make a unified table using the script: `ANNOVAR_To_Effects.py` (Note: this script needs to be modified from Tom and Li's previous versions to handle insertions and deletions correctly). This unified table will be used in BAD_Mutations.
+
+Make a unified table of just the SNVs first.
 
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/Annovar/HC
@@ -79,8 +154,8 @@ module load python3/3.8.3_anaconda2020.07_mamba
 
 # Define some variables
 var_fun="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/mut_3_lines_filtered_singletons_only_annovar_input.txt.variant_function"
-exon_var_fun="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/mut_3_lines_filtered_singletons_only_annovar_input.txt.exonic_variant_function"
-out_prefix="mut_3_lines_filtered_singletons_only_annovar"
+exon_var_fun="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/mut_3_lines_filtered_singletons_only_annovar_input.txt.SNVs.exonic_variant_function"
+out_prefix="mut_3_lines_filtered_singletons_only_annovar_SNVs"
 
 ~/GitHub/Barley_Mutated/02_analysis/Annovar/ANNOVAR_To_Effects.py ${var_fun} ${exon_var_fun} > ${out_prefix}_unified.table
 ```
