@@ -184,6 +184,7 @@ Check that we have the expected number of `*.fa` and `*.tree` files written to t
 
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
+# First pass quick check
 for i in $(ls -d hvulgare_cds_list-*)
 do
     echo $i
@@ -195,53 +196,7 @@ done
 wc -l ~/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-*.txt
 
 # We'll programmatically check that we have the expected number of output files
-# We'll need the Fasta list of lists defined in the bad_mut_align.sh script
-FASTA_LIST_OF_LISTS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/all_cds_hvulgare_list_of_lists.txt
-# Figure out which ones need to be investigated/re-run
-# Make sure we are in the MSA_Output directory when we run this!
-cd ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
-for i in $(cat ${FASTA_LIST_OF_LISTS})
-do
-    msa_subdir_name=$(basename ${i} .txt)
-    fa_dir_name=$(dirname ${i})
-    msa_output_dir=$(pwd)
-    # The .tree files get written last and should be the same as the number of transcripts
-    expected_tree_count=$(wc -l ${i} | cut -d' ' -f 1)
-    actual_tree_count=$(ls ${msa_subdir_name}/*.tree | wc -l)
-    if [ ${actual_tree_count} -ne ${expected_tree_count} ]; then
-        echo "${msa_subdir_name}: ${actual_tree_count}"
-        echo "${msa_subdir_name}: ${actual_tree_count}" >> temp_msa_output_problem_dirs.txt
-        # Figure out which transcripts didn't get run to completion
-        # Since we are appending, make sure we start from a clean list every time
-        if [ -f ${msa_subdir_name}/all_log_files/temp_completed_tree_list.txt ]; then
-            # File exists, remove before proceeding
-            rm ${msa_subdir_name}/all_log_files/temp_completed_tree_list.txt
-        fi
-        for t in $(ls ${msa_subdir_name}/*.tree)
-        do
-            basename ${t} .tree >> ${msa_subdir_name}/all_log_files/temp_completed_tree_list.txt
-        done
-        # Again, start from a clean list in case we re-run this same command
-        if [ -f ${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt ]; then
-            rm ${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt
-        fi
-        # Create a list of log files for transcripts that didn't get run to completion
-        grep -vf ${msa_subdir_name}/all_log_files/temp_completed_tree_list.txt ${i} >> ${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt
-        if [ -f ${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt ]; then
-            rm ${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt
-        fi
-        for lf in $(cat ${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt)
-        do
-            tname=$(basename ${lf} .fa)
-            find ${msa_output_dir}/${msa_subdir_name}/all_log_files -name "${tname}*" >> ${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt
-        done
-        echo "Printing list of filepaths to transcript log files:"
-        cat ${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt
-        echo "Missing transcripts are available here: ${msa_output_dir}/${msa_subdir_name}/all_log_files/temp_missing_transcripts.txt"
-        echo "List of log files associated with missing transcripts are available here: ${msa_output_dir}/${msa_subdir_name}/all_log_files/temp_missing_transcripts_log_files.txt"
-        printf "\n"
-    fi
-done
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/check_align_output_file_counts.job
 ```
 
 For transcripts where the `MSA_output/all_parallel_log_files/*.log` files indicate there was an error but the exit status was `0`, find the transcript name in the `MSA_output/all_parallel_log_files` list that is associated with that list number and delete the line for that transcript before re-running.
