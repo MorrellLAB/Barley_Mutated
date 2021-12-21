@@ -176,6 +176,15 @@ The re-run array indices above are formatted correctly for re-submitting some ar
 sbatch --array=4,11,22-23,37,49,52,57,60,71,76,79,82-83,87,89,94,105,114,120,125 bad_mut_align.sh
 ```
 
+There were still some that timed out. Repeat the above.
+
+```bash
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/get_re-run_array_indices.sh 9218771
+4,22-23,37,60,71,79,89,105,114
+
+sbatch --array=4,22-23,37,60,71,79,89,105,114 bad_mut_align.sh
+```
+
 *Note:* BAD_Mutations align combines both Slurm job arrays and GNU parallel. This allows re-submitting the same array index and picking up where the job left off if we run out of walltime. It does this by keeping a GNU parallel log file in the `${OUT_DIR}/all_parallel_log_files`. Each array index will have its own log file that track the exit status of each GNU parallel task.
 
 Each subdirectory in `MSA_Output` a subdirectory called `all_log_files` (e.g., `MSA_Output/hvulgare_cds_list-000/all_log_files`, `MSA_Output/hvulgare_cds_list-001/all_log_files`, `MSA_Output/hvulgare_cds_list-002/all_log_files`, etc.) that keeps a log of the align output (i.e., the stdout from BAD_Mutations align) for each transcript in that batch. The log files have basenames that match the name of the transcript in that batch. For example `HORVU.MOREX.r2.1HG0000020.1.log` is the log file for a transcript from the list `/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-000.txt`. This makes it a little easier to troubleshoot if needed. The `MSA_output/all_parallel_log_files` is a log to keep track of the parallel tasks being run and where to pick up the run in case we run out of walltime and need to re-submit the job.
