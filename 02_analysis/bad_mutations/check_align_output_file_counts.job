@@ -21,6 +21,23 @@ if [ -f ${MSA_OUTPUT_DIR}/temp_msa_output_problem_dirs.txt ]; then
     rm ${MSA_OUTPUT_DIR}/temp_msa_output_problem_dirs.txt
 fi
 
+if [ -f ${MSA_OUTPUT_DIR}/temp_msa_output_missing_transcripts_log_files.txt ]; then
+    # File exists, remove before proceeding
+    rm ${MSA_OUTPUT_DIR}/temp_msa_output_missing_transcripts_log_files.txt
+fi
+
+if [ -f ${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files.txt ]; then
+    rm ${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files.txt
+fi
+
+if [ -f ${MSA_OUTPUT_DIR}/temp_msa_output_unexpected_symbol_error_log_files.txt ]; then
+    rm ${MSA_OUTPUT_DIR}/temp_msa_output_unexpected_symbol_error_log_files.txt
+fi
+
+if [ -f ${MSA_OUTPUT_DIR}/temp_msa_output_other_error_log_files.txt ]; then
+    rm ${MSA_OUTPUT_DIR}/temp_msa_output_other_error_log_files.txt
+fi
+
 # Figure out which ones need to be investigated/re-run
 for i in $(cat ${FASTA_LIST_OF_LISTS})
 do
@@ -65,33 +82,39 @@ do
 done
 
 echo "List of all log files associated with missing transcripts are available here: ${MSA_OUTPUT_DIR}/temp_msa_output_missing_transcripts_log_files.txt"
+# Pull only uniq lines
+sort -uV ${MSA_OUTPUT_DIR}/temp_msa_output_missing_transcripts_log_files.txt > ${MSA_OUTPUT_DIR}/temp_msa_output_missing_transcripts_log_files_uniq.txt
+mv ${MSA_OUTPUT_DIR}/temp_msa_output_missing_transcripts_log_files_uniq.txt ${MSA_OUTPUT_DIR}/temp_msa_output_missing_transcripts_log_files.txt
 
 echo "Separating log files into categories: 1) e-value threshold related, 2) Unexpected symbol ('*',)"
-# Start with a clean file since we are appending to the output file
-if [ -f ${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files.txt ]; then
-    rm ${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files.txt
-fi
-if [ -f ${MSA_OUTPUT_DIR}/temp_msa_output_unexpected_symbol_error_log_files.txt ]; then
-    rm ${MSA_OUTPUT_DIR}/temp_msa_output_unexpected_symbol_error_log_files.txt
-fi
-if [ -f ${MSA_OUTPUT_DIR}/temp_msa_output_other_error_log_files.txt ]; then
-    rm ${MSA_OUTPUT_DIR}/temp_msa_output_other_error_log_files.txt
-fi
+
 for f in $(cat ${MSA_OUTPUT_DIR}/temp_msa_output_missing_transcripts_log_files.txt)
 do
     if grep -wq "Could not find any BLAST hits! Try raising the E-value threshold for homology" ${f}
     then
         # Pattern if found
         echo ${f} >> ${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files.txt
-    elif grep -wq "Unexpected symbol ('*',) in file of datatype PROTEIN" ${f}
+    elif grep -wq "Unexpected symbol" ${f}
     then
         # Pattern if found
+        # Full pattern is "Unexpected symbol ('*',) in file of datatype PROTEIN"
         echo ${f} >> ${MSA_OUTPUT_DIR}/temp_msa_output_unexpected_symbol_error_log_files.txt
     else
         # Some other error that is not either of the above
         echo ${f} >> ${MSA_OUTPUT_DIR}/temp_msa_output_other_error_log_files.txt
     fi
 done
+
+# The above leads to duplicate files being appended to the final file, so we'll pull just uniq lines
+# Evalue errors
+sort -uV ${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files.txt > ${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files_uniq.txt
+mv ${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files_uniq.txt ${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files.txt
+# Unexpected symbol errors
+sort -uV ${MSA_OUTPUT_DIR}/temp_msa_output_unexpected_symbol_error_log_files.txt > ${MSA_OUTPUT_DIR}/temp_msa_output_unexpected_symbol_error_log_files_uniq.txt
+mv ${MSA_OUTPUT_DIR}/temp_msa_output_unexpected_symbol_error_log_files_uniq.txt ${MSA_OUTPUT_DIR}/temp_msa_output_unexpected_symbol_error_log_files.txt
+# Other errors
+sort -uV ${MSA_OUTPUT_DIR}/temp_msa_output_other_error_log_files.txt > ${MSA_OUTPUT_DIR}/temp_msa_output_other_error_log_files_uniq.txt
+mv ${MSA_OUTPUT_DIR}/temp_msa_output_other_error_log_files_uniq.txt ${MSA_OUTPUT_DIR}/temp_msa_output_other_error_log_files.txt
 
 echo "Lists of log files separated by error type are located in the following files:"
 echo "${MSA_OUTPUT_DIR}/temp_msa_output_evalue_error_log_files.txt"

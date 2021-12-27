@@ -73,7 +73,7 @@ The following genomes on our original list wasn't already downloaded:
 
 ```bash
 # In dir: ~/Projects/Mutant_Barley/results/bad_mutations/excluded_genomes
-cat genomes_not_downloaded.txt 
+cat genomes_not_downloaded.txt
 Claxum
 Pacutifolius
 Platifolius
@@ -183,6 +183,24 @@ There were still some that timed out. Repeat the above.
 4,22-23,37,60,71,79,89,105,114
 
 sbatch --array=4,22-23,37,60,71,79,89,105,114 bad_mut_align.sh
+```
+
+There were still some that timed out, based on the output messages, it looks like they just need longer walltime. We'll increase to 48 hours.
+
+```bash
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/get_re-run_array_indices.sh 9255778
+4,23,37,60,71,105,114
+
+sbatch --array=4,23,37,60,71,105,114 bad_mut_align.sh
+```
+
+Again, there were five genes that timed out. We'll increase walltime to 90 hours.
+
+```bash
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/get_re-run_array_indices.sh 9292552
+4,37,71,105,114
+
+sbatch --array=4,37,71,105,114 bad_mut_align.sh
 ```
 
 *Note:* BAD_Mutations align combines both Slurm job arrays and GNU parallel. This allows re-submitting the same array index and picking up where the job left off if we run out of walltime. It does this by keeping a GNU parallel log file in the `${OUT_DIR}/all_parallel_log_files`. Each array index will have its own log file that track the exit status of each GNU parallel task.
