@@ -14,6 +14,13 @@ MSA_OUTPUT_DIR=~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
 # Make sure we are in the MSA_Output directory when we run this!
 cd ${MSA_OUTPUT_DIR}
 
+# Start from clean list since we will be appending to the output files
+# If they already exist, delete
+if [ -f ${MSA_OUTPUT_DIR}/temp_msa_output_problem_dirs.txt ]; then
+    # File exists, remove before proceeding
+    rm ${MSA_OUTPUT_DIR}/temp_msa_output_problem_dirs.txt
+fi
+
 # Figure out which ones need to be investigated/re-run
 for i in $(cat ${FASTA_LIST_OF_LISTS})
 do
