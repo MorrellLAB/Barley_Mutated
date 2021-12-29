@@ -16,6 +16,7 @@ set -o pipefail
 # This script calculates coverage
 
 # Dependencies
+# Mosdepth version 0.3.1
 export PATH=${PATH}:/panfs/roc/groups/9/morrellp/shared/Software/mosdepth
 
 # User provided input arguments

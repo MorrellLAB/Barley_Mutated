@@ -1,0 +1,56 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=6
+#SBATCH --mem=56gb
+#SBATCH --tmp=48gb
+#SBATCH -t 08:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=liux1299@umn.edu
+#SBATCH -p ram256g,ram1t
+#SBATCH -o %j.out
+#SBATCH -e %j.err
+
+set -e
+set -o pipefail
+
+# This script converts SAM to BAM format, sorts the BAM, and generates some alignment statistics.
+
+# Dependencies
+module load samtools/1.9
+
+# User provided input arguments
+sam_file="/scratch.global/liux1299/nanopore_mutated_barley/read_mapping/M29-2-2-02-40_run1-2.sam"
+project="nanopore_mutated_barley"
+# Full filepath to output directory
+out_dir="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/sam_processing"
+# Full filepath to output temporary intermediate files
+scratch_dir="/scratch.global/liux1299/nanopore_mutated_barley/sam_processing"
+#   Full filepath to reference fasta file
+reference_fasta="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta"
+
+#-----------------
+# Check if out dir exists, if not make it
+mkdir -p ${out_dir} ${scratch_dir} ${out_dir}/Statistics ${out_dir}/Statistics/Finished_BAM_Stats
+
+sample_basename=$(basename ${sam_file} .sam)
+
+# Convert to BAM format
+samtools view -bhT "${reference_fasta}" "${sam_file}" > "${scratch_dir}/${sample_basename}_unsorted.bam"
+
+# Sort the BAM file
+samtools sort "${scratch_dir}/${sample_basename}_unsorted.bam" > "${out_dir}/${sample_basename}.bam"
+#   Index the finished BAM file
+samtools index "${out_dir}/${sample_basename}.bam"
+#   Rename the index file
+mv "${out_dir}/${sample_basename}.bam.bai" "${out_dir}/${sample_basename}.bai"
+
+#   Run flagstat on the finished file to assess quality
+samtools flagstat "${out_dir}/${sample_basename}.bam" > "${out_dir}/Statistics/Finished_BAM_Stats/${sample_basename}_stats.txt"
+
+#   Add the data from flagstat to the summary file
+num_reads=$(head -n 1 "${out_dir}/Statistics/Finished_BAM_Stats/${sample_basename}_stats.txt" | cut -f 1 -d " ")
+percent_mapped=$(grep "%" "${out_dir}/Statistics/Finished_BAM_Stats/${sample_basename}_stats.txt" | head -n 1 | cut -f 2 -d "(" | cut -f 1 -d " ")
+echo -e "${sample_basename}\t${num_reads}\t${percent_mapped}" >> "${out_dir}/Statistics/${project}_mapping_summary.tsv"
+
+#   Remove the unsorted BAM
+rm "${scratch_dir}/${sample_basename}_unsorted.bam"
