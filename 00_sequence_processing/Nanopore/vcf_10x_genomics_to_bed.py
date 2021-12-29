@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Script that converts updates VCF SNP positions to Morex v3 positions and outputs
-UNSORTED VCF files: 1) updated position vcf, and 2) missing SNPs vcf (if any)
+"""Script that converts 10x Genomics formatted VCF file to BED format.
 
 Usage: ./vcf_10x_genomics_to_bed.py [vcf_file] > out_file.vcf
 
 Where:
-1) [vcf_file] is the full filepath to the VCF file where we want to update the positions
+1) [vcf_file] is the full filepath to the VCF file
 """
 
 import sys
