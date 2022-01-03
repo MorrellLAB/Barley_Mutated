@@ -114,3 +114,15 @@ qsub sort_vcfs.job
 **Step 2:** Pull mutated and Morex VCFs into IGV to see how much heterogeneity there is
 
 **Step 3:** Remove (subtract) everything that intersects between morex and mutated lines (using Longranger’s filtering)
+
+Identify differences between 10x Morex and Morex references (outputs a BED file containing differences from reference).
+
+```bash
+~/GitHub/Barley_Mutated/01_snp_filtering/variant_filtering-morex-sample2.sh
+```
+
+Filter mutated lines by quality metrics (using 10x Genomics custom filters and DP), exclude sitest that differ between 10x Morex and Morex reference, and exclude non-unique variants (i.e., variants that are present in more than 1 of the mutated lines).
+
+```bash
+~/GitHub/Barley_Mutated/01_snp_filtering/variant_filtering-mut_3_lines.sh
+```
