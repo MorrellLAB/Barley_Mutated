@@ -126,3 +126,13 @@ Filter mutated lines by quality metrics (using 10x Genomics custom filters and D
 ```bash
 ~/GitHub/Barley_Mutated/01_snp_filtering/variant_filtering-mut_3_lines.sh
 ```
+
+Remove variants shared between 10x Genomics Morex line and mutant lines. So, we want variants private to the mutant lines that are NOT in the 10x Genomics Morex line.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/longranger_morex_v2/combined_mutated/Filtered
+module load bcftools/1.9
+bcftools isec -p /scratch.global/liux1299 mut_3_lines_filtered_singletons_only_annotated_DEL.vcf.gz
+# 0000.vcf contains records private to mut_3_lines_filtered_singletons_only_annotated_DEL.vcf.gz
+cp /scratch.global/liux1299/0000.vcf mut_3_lines_filtered_singletons_only_annotated_DEL_de_novo_sites.vcf
+```
