@@ -203,6 +203,45 @@ Again, there were five genes that timed out. We'll increase walltime to 90 hours
 sbatch --array=4,37,71,105,114 bad_mut_align.sh
 ```
 
+A few are taking longer than 90 hours.
+
+```bash
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/get_re-run_array_indices.sh 9425464
+4,37,105
+
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
+# Check which transcripts these are
+cat temp_msa_output_other_error_log_files.txt
+# Output
+/home/morrellp/liux1299/Projects/Mutant_Barley/results/bad_mutations/MSA_output/hvulgare_cds_list-004/all_log_files/HORVU.MOREX.r2.1HG0018220.1.log
+/home/morrellp/liux1299/Projects/Mutant_Barley/results/bad_mutations/MSA_output/hvulgare_cds_list-037/all_log_files/HORVU.MOREX.r2.2HG0150370.1.log
+/home/morrellp/liux1299/Projects/Mutant_Barley/results/bad_mutations/MSA_output/hvulgare_cds_list-105/all_log_files/HORVU.MOREX.r2.5HG0421780.1.log
+
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+# Based on the log files, these just need longer to run
+# We'll try increasing the walltime to 240 hours just for these 3
+sbatch --array=4,37,105 bad_mut_align.sh
+```
+
+Two are taking longer than 240 hours.
+
+```bash
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/get_re-run_array_indices.sh 9660527
+4,105
+
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
+# Check which transcripts these are
+cat temp_msa_output_other_error_log_files.txt
+# Output
+/home/morrellp/liux1299/Projects/Mutant_Barley/results/bad_mutations/MSA_output/hvulgare_cds_list-004/all_log_files/HORVU.MOREX.r2.1HG0018220.1.log
+/home/morrellp/liux1299/Projects/Mutant_Barley/results/bad_mutations/MSA_output/hvulgare_cds_list-105/all_log_files/HORVU.MOREX.r2.5HG0421780.1.log
+
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+# Based on the log files, they just need longer to run
+# We'll try increasing the walltime to 480 hours for the last 2
+sbatch --array=4,105 bad_mut_align.sh
+```
+
 *Note:* BAD_Mutations align combines both Slurm job arrays and GNU parallel. This allows re-submitting the same array index and picking up where the job left off if we run out of walltime. It does this by keeping a GNU parallel log file in the `${OUT_DIR}/all_parallel_log_files`. Each array index will have its own log file that track the exit status of each GNU parallel task.
 
 Each subdirectory in `MSA_Output` a subdirectory called `all_log_files` (e.g., `MSA_Output/hvulgare_cds_list-000/all_log_files`, `MSA_Output/hvulgare_cds_list-001/all_log_files`, `MSA_Output/hvulgare_cds_list-002/all_log_files`, etc.) that keeps a log of the align output (i.e., the stdout from BAD_Mutations align) for each transcript in that batch. The log files have basenames that match the name of the transcript in that batch. For example `HORVU.MOREX.r2.1HG0000020.1.log` is the log file for a transcript from the list `/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-000.txt`. This makes it a little easier to troubleshoot if needed. The `MSA_output/all_parallel_log_files` is a log to keep track of the parallel tasks being run and where to pick up the run in case we run out of walltime and need to re-submit the job.
@@ -223,7 +262,51 @@ done
 wc -l ~/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-*.txt
 
 # We'll programmatically check that we have the expected number of output files
-~/GitHub/Barley_Mutated/02_analysis/bad_mutations/check_align_output_file_counts.job
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/check_align_output_file_counts.job \
+    /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/all_cds_hvulgare_list_of_lists.txt \
+    ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
+```
+
+This check outputs of the following files in the `MSA_output` directory:
+
+```bash
+temp_msa_output_evalue_error_log_files.txt
+temp_msa_output_problem_dirs.txt
+temp_msa_output_missing_transcripts_log_files.txt
+temp_msa_output_unexpected_symbol_error_log_files.txt
+temp_msa_output_other_error_log_files.txt
+```
+
+The `temp_msa_output_evalue_error_log_files.txt` contains a list of transcript log files with the following error:
+
+```
+CRITICAL	Could not find any BLAST hits! Try raising the E-value threshold for homology.
+```
+
+For these, we will experiment and try a higher e-value. We'll need to generate the correct list of fasta files, config file with the increased e-value, and any other files needed for the `align` step.
+
+```bash
+# Prepare higher e-value align lists
+# Modify filepaths in the script
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/prep_evalue_error_re-run.sh
+# Generate list of lists
+find /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists_increased_e-val -name "hvulgare_cds_list-*.txt" | sort -V > /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists_increased_e-val/e-val_err_cds_hvulgare_list_of_lists.txt
+# Generate a config file with increased e-value threshold
+```
+
+Re-run e-value error fasta files with increased e-value.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+sbatch --array=0-107 bad_mut_align-increased_e-val.sh
+```
+
+Check outputs of the following files in the `MSA_output_increased_e-val` directory:
+
+```bash
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/prep_evalue_error_re-run.sh \
+    /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists_increased_e-val/e-val_err_cds_hvulgare_list_of_lists.txt \
+    ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output_increased_e-val
 ```
 
 For transcripts where the `MSA_output/all_parallel_log_files/*.log` files indicate there was an error but the exit status was `0`, find the transcript name in the `MSA_output/all_parallel_log_files` list that is associated with that list number and delete the line for that transcript before re-running.

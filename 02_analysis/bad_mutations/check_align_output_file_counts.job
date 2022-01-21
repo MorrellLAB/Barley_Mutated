@@ -7,8 +7,10 @@ set -o pipefail
 
 # User provided input arguments
 # We'll need the Fasta list of lists defined in the bad_mut_align.sh script
-FASTA_LIST_OF_LISTS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/all_cds_hvulgare_list_of_lists.txt
-MSA_OUTPUT_DIR=~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
+# Fasta list of lists (e.g., all_cds_hvulgare_list_of_lists.txt)
+FASTA_LIST_OF_LISTS="$1"
+# Path to MSA_output directory
+MSA_OUTPUT_DIR="$2"
 
 #------------------------------
 # Make sure we are in the MSA_Output directory when we run this!
