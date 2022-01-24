@@ -298,16 +298,21 @@ Re-run e-value error fasta files with increased e-value.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
-sbatch --array=0-107 bad_mut_align-increased_e-val.sh
+# Try two e-values
+sbatch --array=0-107 bad_mut_align-increased_e-val_0.06.sh
+sbatch --array=0-107 bad_mut_align-increased_e-val_0.08.sh
 ```
 
 Check outputs of the following files in the `MSA_output_increased_e-val` directory:
 
 ```bash
-~/GitHub/Barley_Mutated/02_analysis/bad_mutations/prep_evalue_error_re-run.sh \
-    /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists_increased_e-val/e-val_err_cds_hvulgare_list_of_lists.txt \
-    ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output_increased_e-val
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output_increased_e-val_0.06
+ls hvulgare_cds_list-*/*.tree | wc -l
+# Compare to the original number of CDS that had e-value errors
+wc -l ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output/temp_msa_output_evalue_error_log_files.txt
 ```
+
+For 0.06 e-value threshold, an additional 29 CDS sequences worked out of the original 203 CDS sequences that had the e-value type of error.
 
 For transcripts where the `MSA_output/all_parallel_log_files/*.log` files indicate there was an error but the exit status was `0`, find the transcript name in the `MSA_output/all_parallel_log_files` list that is associated with that list number and delete the line for that transcript before re-running.
 

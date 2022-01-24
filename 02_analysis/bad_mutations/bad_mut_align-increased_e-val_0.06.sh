@@ -26,7 +26,7 @@ FASTA_LIST_OF_LISTS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/r
 CONFIG_FILE=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/config_e-val_0.06.txt
 # Full path to the out directory
 # Note: subdirectories for each list of lists will automatically be generated (e.g., ${OUT_DIR}/list-00)
-OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/MSA_output_increased_e-val
+OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/MSA_output_increased_e-val_0.06
 # Full path to the BAD_Mutations.py script
 BAD_MUT_SCRIPT=~/Software/BAD_Mutations/BAD_Mutations.py
 # Full path to where we want to store the log files output from parallel
