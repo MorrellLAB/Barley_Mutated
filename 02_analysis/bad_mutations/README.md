@@ -283,53 +283,11 @@ The `temp_msa_output_evalue_error_log_files.txt` contains a list of transcript l
 CRITICAL	Could not find any BLAST hits! Try raising the E-value threshold for homology.
 ```
 
-For these, we will experiment and try a higher e-value. We'll need to generate the correct list of fasta files, config file with the increased e-value, and any other files needed for the `align` step.
+There were 203 CDS sequences with this type of e-value threshold error. We can exclude these from the predictions because they are likely annotation errors in the barley genome or are genes that couldn't be anntoated in related species and are missing from other plant peptide sequences.
 
-```bash
-# Prepare higher e-value align lists
-# Modify filepaths in the script
-~/GitHub/Barley_Mutated/02_analysis/bad_mutations/prep_evalue_error_re-run.sh
-# Generate list of lists
-find /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists_increased_e-val -name "hvulgare_cds_list-*.txt" | sort -V > /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists_increased_e-val/e-val_err_cds_hvulgare_list_of_lists.txt
-# Generate a config file with increased e-value threshold
-```
+Check to see if there are any other transcripts that didn't work, if so make a note of the ones that didn't work and proceed to the predict step. It is known that some transcripts just don't work.
 
-Re-run e-value error fasta files with increased e-value.
-
-```bash
-# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
-# Try two e-values
-sbatch --array=0-107 bad_mut_align-increased_e-val_0.06.sh
-sbatch --array=0-107 bad_mut_align-increased_e-val_0.08.sh
-```
-
-Check outputs of the following files in the `MSA_output_increased_e-val` directory:
-
-```bash
-# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output_increased_e-val_0.06
-ls hvulgare_cds_list-*/*.tree | wc -l
-# Compare to the original number of CDS that had e-value errors
-wc -l ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output/temp_msa_output_evalue_error_log_files.txt
-```
-
-For 0.06 e-value threshold, an additional 29 CDS sequences worked out of the original 203 CDS sequences that had the e-value type of error.
-
-For transcripts where the `MSA_output/all_parallel_log_files/*.log` files indicate there was an error but the exit status was `0`, find the transcript name in the `MSA_output/all_parallel_log_files` list that is associated with that list number and delete the line for that transcript before re-running.
-
-Here's an example:
-
-The missing tree file we identified is associated with the log file `/home/morrellp/liux1299/Projects/Mutant_Barley/results/bad_mutations/MSA_output/hvulgare_cds_list-003/all_log_files/HORVU.MOREX.r2.1HG0024570.1.log`. There seems to be some error here and we want to pull it out and investigate what's going on. This is a transcript in the batch `hvulgare_cds_list-003`, so we'll go to the GNU parallel log file:
-
-```bash
-# hvulgare_cds_list-003 corresponds to index 3 in bad_mut_align.sh.3.log
-vim /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/MSA_output/all_parallel_log_files/bad_mut_align.sh.3.log
-```
-
-Then do a search for the transcript `HORVU.MOREX.r2.1HG0024570.1` within Vim and delete that line so that GNU parallel will know to re-run that transcript when we resubmit the align script. We'll repeat this process for the transcripts that did not run to completion.
-
-For this case, we identified 11 transcripts that we want to try re-running with a higher e-value threshold. This process is a bit customized, so contact Chaochih for how she did this if it applies to your dataset.
-
-Check to see if there are any transcripts that didn't work, if so make a note of the ones that didn't work and proceed to the predict step. It is known that some transcripts just don't work.
+We'll need to regenerate the `FASTA_LIST_OF_LISTS` to exclude problematic CDS sequences so our predict script works as intended.didn't work and proceed to the predict step. It is known that some transcripts just don't work.
 
 #### Step 5: Predict substitutions
 
