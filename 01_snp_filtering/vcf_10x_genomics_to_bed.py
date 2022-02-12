@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Script that converts 10x Genomics formatted VCF file to BED format.
 
-Usage: ./vcf_10x_genomics_to_bed.py [vcf_file] > out_file.vcf
+Usage: ./vcf_10x_genomics_to_bed.py [vcf_file] > out_file.bed
 
 Where:
 1) [vcf_file] is the full filepath to the VCF file
