@@ -55,5 +55,3 @@ vcf2bed < ${OUT_DIR}/${PREFIX}_filtered.dp_ann.vcf | cut -f 1,2,3 > ${OUT_DIR}/$
 vcf_10x_genomics_to_bed.py ${OUT_DIR}/${PREFIX}_filtered.SVs_not_BND.vcf > ${OUT_DIR}/${PREFIX}_diffs_from_ref.SVs_not_BND.bed
 # BND sites VCF to BEDPE
 bedtools intersect -wa -a ${BEDPE} -b ${OUT_DIR}/${PREFIX}_filtered.SVs_BND.vcf | sort -uV -k1,3 > ${OUT_DIR}/${PREFIX}_diffs_from_ref.SVs_BND.bedpe
-# "Flatten" to just BED, some programs only work with BED file
-cut -f 1,2,6 ${OUT_DIR}/${PREFIX}_diffs_from_ref.SVs_BND.bedpe > ${OUT_DIR}/${PREFIX}_diffs_from_ref.SVs_BND.bed
