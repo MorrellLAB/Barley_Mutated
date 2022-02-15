@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Script that converts 10x Genomics formatted VCF file to BED format.
+This script handles non-BND variants that have end positions stored
+in the INFO/END field.
 
 Usage: ./vcf_10x_genomics_to_bed.py [vcf_file] > out_file.bed
 
