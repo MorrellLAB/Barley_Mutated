@@ -1,0 +1,40 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=58gb
+#SBATCH --tmp=48gb
+#SBATCH -t 48:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=liux1299@umn.edu
+#SBATCH -p small,ram256g,ram1t
+#SBATCH -o %j.out
+#SBATCH -e %j.err
+
+set -e
+set -o pipefail
+
+# This script aligns Nanopore trimmed fastq files using Vulcan and outputs in SAM format.
+#   https://gitlab.com/treangenlab/vulcan
+
+# Dependencies
+module load python3/3.8.3_anaconda2020.07_mamba
+# Activate conda environment
+source activate /panfs/roc/groups/9/morrellp/liux1299/.conda/envs/vulcan_env
+
+# User provided input arguments
+# Morex-sample2 reads concatenated into one file
+NP_READS="/panfs/roc/groups/9/morrellp/shared/Datasets/Nanopore/Barley/Morex/final_fastq_files_from1_to14/Morex_1_14.fastq.gz"
+REF="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules.fasta"
+OUT_PREFIX="Morex_nanopore_V2_pseudoRef"
+OUT_DIR="/scratch.global/liux1299/nanopore_morex_v2/${OUT_PREFIX}"
+NUM_THREADS="16"
+
+#-----------------
+# Run program
+# Vulcan automatically makes the output directory
+vulcan --input ${NP_READS} \
+    --reference ${REF} \
+    --nanopore \
+    --work_dir ${OUT_DIR} \
+    --threads ${NUM_THREADS} \
+    --output ${OUT_PREFIX}
