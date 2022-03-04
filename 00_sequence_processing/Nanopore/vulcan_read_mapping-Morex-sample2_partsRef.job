@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=16
 #SBATCH --mem=58gb
 #SBATCH --tmp=48gb
-#SBATCH -t 48:00:00
+#SBATCH -t 30:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t
@@ -19,11 +19,14 @@ set -o pipefail
 # Dependencies
 module load python3/3.8.3_anaconda2020.07_mamba
 # Activate conda environment
+# This conda environment contains the modified vulcan script
 source activate /panfs/roc/groups/9/morrellp/liux1299/.conda/envs/vulcan_env
 
 # User provided input arguments
 # Morex-sample2 reads concatenated into one file
-NP_READS="/panfs/roc/groups/9/morrellp/shared/Datasets/Nanopore/Barley/Morex/final_fastq_files_from1_to14/Morex_1_14.fastq.gz"
+NP_READS="/panfs/roc/groups/9/morrellp/shared/Projects/WBDC_inversions/nanopore/Morex/Morex_run1_to_run14/Morex_1_14_trimmed.fastq.gz"
+# Custom Minimap2 alignments with @SQ headers added back
+FULL_PRIMARY_SAM="/scratch.global/liux1299/nanopore_morex_v2/read_mapping/Morex_1_14_full_primary.sam"
 REF="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta"
 OUT_PREFIX="Morex_nanopore_V2_partsRef"
 OUT_DIR="/scratch.global/liux1299/nanopore_morex_v2/${OUT_PREFIX}"
@@ -32,9 +35,12 @@ NUM_THREADS="16"
 #-----------------
 # Run program
 # Vulcan automatically makes the output directory
+# --full_sam_primary is a custom flag that Chaochih added to handle custom
+#   Minimap2 alignments
 vulcan --input ${NP_READS} \
+    --full_sam_primary ${FULL_PRIMARY_SAM} \
     --reference ${REF} \
-    --nanopore \
+    -ont \
     --work_dir ${OUT_DIR} \
     --threads ${NUM_THREADS} \
     --output ${OUT_PREFIX}

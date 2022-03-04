@@ -17,3 +17,17 @@ sbatch np_read_mapping-Morex-sample2.job
 # Keep primary mapping and add @SQ header lines
 sbatch keep_primary_mapping-Morex-sample2.job
 ```
+
+After modifying the `vulcan` script, transferred the script to MSI. The modification was adding the `--full_sam_primary` option to take a custom generated Minimap2 SAM file as input.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
+scp vulcan liux1299@mesabi.msi.umn.edu:/panfs/roc/groups/9/morrellp/liux1299/.conda/envs/vulcan_env/bin
+```
+
+Run modified vulcan pipeline.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
+sbatch vulcan_read_mapping-Morex-sample2_partsRef.job
+```
