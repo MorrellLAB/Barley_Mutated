@@ -18,7 +18,7 @@ sbatch np_read_mapping-Morex-sample2.job
 sbatch keep_primary_mapping-Morex-sample2.job
 ```
 
-After modifying the `vulcan` script, transferred the script to MSI. The modification was adding the `--full_sam_primary` option to take a custom generated Minimap2 SAM file as input.
+After modifying the `vulcan` script, transferred the script to MSI. The modification was adding the `--ful_sam` and `--full_sam_primary` options to take a custom generated Minimap2 SAM files as input.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
