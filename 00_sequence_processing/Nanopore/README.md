@@ -6,7 +6,7 @@ Alignment and other processing steps for Nanopore data.
 
 ### Minimap2 and NGMLR to realign complex regions
 
-Originally, we planned to use the Vulcan pipeline (https://gitlab.com/treangenlab/vulcan/-/tree/master) for alignment and realigning complex regions to get better SV calling downstream. But, Vulcan is not very customizable, so we'll follow their general steps but written as separate bash scripts with custom modifications.
+Originally, we planned to use the Vulcan pipeline (https://gitlab.com/treangenlab/vulcan/-/tree/master) for alignment and realigning complex regions to get better SV calling downstream. But, Vulcan is not very customizable, so we'll follow some of their general steps (Minimap2 and Samtools steps) written as separate bash scripts combined with modifications to their `vulcan` script.
 
 Align with Minimap2 and only keep primary mapping.
 
