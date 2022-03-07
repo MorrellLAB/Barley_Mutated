@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
-#SBATCH --mem=58gb
-#SBATCH --tmp=48gb
-#SBATCH -t 24:00:00
+#SBATCH --mem=30gb
+#SBATCH --tmp=22gb
+#SBATCH -t 12:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t
@@ -30,19 +30,25 @@ FULL_SAM="/scratch.global/liux1299/nanopore_morex_v2/read_mapping/Morex_1_14_wit
 # Only primary mappings with @SQ headers added
 FULL_PRIMARY_SAM="/scratch.global/liux1299/nanopore_morex_v2/read_mapping/Morex_1_14_full_primary.sam"
 REF="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta"
+# Full output directory will be ${OUT_DIR}/${OUT_PREFIX}
 OUT_PREFIX="Morex_nanopore_V2_partsRef"
-OUT_DIR="/scratch.global/liux1299/nanopore_morex_v2/${OUT_PREFIX}"
+OUT_DIR="/scratch.global/liux1299/nanopore_morex_v2"
 NUM_THREADS="16"
 
 #-----------------
 # Run program
 # Vulcan automatically makes the output directory
+#   but the final BAM file gets output in the out directory so we'll make the dir
+#   and cd into the working directory
+mkdir -p ${OUT_DIR}/${OUT_PREFIX}
+cd ${OUT_DIR}/${OUT_PREFIX}
+
 # --full_sam and --full_sam_primary are custom flags that Chaochih added to handle custom Minimap2 alignments
 vulcan --input ${NP_READS} \
     --full_sam ${FULL_SAM} \
     --full_sam_primary ${FULL_PRIMARY_SAM} \
     --reference ${REF} \
     -ont \
-    --work_dir ${OUT_DIR} \
+    --work_dir ${OUT_DIR}/${OUT_PREFIX} \
     --threads ${NUM_THREADS} \
     --output ${OUT_PREFIX}
