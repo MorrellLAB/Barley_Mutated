@@ -1,0 +1,44 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=8gb
+#SBATCH --tmp=6gb
+#SBATCH -t 06:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=liux1299@umn.edu
+#SBATCH -p small,ram256g,ram1t
+#SBATCH -o %j.out
+#SBATCH -e %j.err
+
+set -e
+set -o pipefail
+
+# This script keeps only the primary mapping from the SAM file and adds the @SQ header lines
+# Minimap2 excludes @SQ header lines when the index is too large to hold in RAM
+#   See issue: https://github.com/lh3/minimap2/issues/37
+# But, we can add it back by providing the reference .fasta.fai file generated from samtools faidx
+
+# Dependencies
+module load samtools/1.9
+
+# User provided input arguments
+SAM="/scratch.global/liux1299/sra_pacbio/read_mapping_morex_v2/Morex_pacbio.sam"
+# Full filepath to output directory
+OUT_DIR="/scratch.global/liux1299/sra_pacbio/read_mapping_morex_v2"
+# Full filepath to reference fasta.fai file
+REF_FAI="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta.fai"
+# Number of threads to use in addition to main thread (list one less than maximum available)
+#   THREADS - 1
+NUM_THREADS="15"
+
+#-----------------
+# Check if out dir exists, if not make it
+mkdir -p ${OUT_DIR}
+
+OUT_PREFIX=$(basename ${SAM} .sam)
+
+# Use .fasta.fai file to add @SQ header lines to SAM
+samtools view -h --threads ${NUM_THREADS} -t ${REF_FAI} ${SAM} -o ${OUT_DIR}/${OUT_PREFIX}_with_SQheaders.sam
+
+# Only keep primary mapping and add @SQ header lines to SAM
+samtools view -h --threads ${NUM_THREADS} -F 2308 -t ${REF_FAI} ${SAM} -o ${OUT_DIR}/${OUT_PREFIX}_full_primary.sam

@@ -1,0 +1,55 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=80gb
+#SBATCH --tmp=70gb
+#SBATCH -t 60:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=liux1299@umn.edu
+#SBATCH -p ram256g,ram1t
+#SBATCH -o %j.out
+#SBATCH -e %j.err
+
+set -e
+set -o pipefail
+
+# This script aligns Nanopore trimmed fastq files using Vulcan and outputs in SAM format.
+#   https://gitlab.com/treangenlab/vulcan
+
+# Dependencies
+module load python3/3.8.3_anaconda2020.07_mamba
+# Activate conda environment
+# This conda environment contains the modified vulcan script
+source activate /panfs/roc/groups/9/morrellp/liux1299/.conda/envs/vulcan_env
+
+# User provided input arguments
+# FASTQ reads concatenated into one file
+FQ_READS="/scratch.global/liux1299/sra_pacbio/concat_fastq/Morex_pacbio.fastq.gz"
+# Custom Minimap2 alignments with @SQ headers added
+FULL_SAM="/scratch.global/liux1299/sra_pacbio/read_mapping_morex_v2/Morex_pacbio_with_SQheaders.sam"
+# Only primary mappings with @SQ headers added
+FULL_PRIMARY_SAM="/scratch.global/liux1299/sra_pacbio/read_mapping_morex_v2/Morex_pacbio_full_primary.sam"
+REF="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta"
+# Full output directory will be ${OUT_DIR}/${OUT_PREFIX}
+OUT_PREFIX="Morex_pacbio"
+OUT_DIR="/scratch.global/liux1299/sra_pacbio/pacbio_morex_v2"
+NUM_THREADS="16"
+
+#-----------------
+# Run program
+# Vulcan automatically makes the output directory
+#   but the final BAM file gets output in the out directory so we'll make the dir
+#   and cd into the working directory
+mkdir -p ${OUT_DIR}/${OUT_PREFIX}
+cd ${OUT_DIR}/${OUT_PREFIX}
+
+# --full_sam and --full_sam_primary are custom flags that Chaochih added to handle custom Minimap2 alignments
+# Using pacbio CCS specific flag here
+vulcan --input ${FQ_READS} \
+    --full_sam ${FULL_SAM} \
+    --full_sam_primary ${FULL_PRIMARY_SAM} \
+    --reference ${REF} \
+    -hifi \
+    --work_dir ${OUT_DIR}/${OUT_PREFIX} \
+    --threads ${NUM_THREADS} \
+    --output ${OUT_PREFIX}

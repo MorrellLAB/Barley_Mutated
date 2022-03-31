@@ -1,0 +1,44 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=16
+#SBATCH --mem=56gb
+#SBATCH --tmp=48gb
+#SBATCH -t 60:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=liux1299@umn.edu
+#SBATCH -p small,ram256g,ram1t
+#SBATCH -o %j.out
+#SBATCH -e %j.err
+
+set -e
+set -o pipefail
+
+# This script aligns PacBio adapter filtered fastq files using Minimap2 and outputs in SAM format.
+
+# Dependencies
+module load minimap2/2.17
+
+# User provided input arguments
+fastq_file="/scratch.global/liux1299/sra_pacbio/concat_fastq/Morex_pacbio.fastq.gz"
+# Full filepath to output directory
+out_dir="/scratch.global/liux1299/sra_pacbio/read_mapping_morex_v2"
+#   Full filepath to reference fasta file
+reference_fasta="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta"
+# Parameters specified
+threads="16"
+
+#-----------------
+# Check if out dir exists, if not make it
+mkdir -p ${out_dir}
+
+sample_basename=$(basename ${fastq_file} .fastq.gz)
+
+# Minimap2 presets for PacBio HiFi/CCS genomic reads (v2.18 or earlier)
+#   using option -ax asm20
+minimap2 -r "${bandwidth}" \
+    -ax asm20 \
+    -t "${threads}" \
+    --MD \
+    -L \
+    "${reference_fasta}" \
+    "${fastq_file}" > "${out_dir}/${sample_basename}.sam"
