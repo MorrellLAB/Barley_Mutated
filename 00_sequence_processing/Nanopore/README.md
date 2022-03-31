@@ -31,3 +31,19 @@ Run modified vulcan pipeline.
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
 sbatch vulcan_read_mapping-Morex-sample2_partsRef.job
 ```
+
+The Vulcan pipeline outputs a sorted BAM file.
+
+Run Sniffles2.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
+sbatch sniffles-Morex-sample2_partsRef.job
+```
+
+Add @RG header line to BAM file, many downstream programs require @RG header lines to be present.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
+sbatch add_RG_header.sh
+```
