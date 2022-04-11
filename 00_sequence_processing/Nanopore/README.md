@@ -18,7 +18,7 @@ sbatch np_read_mapping-Morex-sample2.job
 sbatch keep_primary_mapping-Morex-sample2.job
 ```
 
-After modifying the `vulcan` script, transferred the script to MSI. The modification was adding the `--ful_sam` and `--full_sam_primary` options to take a custom generated Minimap2 SAM files as input. Modifications are documented in this forked repository under [commit 0dec3094](https://gitlab.com/ChaochihL/vulcan/-/commit/8dce5d4eb75a6044e0fcc00894e22933f56e91c2). The modified `vulcan` script and documentation are available in this forked repository: https://gitlab.com/ChaochihL/vulcan.
+After modifying the `vulcan` script, transferred the script to MSI. The modification was adding the `--full_sam` and `--full_sam_primary` options to take a custom generated Minimap2 SAM files as input. Modifications are documented in this forked repository under [commit 0dec3094](https://gitlab.com/ChaochihL/vulcan/-/commit/8dce5d4eb75a6044e0fcc00894e22933f56e91c2). The modified `vulcan` script and documentation are available in this forked repository: https://gitlab.com/ChaochihL/vulcan.
 
 ```bash
 # In dir: ~/GitHub/vulcan
@@ -34,6 +34,13 @@ sbatch vulcan_read_mapping-Morex-sample2_partsRef.job
 
 The Vulcan pipeline outputs a sorted BAM file.
 
+Add @RG header line to BAM file, many downstream programs require @RG header lines to be present.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
+sbatch add_RG_header.sh
+```
+
 Run Sniffles2.
 
 ```bash
@@ -41,9 +48,9 @@ Run Sniffles2.
 sbatch sniffles-Morex-sample2_partsRef.job
 ```
 
-Add @RG header line to BAM file, many downstream programs require @RG header lines to be present.
+Reheader VCF so `SAMPLE` gets replaced with actual sample ID.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
-sbatch add_RG_header.sh
+./reheader_vcf-ONT_Morex-sample2.sh
 ```

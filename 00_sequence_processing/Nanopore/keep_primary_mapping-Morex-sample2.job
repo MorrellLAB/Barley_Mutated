@@ -22,11 +22,11 @@ set -o pipefail
 module load samtools/1.9
 
 # User provided input arguments
-SAM="/scratch.global/liux1299/nanopore_morex_v2/read_mapping/Morex_1_14.sam"
+SAM="/scratch.global/liux1299/nanopore_morex_v3/read_mapping/Morex_1_14.sam"
 # Full filepath to output directory
-OUT_DIR="/scratch.global/liux1299/nanopore_morex_v2/read_mapping"
+OUT_DIR="/scratch.global/liux1299/nanopore_morex_v3/read_mapping"
 # Full filepath to reference fasta.fai file
-REF_FAI="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta.fai"
+REF_FAI="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta.fai"
 # Number of threads to use in addition to main thread (list one less than maximum available)
 #   THREADS - 1
 NUM_THREADS="15"

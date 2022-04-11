@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=6
 #SBATCH --mem=90gb
 #SBATCH --tmp=80gb
-#SBATCH -t 24:00:00
+#SBATCH -t 20:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p ram256g,ram1t
@@ -21,9 +21,9 @@ module load minimap2/2.17
 # User provided input arguments
 trimmed_fastq="/panfs/roc/groups/9/morrellp/shared/Projects/WBDC_inversions/nanopore/Morex/Morex_run1_to_run14/Morex_1_14_trimmed.fastq.gz"
 # Full filepath to output directory
-out_dir="/scratch.global/liux1299/nanopore_morex_v2/read_mapping"
+out_dir="/scratch.global/liux1299/nanopore_morex_v3/read_mapping"
 #   Full filepath to reference fasta file
-reference_fasta="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta"
+reference_fasta="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
 # Parameters specified
 #   Below are the defaults which are the same as map-ont
 bandwidth="500"

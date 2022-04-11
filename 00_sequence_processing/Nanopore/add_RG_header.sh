@@ -19,9 +19,9 @@ set -o pipefail
 module load samtools/1.9
 
 # User provided input arguments
-BAM="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_nanopore_V2_partsRef/Morex_nanopore_V2_partsRef_90.bam"
-RG_LINE="@RG\tID:Morex_nanopore\tPL:ONT\tSM:Morex_nanopore"
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_nanopore_V2_partsRef"
+BAM="/scratch.global/liux1299/nanopore_morex_v3/Morex_ont_partsRefv3/Morex_ont_partsRefv3_90.bam"
+RG_LINE="@RG\tID:Morex_ont\tPL:ONT\tSM:Morex_ont"
+OUT_DIR="/scratch.global/liux1299/nanopore_morex_v3/Morex_ont_partsRefv3"
 NUM_THREADS="16"
 
 #-----------------
