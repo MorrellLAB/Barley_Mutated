@@ -10,13 +10,6 @@ This directory contains all scripts used to prepare and filter VCF files.
 
 ## Methods
 
-When we got the 10x Genomics VCFs output from `longranger`, three of the samples had incorrect sample names that needed to be corrected. The only sample that did not need to be fixed was morex-sample2. Before working with the VCFs, I used bcftools reheader to change the sample names within the VCF files.
-
-```bash
-# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
-for i in reheader*.job; do qsub $i; done
-```
-
 **Step 0:** Prepare the VCFs
 
 Do some checks to see which files have REF allele mismatches. We repeat the following check for all samples:

@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
-#SBATCH --mem=22gb
-#SBATCH --tmp=18gb
-#SBATCH -t 16:00:00
+#SBATCH --mem=20gb
+#SBATCH --tmp=16gb
+#SBATCH -t 12:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t
@@ -13,7 +13,9 @@
 set -e
 set -o pipefail
 
-# Use samplot to generate images of variants using GNU parallel
+# Use samplot to generate images of variants using GNU parallel and Slurm job arrays
+# Usage: sbatch --array=0-1 samplot-Morex_10x_nanopore_pacbio.sh
+# Where: "0-1" corresponds to the number of variant types stored in a bash array
 
 # Dependencies
 module load parallel/20210822
@@ -21,7 +23,6 @@ module load python3/3.8.3_anaconda2020.07_mamba
 source activate /panfs/roc/groups/9/morrellp/liux1299/.conda/envs/samplot_env
 
 # User provided input arguments
-REGIONS="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/exploration/morex_10xGenomics_nanopore_pacbio_merged.bed"
 OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/exploration/png_samplot_morex_10xGenomics_nanopore_pacbio"
 # Sample IDs, one per variable
 # Must be in the same order as the BAM files
@@ -32,14 +33,44 @@ SAMPLE_ID3="Morex_pacbio"
 BAM1="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/morex-sample2_phased_possorted_bam.bam"
 BAM2="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_nanopore_V2_partsRef/Morex_nanopore_V2_partsRef_90_wRG.bam"
 BAM3="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v2/Morex_pacbio_90_wRG.bam"
+# VCF files, one per variable in the same order as the BAM files
+VCF1="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/Filtered/morex-sample2_filtered_pass1.vcf"
+VCF2="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_nanopore_V2_partsRef/Morex_nanopore_V2_partsRef_90.vcf"
+VCF3="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v2/Morex_pacbio_90.vcf"
 # This bed file lists all intervals with 'Ns' in the reference genome
 ANNOTATE="/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Barley_Morex_V2_pseudomolecules_parts_missing.bed.gz"
 # Type of variant
 VAR_TYPE1="DEL"
 VAR_TYPE2="INS"
+#VAR_TYPE3="INV"
+#VAR_TYPE4="BND"
+# Regions file for each variant type, in the same order as type of variant
+REGION1="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/exploration/samplot_prep/DEL_morex_10x_ONT_PacBio_merged.bed"
+REGION2="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/exploration/samplot_prep/INS_morex_10x_ONT_PacBio_merged.bed"
 
 #----------------
+# Store variant types in bash array
+#VAR_ARR=("${VAR_TYPE1}" "${VAR_TYPE2}" "${VAR_TYPE3}" "${VAR_TYPE4}")
+VAR_ARR=("${VAR_TYPE1}" "${VAR_TYPE2}")
+REGION_ARR=("${REGION1}" "${REGION2}")
+# Make output directories
 mkdir -p ${OUT_DIR}
+# Make output subdirectories
+for i in ${VAR_ARR[@]}
+do
+    mkdir -p ${OUT_DIR}/${i}
+done
+
+# Prepare to run as Slurm job array
+# Determine maximum array limit
+MAX_ARRAY_LIMIT=$[${#VAR_ARR[@]} - 1]
+echo "Maximum array limit is ${MAX_ARRAY_LIMIT}."
+# Get current variant type for job array
+CURR_VAR_TYPE=${VAR_ARR[${SLURM_ARRAY_TASK_ID}]}
+# Get current regions file based on the variant type for job array
+REGIONS=${REGION_ARR[${SLURM_ARRAY_TASK_ID}]}
+echo "Current variant type is: ${CURR_VAR_TYPE}"
+echo "Current regions file is: ${REGIONS}"
 
 function run_samplot() {
     local regions="$1"
@@ -89,19 +120,13 @@ if [ "${total_lines}" -gt 50000 ]; then
     # Check the number of lines in each batch
     echo "Batch1: ${#bed_arr_batch1[@]}"
     echo "Batch2: ${#bed_arr_batch2[@]}"
-    # VAR_TYPE1, batch1
-    parallel --verbose run_samplot "${REGIONS}" "${OUT_DIR}" "${ANNOTATE}" "${VAR_TYPE1}" {} ${SAMPLE_ID1} ${SAMPLE_ID2} ${SAMPLE_ID3} ${BAM1} ${BAM2} ${BAM3} ::: "${bed_arr_batch1[@]}"
-    # VAR_TYPE1, batch2
-    parallel --verbose run_samplot "${REGIONS}" "${OUT_DIR}" "${ANNOTATE}" "${VAR_TYPE1}" {} ${SAMPLE_ID1} ${SAMPLE_ID2} ${SAMPLE_ID3} ${BAM1} ${BAM2} ${BAM3} ::: "${bed_arr_batch2[@]}"
-    # VAR_TYPE2, batch1
-    parallel --verbose run_samplot "${REGIONS}" "${OUT_DIR}" "${ANNOTATE}" "${VAR_TYPE2}" {} ${SAMPLE_ID1} ${SAMPLE_ID2} ${SAMPLE_ID3} ${BAM1} ${BAM2} ${BAM3} ::: "${bed_arr_batch1[@]}"
-    # VAR_TYPE2, batch2
-    parallel --verbose run_samplot "${REGIONS}" "${OUT_DIR}" "${ANNOTATE}" "${VAR_TYPE2}" {} ${SAMPLE_ID1} ${SAMPLE_ID2} ${SAMPLE_ID3} ${BAM1} ${BAM2} ${BAM3} ::: "${bed_arr_batch2[@]}"
+    # Current variant type, batch1
+    parallel --verbose run_samplot "${REGIONS}" "${OUT_DIR}/${CURR_VAR_TYPE}" "${ANNOTATE}" "${CURR_VAR_TYPE}" {} ${SAMPLE_ID1} ${SAMPLE_ID2} ${SAMPLE_ID3} ${BAM1} ${BAM2} ${BAM3} ::: "${bed_arr_batch1[@]}"
+    # Current variant type, batch2
+    parallel --verbose run_samplot "${REGIONS}" "${OUT_DIR}/${CURR_VAR_TYPE}" "${ANNOTATE}" "${CURR_VAR_TYPE}" {} ${SAMPLE_ID1} ${SAMPLE_ID2} ${SAMPLE_ID3} ${BAM1} ${BAM2} ${BAM3} ::: "${bed_arr_batch2[@]}"
 else
     echo "Total number of regions doesn't exceed 50000. Running GNU parallel job as a single batch."
     # Run as a single batch
-    # VAR_TYPE1
-    parallel --verbose run_samplot "${REGIONS}" "${OUT_DIR}" "${ANNOTATE}" "${VAR_TYPE1}" {} ${SAMPLE_ID1} ${SAMPLE_ID2} ${SAMPLE_ID3} ${BAM1} ${BAM2} ${BAM3} ::: "${bed_arr[@]}"
-    # VAR_TYPE2
-    parallel --verbose run_samplot "${REGIONS}" "${OUT_DIR}" "${ANNOTATE}" "${VAR_TYPE2}" {} ${SAMPLE_ID1} ${SAMPLE_ID2} ${SAMPLE_ID3} ${BAM1} ${BAM2} ${BAM3} ::: "${bed_arr[@]}"
+    # Current variant type
+    parallel --verbose run_samplot "${REGIONS}" "${OUT_DIR}/${CURR_VAR_TYPE}" "${ANNOTATE}" "${CURR_VAR_TYPE}" {} ${SAMPLE_ID1} ${SAMPLE_ID2} ${SAMPLE_ID3} ${BAM1} ${BAM2} ${BAM3} ::: "${bed_arr[@]}"
 fi

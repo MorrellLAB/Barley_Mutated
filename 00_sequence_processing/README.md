@@ -1,6 +1,9 @@
 # Sequence Processing
 
-Mutated barley were aligned to barley parts reference with 10x Genomics software, `longranger`, by John Garbe.
-Parts reference filepath: `/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex/barley_RefSeq_v1.0/barley_pseudomolecules_parts.fa`
+Scripts used for sequence processing are stored in subdirectories and categorized by sequencing technology.
 
-Summarized coverage using `Coverage_Mapping` from the [`sequence_handling` pipeline](https://github.com/MorrellLAB/sequence_handling).
+- `10x_Genomics_Morex_v3`
+- `Nanopore`
+- `PacBio`
+
+Config files used with [`sequence_handling`](https://github.com/MorrellLAB/sequence_handling) for processing Illumina WGS sequencing are stored in this directory.
