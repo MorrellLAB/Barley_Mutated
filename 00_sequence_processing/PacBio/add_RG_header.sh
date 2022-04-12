@@ -19,9 +19,9 @@ set -o pipefail
 module load samtools/1.9
 
 # User provided input arguments
-BAM="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v2/Morex_pacbio_90.bam"
+BAM="/scratch.global/liux1299/sra_pacbio/pacbio_morex_v3/Morex_pacbio/Morex_pacbio_90.bam"
 RG_LINE="@RG\tID:Morex_pacbio\tPL:PACBIO\tSM:Morex_pacbio"
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v2"
+OUT_DIR="/scratch.global/liux1299/sra_pacbio/pacbio_morex_v3/Morex_pacbio"
 NUM_THREADS="16"
 
 #-----------------

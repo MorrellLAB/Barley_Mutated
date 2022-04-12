@@ -28,7 +28,7 @@ Run LongQC to do quality assessment of FASTQ files.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/PacBio
-sbatch quality_assessment_raw_fastq.sh 
+sbatch quality_assessment_raw_fastq.sh
 ```
 
 ### Sample Processing
@@ -57,7 +57,7 @@ sbatch minimap2_read_mapping-Morex_pacbio.job
 sbatch keep_primary_mapping-Morex_pacbio.job
 ```
 
-Run modified vulcan pipeline. The modification was adding the `--ful_sam` and `--full_sam_primary` options to take a custom generated Minimap2 SAM files as input. Modifications are documented in this forked repository under [commit 0dec3094](https://gitlab.com/ChaochihL/vulcan/-/commit/8dce5d4eb75a6044e0fcc00894e22933f56e91c2). The modified `vulcan` script and documentation are available in this forked repository: https://gitlab.com/ChaochihL/vulcan.
+Run modified vulcan pipeline. The modification was adding the `--full_sam` and `--full_sam_primary` options to take a custom generated Minimap2 SAM files as input. Modifications are documented in this forked repository under [commit 0dec3094](https://gitlab.com/ChaochihL/vulcan/-/commit/8dce5d4eb75a6044e0fcc00894e22933f56e91c2). The modified `vulcan` script and documentation are available in this forked repository: https://gitlab.com/ChaochihL/vulcan.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/PacBio
@@ -66,6 +66,13 @@ sbatch vulcan_read_mapping-Morex_pacbio.job
 
 The Vulcan pipeline outputs a sorted BAM file.
 
+Add @RG header line to BAM file, many downstream programs require @RG header lines to be present.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/PacBio
+sbatch add_RG_header.sh
+```
+
 Run Sniffles2.
 
 ```bash
@@ -73,9 +80,9 @@ Run Sniffles2.
 sbatch sniffles-Morex_pacbio.sh
 ```
 
-Add @RG header line to BAM file, many downstream programs require @RG header lines to be present.
+Reheader VCF so `SAMPLE` gets replaced with actual sample ID.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/PacBio
-sbatch add_RG_header.sh
+./reheader_vcf-PacBio_Morex.sh
 ```

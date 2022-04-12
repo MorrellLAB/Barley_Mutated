@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
-#SBATCH --mem=8gb
-#SBATCH --tmp=6gb
+#SBATCH --mem=6gb
+#SBATCH --tmp=4gb
 #SBATCH -t 06:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
@@ -22,11 +22,11 @@ set -o pipefail
 module load samtools/1.9
 
 # User provided input arguments
-SAM="/scratch.global/liux1299/sra_pacbio/read_mapping_morex_v2/Morex_pacbio.sam"
+SAM="/scratch.global/liux1299/sra_pacbio/read_mapping_morex_v3/Morex_pacbio.sam"
 # Full filepath to output directory
-OUT_DIR="/scratch.global/liux1299/sra_pacbio/read_mapping_morex_v2"
+OUT_DIR="/scratch.global/liux1299/sra_pacbio/read_mapping_morex_v3"
 # Full filepath to reference fasta.fai file
-REF_FAI="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta.fai"
+REF_FAI="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta.fai"
 # Number of threads to use in addition to main thread (list one less than maximum available)
 #   THREADS - 1
 NUM_THREADS="15"

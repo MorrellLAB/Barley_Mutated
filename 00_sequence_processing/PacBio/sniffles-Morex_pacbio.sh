@@ -22,9 +22,9 @@ module load python3/3.8.3_anaconda2020.07_mamba
 source activate /panfs/roc/groups/9/morrellp/liux1299/.conda/envs/sniffles_env
 
 # User provided input arguments
-BAM="/scratch.global/liux1299/sra_pacbio/pacbio_morex_v2/Morex_pacbio/Morex_pacbio_90.bam"
-REF="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta"
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v2"
+BAM="/scratch.global/liux1299/sra_pacbio/pacbio_morex_v3/Morex_pacbio/Morex_pacbio_90.bam"
+REF="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
+OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v3"
 NUM_THREADS="16"
 
 #-----------------
