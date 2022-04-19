@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=6
 #SBATCH --mem=90gb
 #SBATCH --tmp=80gb
-#SBATCH -t 30:00:00
+#SBATCH -t 20:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p ram256g,ram1t
@@ -23,7 +23,7 @@ trimmed_fastq="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_
 # Full filepath to output directory
 out_dir="/scratch.global/liux1299/nanopore_mutated_barley/read_mapping"
 #   Full filepath to reference fasta file
-reference_fasta="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta"
+reference_fasta="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
 # Parameters specified
 #   Below are the defaults which are the same as map-ont
 bandwidth="500"
