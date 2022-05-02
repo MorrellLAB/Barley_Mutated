@@ -2,8 +2,8 @@
 
 # This script takes in a a Slurm job ID number and generates a list of
 #   bad mutations predict re-run array indices
-# Example: For a list of numbers (one per line), 1 2 3 5 6 7 9 10 11 12
-#   this script collapses them into format 1-3,5-7,9,10-12
+# Example: For a list of numbers (one per line), 1 2 3 5 6 7 9 11 12 13
+#   this script collapses them into format 1-3,5-7,9,11-13
 
 # Usage: ./get_re-run_array_indices.sh [xxxxxx]
 
