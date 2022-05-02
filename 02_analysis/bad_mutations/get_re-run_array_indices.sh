@@ -19,7 +19,9 @@ JOB_ID="$1"
 # Generate a list of timeout/failed bad_mutations predict array indices to re-run
 # Grep invert match multiple strings: "JobID" "-----" "extern" "batch" "COMPLETED"
 # Collapse consecutive numbers into ranges using awk
-sacct -j ${JOB_ID} | grep -v 'JobID\|-----\|extern\|batch\|COMPLETED' | \
+# JobID%15 prints up to 15 characters in that column
+sacct -j ${JOB_ID} --format="JobID%15,JobName,State,ExitCode" | \
+    grep -v 'JobID\|-----\|extern\|batch\|COMPLETED' | \
     awk '{ print $1 }' | sed -e "s/${JOB_ID}_//" | sort -V | \
     awk '
         function output() { print start (prev == start ? "" : "-"prev) }
