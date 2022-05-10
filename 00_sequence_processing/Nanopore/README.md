@@ -20,6 +20,9 @@ sbatch keep_primary_mapping-Morex-sample2.job
 sbatch np_read_mapping-M01.job
 sbatch np_read_mapping-M20.job
 sbatch np_read_mapping-M29.job
+# Keep primary mapping and add @SQ header lines
+# except submit as Slurm task array
+sbatch --array=0-2 keep_primary_mapping-mut_lines.job
 ```
 
 After modifying the `vulcan` script, transferred the script to MSI. The modification was adding the `--full_sam` and `--full_sam_primary` options to take a custom generated Minimap2 SAM files as input. Modifications are documented in this forked repository under [commit 0dec3094](https://gitlab.com/ChaochihL/vulcan/-/commit/8dce5d4eb75a6044e0fcc00894e22933f56e91c2). The modified `vulcan` script and documentation are available in this forked repository: https://gitlab.com/ChaochihL/vulcan.
@@ -36,8 +39,9 @@ Run modified vulcan pipeline.
 sbatch vulcan_read_mapping-Morex-sample2_partsRef.job
 
 # Repeat for 3 mutated barley samples (M01, M20, M29)
-# except submit as Slurm task array
-sbatch --array=0-2 keep_primary_mapping-mut_lines.job
+sbatch vulcan_read_mapping-M01_partsRef.job
+sbatch vulcan_read_mapping-M20_partsRef.job
+sbatch vulcan_read_mapping-M29_partsRef.job
 ```
 
 The Vulcan pipeline outputs a sorted BAM file.
@@ -47,6 +51,11 @@ Add @RG header line to BAM file, many downstream programs require @RG header lin
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
 sbatch add_RG_header.sh
+
+# Repeat for 3 mutated barley samples (M01, M20, M29)
+sbatch add_RG_header-M01.sh
+sbatch add_RG_header-M20.sh
+sbatch add_RG_header-M29.sh
 ```
 
 Run Sniffles2.
@@ -54,6 +63,11 @@ Run Sniffles2.
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
 sbatch sniffles-Morex-sample2_partsRef.job
+
+# Repeat for 3 mutated barley samples (M01, M20, M29)
+sbatch sniffles-M01.job
+sbatch sniffles-M20.job
+sbatch sniffles-M29.job
 ```
 
 Reheader VCF so `SAMPLE` gets replaced with actual sample ID.
