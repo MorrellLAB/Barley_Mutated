@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=4
 #SBATCH --mem=56gb
 #SBATCH --tmp=40gb
-#SBATCH -t 12:00:00
+#SBATCH -t 36:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t
@@ -36,16 +36,13 @@ REF_FASTA="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Ba
 EXCLUDE_REGIONS="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
 # Exclude chrUn (this is formatted as a regex expression according to smoove's documentation)
 EXCLUDE_CHR="~^chrUn"
-# Output final output files here
-#OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/results_smoove"
-OUT_DIR="/scratch.global/liux1299/test_results_smoove"
 # Output intermediate files to temporary storage
 #SCRATCH_DIR="/scratch.global/liux1299/results_smoove"
 SCRATCH_DIR="/scratch.global/liux1299/test_results_smoove"
 
 #----------------------
 # Make output directories
-mkdir -p ${OUT_DIR} ${SCRATCH_DIR} ${SCRATCH_DIR}/temp ${SCRATCH_DIR}/called_genotypes
+mkdir -p ${SCRATCH_DIR} ${SCRATCH_DIR}/temp ${SCRATCH_DIR}/called_genotypes
 # For large cohorts, set temp dir
 export TMPDIR="${SCRATCH_DIR}/temp"
 
@@ -76,7 +73,7 @@ function smoove_call_genotypes() {
         sample_name=$(basename ${curr_sample} .bam)
     fi
     smoove call \
-        --outdir ${out_dir}/ \
+        --outdir ${out_dir} \
         --exclude ${exclude_regions} \
         --excludechroms ${exclude_chr} \
         --name ${sample_name} \
