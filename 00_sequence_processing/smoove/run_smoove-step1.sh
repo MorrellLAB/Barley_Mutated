@@ -35,6 +35,11 @@ REF_FASTA="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Ba
 # Exclude regions where there are stretches of N's in the reference genome
 EXCLUDE_REGIONS="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
 # Exclude chrUn (this is formatted as a regex expression according to smoove's documentation)
+# For more than one, provide a comma delimited list of exclusions
+#   See "smoove call -h" the "--excludechroms" description for formatting help
+# Here, an alternative way to format the input is to create a file with exclusion chromosomes,
+#   one per line and use the following code to format:
+#   EXCLUDE_CHR=$(tr '\n' ',' < exclude_chr_list.txt | sed 's/,$//g')
 EXCLUDE_CHR="~^chrUn"
 # Output intermediate files to temporary storage
 #SCRATCH_DIR="/scratch.global/liux1299/results_smoove"
