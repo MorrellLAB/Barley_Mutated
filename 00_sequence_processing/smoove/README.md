@@ -4,6 +4,14 @@ Smoove is intented to assist with small/mid-sized SV calling using short read da
 
 ### Methods
 
+**Prepare exclusion regions:** Mask problematic regions using sample-specific genome exclude files. Regions with depth much larger than the norm are problematic as well as gaps in the reference genome, these can produce low confidence or misleading SV calls.
+
+Calculate the depth of each BAM file with mosdepth.
+
+```bash
+
+```
+
 Run step 1 of population-level calling (large cohorts and parallelize across samples utilizing Slurm job arrays.
 
 ```bash
@@ -16,4 +24,11 @@ get_re-run_array_indices.sh 146875535
 0-1
 # Increase walltime and re-run timeout indices
 sbatch --array=0-1 run_smoove-step1.sh
+```
+
+Run steps 2-5 of population-level calling together.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/smoove
+sbatch run_smoove-step2-5.sh
 ```
