@@ -18,3 +18,21 @@ Modify the user email and the full path to the directory containing 10x Genomics
 - `run_longranger_wgs-Morex.sh`
 
 After modifying the scripts, use `sbatch` to submit each script. If you exceed the walltime after the first submission, re-submit the exact same script again and keep repeating this until the analysis finishes. 10x Genomics `longranger` has a feature where it can pick up processing from an "orphaned state". Previously, it has taken roughly 1 month to complete a run for barley samples.
+
+#### Step 3: Fix output filenames
+
+First, we'll add the sample name to the beginning of each filename.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/M01-3-3/outs
+rename -v "" "M01-3-3_" *
+
+# In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/M20-2-2/outs
+rename -v "" "M20-2-2_" *
+
+# In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/M29-2-2/outs
+rename -v "" "M29-2-2_" *
+
+# In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/morex-sample2/outs
+rename -v "" "morex-sample2_" *
+```
