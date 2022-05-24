@@ -30,10 +30,12 @@ export PATH=${PATH}:/panfs/roc/groups/9/morrellp/shared/Software/smoove
 
 # User provided input arguments
 # List of BAM files
-BAM_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/test_bam_symlinks/test_bam_list.txt"
+BAM_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/bam_symlinks/wgs_bam_list.txt"
 REF_FASTA="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
-# Exclude regions where there are stretches of N's in the reference genome
-EXCLUDE_REGIONS="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
+# Per-sample exclusion regions file
+# Each sample bed includes sample specific high cov regions and
+#   regions where there are stretches of N's in the reference genome
+EXCLUDE_BED_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/masked_regions/per_sample_gap_and_high_depth/per_sample_exclude_bed_list.txt"
 # Exclude chrUn (this is formatted as a regex expression according to smoove's documentation)
 # For more than one, provide a comma delimited list of exclusions
 #   See "smoove call -h" the "--excludechroms" description for formatting help
@@ -42,8 +44,7 @@ EXCLUDE_REGIONS="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequen
 #   EXCLUDE_CHR=$(tr '\n' ',' < exclude_chr_list.txt | sed 's/,$//g')
 EXCLUDE_CHR="~^chrUn"
 # Output intermediate files to temporary storage
-#SCRATCH_DIR="/scratch.global/liux1299/results_smoove"
-SCRATCH_DIR="/scratch.global/liux1299/test_results_smoove"
+SCRATCH_DIR="/scratch.global/liux1299/results_smoove"
 
 #----------------------
 # Make output directories
@@ -66,7 +67,7 @@ echo "Currently processing bam file: ${CURR_BAM}"
 function smoove_call_genotypes() {
     local curr_sample="$1"
     local out_dir="$2"
-    local exclude_regions="$3"
+    local exclude_bed_list="$3"
     local ref_fasta="$4"
     local exclude_chr="$5"
     # Check if sample name contains substring
@@ -77,9 +78,12 @@ function smoove_call_genotypes() {
     else
         sample_name=$(basename ${curr_sample} .bam)
     fi
+    # Get sample specific exclusion regions bed file
+    samp_exclude_regions=$(grep ${sample_name} ${exclude_bed_list})
+    # Run smoove call
     smoove call \
         --outdir ${out_dir} \
-        --exclude ${exclude_regions} \
+        --exclude ${samp_exclude_regions} \
         --excludechroms ${exclude_chr} \
         --name ${sample_name} \
         --fasta ${ref_fasta} \
@@ -91,4 +95,4 @@ export -f smoove_call_genotypes
 
 # Run smoove
 # Step 1: For each sample, call genotypes
-smoove_call_genotypes ${CURR_BAM} ${SCRATCH_DIR}/called_genotypes ${EXCLUDE_REGIONS} ${REF_FASTA} ${EXCLUDE_CHR}
+smoove_call_genotypes ${CURR_BAM} ${SCRATCH_DIR}/called_genotypes ${EXCLUDE_BED_LIST} ${REF_FASTA} ${EXCLUDE_CHR}
