@@ -34,10 +34,11 @@ sbatch --array=0-38 run_smoove-step1.sh
 # Some samples (array indices) may timeout or fail, figure out which ones
 #   to re-run using the get_re-run_array_indices.sh script available here:
 #   https://github.com/MorrellLAB/Barley_Mutated/blob/master/02_analysis/bad_mutations/get_re-run_array_indices.sh
-get_re-run_array_indices.sh 146875535
-0-1
+# Except the ones below, all other samples completed within 36 hours
+get_re-run_array_indices.sh 147219025
+    3
 # Increase walltime and re-run timeout indices
-sbatch --array=0-1 run_smoove-step1.sh
+sbatch --array=3 run_smoove-step1.sh
 ```
 
 Run steps 2-5 of population-level calling together utilizing GNU parallel where appropriate.
