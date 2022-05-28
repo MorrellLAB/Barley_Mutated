@@ -86,3 +86,19 @@ Reheader VCF so `SAMPLE` gets replaced with actual sample ID.
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/PacBio
 ./reheader_vcf-PacBio_Morex.sh
 ```
+
+Get high coverage regions.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/PacBio
+# Estimate coverage per window
+sbatch --array=0 run_mosdepth-pacbio.sh
+
+# Extract high coverage regions
+sbatch run_extract_high_depth_regions-pacbio.sh
+
+# Merge near regions
+# In dir: ~/Alignments/pacbio_morex/pacbio_morex_v3/per_sample_high_depth
+module load bedtools/2.29.2
+bedtools merge -d 10 -i Morex_pacbio_90_wRG.high_cov.bed > Morex_pacbio_90_wRG.high_cov.exclude.bed
+```

@@ -76,3 +76,19 @@ Reheader VCF so `SAMPLE` gets replaced with actual sample ID.
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
 ./reheader_vcf-ONT_Morex-sample2.sh
 ```
+
+Get high coverage regions.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
+# Estimate coverage per window
+sbatch --array=0 run_mosdepth-ont.sh
+
+# Extract high coverage regions
+sbatch run_extract_high_depth_regions-ont.sh
+
+# Merge near regions
+# In dir: ~/Alignments/nanopore_morex/Morex_ont_partsRefv3/per_sample_high_depth
+module load bedtools/2.29.2
+bedtools merge -d 10 -i Morex_ont_partsRefv3_90_wRG.high_cov.bed > Morex_ont_partsRefv3_90_wRG.high_cov.exclude.bed
+```
