@@ -10,7 +10,14 @@ We'll generate images from the VCF, this requires all samples be in a single VCF
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
-./merge_ont_pacbio_vcfs.sh
+merge_vcfs-morex_10x_ont_pacbio.sh
+```
+
+Samplot images of merged VCF 10x ONT PacBio.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
+sbatch samplot_vcf-Morex_10x_ont_pacbio.sh
 ```
 
 Next, generate important regions from the VCF containing ONT and PacBio data relative to Morex v3.
@@ -26,6 +33,7 @@ Get BED files for each variant type individually, this is so windows are only fo
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
 ./prep_SV_regions_Morex_ont_pacbio.sh
+./prep_SV_regions_filt_Morex_10x_ont_pacbio.sh
 ```
 
 Convert TE annotations to BED format.
@@ -49,6 +57,7 @@ Run samplot.
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
 # Run samplot
 sbatch --array=0-2 samplot_plot-Morex_ont_pacbio.sh
+sbatch --array=0-2 samplot_plot-Morex_10x_ont_pacbio.sh
 ```
 
 Visualize variants from VCFs.
