@@ -262,7 +262,7 @@ done
 wc -l ~/Projects/Mutant_Barley/results/bad_mutations/align_lists/hvulgare_cds_list-*.txt
 
 # We'll programmatically check that we have the expected number of output files
-~/GitHub/Barley_Mutated/02_analysis/bad_mutations/check_align_output_file_counts.job \
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/check_align_output_file_counts.sh \
     /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/align_lists/all_cds_hvulgare_list_of_lists.txt \
     ~/Projects/Mutant_Barley/results/bad_mutations/MSA_output
 ```
