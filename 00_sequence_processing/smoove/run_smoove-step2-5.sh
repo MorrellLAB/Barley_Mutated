@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=16
-#SBATCH --mem=36gb
-#SBATCH --tmp=24gb
-#SBATCH -t 08:00:00
+#SBATCH --mem=56gb
+#SBATCH --tmp=40gb
+#SBATCH -t 36:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t
@@ -29,19 +29,17 @@ export PATH=${PATH}:/panfs/roc/groups/9/morrellp/shared/Software/smoove
 
 # User provided input arguments
 # Directory containing *smoove.genotyped.vcf.gz files for each sample
-GENO_VCF_DIR="/scratch.global/liux1299/test_results_smoove/called_genotypes"
+GENO_VCF_DIR="/scratch.global/liux1299/results_smoove/called_genotypes"
 # List of BAM files
-BAM_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/test_bam_symlinks/test_bam_list.txt"
-OUT_NAME="test_mut_barley_project_cohort"
+BAM_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/bam_symlinks/wgs_bam_list.txt"
+OUT_NAME="mut_barley_cohort"
 REF_FASTA="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
 # Full filepath to GFF file
 GFF="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/gene_annotation/Hv_Morex.pgsb.Jul2020.sorted.parts.gff3"
 # Output final output files here
-#OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/results_smoove"
-OUT_DIR="/scratch.global/liux1299/test_results_smoove"
+OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/results_smoove"
 # Output intermediate files to temporary storage
-#SCRATCH_DIR="/scratch.global/liux1299/results_smoove"
-SCRATCH_DIR="/scratch.global/liux1299/test_results_smoove"
+SCRATCH_DIR="/scratch.global/liux1299/results_smoove"
 
 #----------------------
 # Make output directories
