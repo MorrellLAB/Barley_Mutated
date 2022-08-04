@@ -116,34 +116,35 @@ We want to focus on single bp changes and will remove any complex variants from 
 sbatch --array=0-3 remove_complex_variants.sh
 ```
 
+**Step 1:** Filter VCFs.
+
 We'll keep the `dels.vcf.gz`, `large_svs.vcf.gz`, and `phased_variants.vcf.gz` separate for the first part of our vcf filtering because each file has different types of annotations we can use for filtering so it is easier to keep them separate for now.
 
-Filter morex-sample2 by quality metrics (using 10x Genomics custom filters and DP).
-
-```bash
-~/GitHub/Barley_Mutated/01_snp_filtering/vcf_filtering-morex-sample2.sh
-```
-
-**Step 1:** Merge together mutated line VCF files for 3 concatenated samples output from Longranger (keep Morex Longranger output separate) using bcftools.
+Filter morex-sample2 (10x Genomics VCF and Nanopore VCF), morex PacBio VCF, and smoove VCF. The scripts below were used and serve as a log of the filtering commands run.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
-qsub merge_vcfs.job
-
-# Sort merged VCF files
-qsub sort_vcfs.job
+vcf_filtering-morex_10x.sh
+vcf_filtering-morex_ont.sh
+vcf_filtering-morex_pacbio.sh
+vcf_filtering-smoove.sh
 ```
 
-**Step 2:** Pull mutated and Morex VCFs into IGV to see how much heterogeneity there is
+Filter WGS sample GATK variant calls, scripts are in subdirectory `Post_GATK_Filtering`.
+
+**Step 2:** Pull Morex and mutated VCFs into IGV to see how much heterogeneity there is
+
+Tune VCF filtering if necessary.
 
 **Step 3:** Remove (subtract) everything that intersects between morex and mutated lines (using Longranger’s filtering)
 
 Identify differences between 10x Morex and Morex references (outputs a BED file containing differences from reference).
 
-Filter mutated lines by quality metrics (using 10x Genomics custom filters and DP), exclude sites that differ between 10x Morex and Morex reference, and exclude non-unique variants (i.e., variants that are present in more than 1 of the mutated lines).
+Filter mutated lines by quality metrics (using 10x Genomics custom filters and DP), exclude sites that differ between 10x Morex and Morex reference, and exclude non-unique variants (i.e., variants that are present in more than 1 of the mutated lines). The script below was used and serve as a log of the filtering commands run.
 
 ```bash
-~/GitHub/Barley_Mutated/01_snp_filtering/variant_filtering-mut_3_lines.sh
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
+vcf_filtering-mut_3_lines.sh
 ```
 
 Remove variants shared between 10x Genomics Morex line and mutant lines. So, we want variants private to the mutant lines that are NOT in the 10x Genomics Morex line.

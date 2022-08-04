@@ -20,6 +20,13 @@ Samplot images of merged VCF 10x ONT PacBio.
 sbatch samplot_vcf-Morex_10x_ont_pacbio.sh
 ```
 
+Samplot images of smoove output VCF that includes Morex 10x, 3 mutated lines 10x, 8 WGS mutated lines, and WGS hybrid barley lines.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
+sbatch --array=0-4 samplot_vcf-smoove_Morex10x-wgs_mut-hybrid.sh
+```
+
 Next, generate important regions from the VCF containing ONT and PacBio data relative to Morex v3.
 
 ```bash
