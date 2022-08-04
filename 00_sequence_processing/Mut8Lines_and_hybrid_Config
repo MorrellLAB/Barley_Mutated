@@ -10,7 +10,7 @@
 
 #   Where are we storing the output files?
 #       Final directory is ${OUT_DIR}/Name_of_Handler
-OUT_DIR=/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley
+OUT_DIR=/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley
 #   Store some handler outputs in scratch due to shared space storage shortage
 #OUT_DIR=/scratch.global/liux1299/mut8_and_hybrid_barley
 
@@ -36,7 +36,7 @@ SEQ_PLATFORM=ILLUMINA
 
 #   What reference genome are we using?
 #       Include the full physical file path.
-REF_GEN=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta
+REF_GEN=/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta
 
 #   Is this organism barley?
 #       Choose from: "true" or "false"
@@ -125,14 +125,14 @@ GG_THREADS=4
 #   Where is the list of GVCF files?
 #       To generate this list, use sample_list_generator.sh
 #       located at /sequence_handling/HelperScripts/sample_list_generator.sh
-GVCF_LIST=/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/combined_gvcf_list_mut8morex_hybridBarley.txt
+GVCF_LIST=/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/combined_gvcf_list_mut8morex_hybridBarley.txt
 
 #   What is the nucleotide diversity per base pair (Watterson's theta)?
 #   Genotype_GVCFs uses the THETA under Haplotype_Caller for this
 
 #   Where is the reference dictionary file? (.dict)
 #       Include the full file path.
-REF_DICT=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.dict
+REF_DICT=/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.dict
 
 #   How many chromosomes or chromosome parts does the reference have, excluding scaffolds? (integer value)
 #       For barley: 15 (7*2 chromosome parts + chrUn)
@@ -148,7 +148,7 @@ NUM_CHR=15
 #       For additional info, please see Wiki page.
 #   Default is set to false. Otherwise, fill in full path to intervals file.
 #   NOTE: If HC_PARALLELIZE=true and HC_CUSTOM_INTERVALS is set, the value below is ignored (uses HC_CUSTOM_INTERVALS).
-CUSTOM_INTERVALS="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/barley_chromosomes_split.intervals"
+CUSTOM_INTERVALS="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/barley_chromosomes_split.intervals"
 
 #   Optional: If your genome has scaffolds or parts of the reference not covered by
 #       the chromosomes above, include the full filepath to a SORTED list of
@@ -205,7 +205,7 @@ CHS_SBATCH="--nodes=1 --ntasks-per-node=16 --mem=56gb --tmp=40gb -t 12:00:00 --m
 #       called "CHS_VCF_LIST=" with the full filepath to a list of split vcf files.
 #   IMPORTANT: DO NOT LEAVE BLANK. If you don't have a single raw variants VCF file and are going to concatenate split VCF files
 #       put "NA" here. Odd errors may appear if this is not filled out.
-CHS_RAW_VCF="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Create_HC_Subset/mut8_and_hybrid_barley_raw_variants.vcf.gz"
+CHS_RAW_VCF="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Create_HC_Subset/mut8_and_hybrid_barley_raw_variants.vcf.gz"
 
 #   Where is the list of chromosome part VCF files?
 #       If this is filled out, this handler will concatenate VCF files split into parts.
@@ -214,7 +214,7 @@ CHS_RAW_VCF="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hy
 #       located at /sequence_handling/HelperScripts/sample_list_generator.sh
 #   Default is "NA", replace with full filepath to list of split VCF files if you do not have a single raw variants VCF
 CHS_VCF_LIST="NA"
-#CHS_VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Genotype_GVCFs/vcf_split_regions/split_vcf_list_nochrUn.txt"
+#CHS_VCF_LIST="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Genotype_GVCFs/vcf_split_regions/split_vcf_list_nochrUn.txt"
 
 #   If exome capture, include the full file path to the capture regions file (BED format)
 #   This should be the same file as the REGIONS_FILE in Coverage_Mapping. In this case, put "${REGIONS_FILE}" below.
@@ -273,21 +273,21 @@ VR_QUEUE="ram256g,ram1t"
 
 #   USE_SLURM: What are our sbatch settings?
 #       Below are the recommended settings
-VR_SBATCH="--nodes=1 --ntasks-per-node=4 --mem=90gb --tmp=80gb -t 06:00:00 --mail-type=ALL --mail-user=${EMAIL} -p ${VR_QUEUE}"
+VR_SBATCH="--nodes=1 --ntasks-per-node=4 --mem=90gb --tmp=80gb -t 48:00:00 --mail-type=ALL --mail-user=${EMAIL} -p ${VR_QUEUE}"
 
 #   What reference genome are we using?
 #       Include the full file path.
 #       If barley AND running GATK3, make sure to use the pseudomolecular reference
 #           NOT the parts reference used above
 #       If running GATK4, make sure this is the same reference used during Haplotype_Caller and Genotype_GVCFs
-VR_REF=/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/Barley_Morex_V2_pseudomolecules_parts.fasta
+VR_REF="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
 
 #   Do we have a single concatenated raw VCF file output from Create_HC_Subset?
 #   If not, put "NA" below
 #   GATK4 only accepts a single input variant file unlike earlier version of GATK, which accepted multiple input variant files.
 #       To generate this list, use sample_list_generator.sh
 #       located at /sequence_handling/HelperScripts/sample_list_generator.sh
-VR_RAW_VCF=/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mutated_8_morex/Create_HC_Subset/mutated_8_barley_raw_variants.vcf.gz
+VR_RAW_VCF="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Create_HC_Subset/mut8_and_hybrid_barley_raw_variants.vcf"
 
 #   Where is the list of chromosome part VCF files from Genotype_GVCFs?
 #   Leave as the default "NA" if we already have a concatenated raw VCF file. Change otherwise.
@@ -352,8 +352,8 @@ FILTER_EXTRA_OPTIONS_SNP="NA"
 #   Where is the high confidence subset of variants?
 #   The high confidence set recommended settings: known=false,training=true,truth=false
 #       If you used Create_HC_Subset, leave as the default
-HC_SUBSET="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mutated_8_morex/Create_HC_Subset/mutated_8_barley_high_confidence_subset.vcf"
-HC_PRIOR=5.0
+HC_SUBSET="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Create_HC_Subset/mut8_and_hybrid_barley_high_confidence_subset.vcf"
+HC_PRIOR="5.0"
 HC_KNOWN=false
 HC_TRAIN=true
 HC_TRUTH=false
@@ -363,25 +363,25 @@ HC_TRUTH=false
 #   Please specify "true" or "false" for KNOWN, TRAINING, and TRUTH for each resource below (this is currently set to defaults)
 #   See GATK's documentation for definitions of known, training, and truth sets:
 #       https://gatk.broadinstitute.org/hc/en-us/articles/360035890831-Known-variants-Training-resources-Truth-sets
-RESOURCE_1="/panfs/roc/groups/9/morrellp/pmorrell/Workshop/Selective_Sweeps/Sanger/17_barley_sanger_loci_fixedHeader.vcf"
-PRIOR_1=15.0
+RESOURCE_1="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/bopa_9k_50k/bopa_idt95_noRescuedSNPs_partsRef.vcf"
+PRIOR_1="15.0"
 KNOWN_1=true
 TRAINING_1=true
 TRUTH_1=true
 
-RESOURCE_2="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/bopa_9k_50k/bopa_idt95_noRescuedSNPs_partsRef.vcf"
-PRIOR_2=10.0
+RESOURCE_2="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/bopa_9k_50k/9k_idt95_noRescuedSNPs_partsRef.vcf"
+PRIOR_2="15.0"
 KNOWN_2=true
 TRAINING_2=true
 TRUTH_2=true
 
-RESOURCE_3="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/bopa_9k_50k/9k_idt95_noRescuedSNPs_partsRef.vcf"
-PRIOR_3=10.0
+RESOURCE_3="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/bopa_9k_50k/50k_idt95_noRescuedSNPs_partsRef.vcf"
+PRIOR_3="15.0"
 KNOWN_3=true
 TRAINING_3=true
 TRUTH_3=true
 
-RESOURCE_4="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/bopa_9k_50k/50k_idt95_noRescuedSNPs_partsRef.vcf"
+RESOURCE_4="NA"
 PRIOR_4="10.0"
 KNOWN_4=true
 TRAINING_4=true
@@ -389,7 +389,7 @@ TRUTH_4=true
 
 #   What is our truth sensitivity filter level?
 #       Default is set to 99.9
-TS_FILTER_LEVEL="99.0"
+TS_FILTER_LEVEL="99.9"
 
 ################################################
 ##########    Pre_Variant_Filtering   ##########
@@ -628,11 +628,11 @@ module load java/openjdk-8_202
 
 #   What is the full file path for the GATK jar file?
 #   You need BOTH the jar file and the module
-GATK_JAR=/panfs/roc/groups/9/morrellp/public/Software/GATK_ML_4.1.2/gatk
+GATK_JAR=/panfs/jay/groups/9/morrellp/public/Software/GATK_ML_4.1.2/gatk
 module load gatk/4.1.2
 
 #   What is the full file path for the Picard jar file?
-PICARD_JAR=/panfs/roc/groups/9/morrellp/public/Software/picard_ML_2.23.1/picard.jar
+PICARD_JAR=/panfs/jay/groups/9/morrellp/public/Software/picard_ML_2.23.1/picard.jar
 
 #   Do we have vcftools installed?
 module load vcftools_ML/0.1.14
