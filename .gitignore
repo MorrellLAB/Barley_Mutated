@@ -4,3 +4,4 @@
 *scratch
 *.vscode
 *sftp.json
+*.ipynb_checkpoints
