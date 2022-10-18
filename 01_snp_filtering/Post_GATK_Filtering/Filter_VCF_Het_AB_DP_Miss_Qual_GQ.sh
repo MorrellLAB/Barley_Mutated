@@ -33,7 +33,7 @@ SCRATCH_DIR="/scratch.global/liux1299/temp_mut8_and_hybrid_barley"
 HET_PROP="0.1"
 # Min and Max DP per sample threshold
 MIN_DP="5"
-MAX_DP="86"
+MAX_DP="158"
 # Max proportion missing
 MAX_MISS="0.30"
 # Quality cutoff
@@ -59,7 +59,8 @@ REPEAT_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/B
 HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
 
 # Define paths to executables and scripts
-FILT_AB_DP_GQ_SCRIPT="/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering/filter_vcf_AB_DP_GQ.py"
+#FILT_AB_DP_GQ_SCRIPT="/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering/filter_vcf_AB_DP_GQ.py"
+FILT_AB_SCRIPT="/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering/filter_vcf_AB.py"
 
 #-----------------
 # Check the out dir and scratch dir exist, if not make them
@@ -102,11 +103,14 @@ count_sites ${VCF} ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
 #   no sites actually get filtered out at this stage. Sites will get filtered out when we filter on missingness.
 #   The same occurs for DP cutoffs, we filter out sites where depth is too low or too high
 echo "Removing sites below GQ threshold ${GQ_CUTOFF}..."
-echo "Also removing sites where DP < ${MIN_DP} or DP > ${MAX_DP}..."
+echo "Also removing genotypes where per sample DP < ${MIN_DP} or per sample DP > ${MAX_DP}..."
 echo "Filtering by allelic balance where deviation is ${MIN_DEV}"
-python3 ${FILT_AB_DP_GQ_SCRIPT} ${VCF} ${GQ_CUTOFF} ${MIN_DP} ${MAX_DP} ${MIN_DEV} > ${SCRATCH_DIR}/${OUT_PREFIX}_AB_GQ_DP_filt.vcf
+python3 ${FILT_AB_SCRIPT} ${VCF} ${MIN_DEV} > ${SCRATCH_DIR}/${OUT_PREFIX}_AB_filt.vcf
+# Use bcftools to set genotypes to missing based on cutoffs
+# -i in +setGT means if GT ann meet condition, set to missing
+bcftools +setGT ${SCRATCH_DIR}/${OUT_PREFIX}_AB_filt.vcf -- -t q -n "." -i "FMT/DP<${MIN_DP} | FMT/DP > ${MAX_DP} | FMT/GQ<${GQ_CUTOFF}" > ${SCRATCH_DIR}/${OUT_PREFIX}_AB_GQ_DP_filt.vcf
 echo "Done setting sites below GQ threshold to missing."
-echo "Done removing sites where depth is either too low or too high."
+echo "Done removing sites where per sample depth is either too low or too high."
 AB_GQ_DP_FILT_VCF="${SCRATCH_DIR}/${OUT_PREFIX}_AB_GQ_DP_filt.vcf"
 
 # Filter out sites with high missingness

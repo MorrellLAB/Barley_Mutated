@@ -13,7 +13,6 @@
 # This script uses various metrics to evaluate VCF filtering
 
 # Dependencies
-module load vcftools_ML/0.1.16
 module load python3/3.8.3_anaconda2020.07_mamba
 module load bcftools/1.10.2
 module load texlive/20131202
@@ -52,23 +51,6 @@ function calc_maf() {
 
 export -f calc_maf
 
-function summarize_tstv() {
-    local vcf="$1"
-    local scratch_dir="$2"
-    if [[ ${vcf} == *".gz"* ]]; then
-        out_prefix=$(basename ${vcf} .vcf.gz)
-        # Use gzip flag
-        vcftools --gzvcf ${vcf} --FILTER-summary --out ${scratch_dir}/${out_prefix}
-        vcftools --gzvcf ${vcf} --TsTv-summary --out ${scratch_dir}/${out_prefix}
-    else
-        out_prefix=$(basename ${vcf} .vcf)
-        vcftools --vcf ${vcf} --FILTER-summary --out ${scratch_dir}/${out_prefix}
-        vcftools --vcf ${vcf} --TsTv-summary --out ${scratch_dir}/${out_prefix}
-    fi
-}
-
-export -f summarize_tstv
-
 # bcftools stats
 function generate_stats() {
     local vcf=$1
@@ -88,11 +70,6 @@ function generate_stats() {
 }
 
 export -f generate_stats
-
-# Calculate Ts/Tv
-summarize_tstv ${VCF3} ${OUT_DIR}
-summarize_tstv ${VCF2} ${OUT_DIR}
-summarize_tstv ${VCF1} ${OUT_DIR}
 
 # Generate bcftools stats
 generate_stats ${VCF3} ${REF} ${OUT_DIR}

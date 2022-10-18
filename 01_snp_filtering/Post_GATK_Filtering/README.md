@@ -22,9 +22,16 @@ Check filtering.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering
+# Generates bcftools stats and calculates MAF
 sbatch evaluate_vcf_filtering.sh
+sbatch tstv_snps.sh
 sbatch summarize_missingness.sh
-sbatch summarize_vcf_stats.sh
+# Check the number of segregating sites and see if some of the same
+#   common SNPs (with higher MAC/MAF reported in the Sanger VCFs) are also present in my dataset
+# Checked about 2/3 of the 18 Sanger loci (see Morrell et al. 2006 Table 2)
+# Rough query region taken from Sanger VCF, this is a rough check so locus regions are not exact
+# Example command line structure:
+~/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering/check_seg_sites.sh chr6H_part2:277910381-277911418 /panfs/jay/groups/9/morrellp/pmorrell/Workshop/Selective_Sweeps/Sanger/Morex_v3_processed/Dhn5_Morex_v3_parts_fixed.vcf.gz Dhn5
 ```
 
 Add custom annotations for "known" vs "novel" variants and for each level of filtering ("filtered" vs "retained_filt1" vs "retained_filt2"). Then convert VCF to HDF5 format (the HDF5 format works better with scikit-allel).
@@ -34,6 +41,8 @@ Add custom annotations for "known" vs "novel" variants and for each level of fil
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering
+# Add custom annotations
+sbatch prep_ann_snps.sh
 # Prepare chr1H VCF for visualization in Jupyter Notebooks
 sbatch scikit_allel_plot_prep.sh
 ```
@@ -41,6 +50,7 @@ sbatch scikit_allel_plot_prep.sh
 Compare plots of joint annotations and unfiltered vs filtered variants using scikit-allel. This uses HDF5 (`.h5` extension) files as input. Utilizing MSI's Jupyter Notebooks since we have access to a lot more memory.
 
 Jupyter Notebook: `Evaluate_filtering-snps.ipynb`
+
 Run with MSI Jupyter Noteooks job profile "Mesabi High-mem - 12 cores, 128 GB, 4 hours, 180 GB local scratch", Python v3.8.3.
 
 If phasing of some genotypes causes issues downstream, run the following to remove phase information:
@@ -79,4 +89,5 @@ sbatch scikit_allel_plot_prep-indels.sh
 Compare plots of joint annotations and unfiltered vs filtered variants using scikit-allel. This uses HDF5 (`.h5` extension) files as input. Utilizing MSI's Jupyter Notebooks since we have access to a lot more memory.
 
 Jupyter Notebook: `Evaluate_filtering-indels.ipynb`
+
 Run with MSI Jupyter Noteooks job profile "Mesabi High-mem - 12 cores, 128 GB, 4 hours, 180 GB local scratch", Python v3.8.3.

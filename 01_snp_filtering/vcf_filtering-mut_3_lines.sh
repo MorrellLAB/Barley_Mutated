@@ -12,41 +12,46 @@ module load htslib/1.9
 module load bedtools/2.29.2
 module load vcftools_ML/0.1.16
 # Required for vcf-annotate that is part of vcftools
-export PERL5LIB=$PERL5LIB:/panfs/roc/groups/9/morrellp/public/Software/vcftools_ML-0.1.16/share/perl5
+export PERL5LIB=$PERL5LIB:/panfs/jay/groups/9/morrellp/public/Software/vcftools_ML-0.1.16/share/perl5
 
 # User provided input arguments
-#RAW_VCF=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/combined_mutated/mut_3_lines_sorted.vcf
+#RAW_VCF=/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/combined_mutated/mut_3_lines_sorted.vcf
 # M01
-DEL_VCF_M01="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/M01-3-3/outs/M01-3-3_dels.vcf.gz"
-LSV_VCF_M01="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch/M01-3-3_large_svs_noRefMismatch.vcf.gz"
-PHV_VCF_M01="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants/M01-3-3_phased_variants_noComplex.vcf.gz"
+DEL_VCF_M01="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/M01-3-3/outs/M01-3-3_dels.vcf.gz"
+LSV_VCF_M01="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch/M01-3-3_large_svs_noRefMismatch.vcf.gz"
+PHV_VCF_M01="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants/M01-3-3_phased_variants_noComplex.vcf.gz"
 # M20
-DEL_VCF_M20="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/M20-2-2/outs/M20-2-2_dels.vcf.gz"
-LSV_VCF_M20="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch/M20-2-2_large_svs_noRefMismatch.vcf.gz"
-PHV_VCF_M20="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants/M20-2-2_phased_variants_noComplex.vcf.gz"
+DEL_VCF_M20="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/M20-2-2/outs/M20-2-2_dels.vcf.gz"
+LSV_VCF_M20="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch/M20-2-2_large_svs_noRefMismatch.vcf.gz"
+PHV_VCF_M20="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants/M20-2-2_phased_variants_noComplex.vcf.gz"
 # M29
-DEL_VCF_M29="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/M29-2-2/outs/M29-2-2_dels.vcf.gz"
-LSV_VCF_M29="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch/M29-2-2_large_svs_noRefMismatch.vcf.gz"
-PHV_VCF_M29="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants/M29-2-2_phased_variants_noComplex.vcf.gz"
+DEL_VCF_M29="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/M29-2-2/outs/M29-2-2_dels.vcf.gz"
+LSV_VCF_M29="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch/M29-2-2_large_svs_noRefMismatch.vcf.gz"
+PHV_VCF_M29="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants/M29-2-2_phased_variants_noComplex.vcf.gz"
 # Full filepath to output directory
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered"
 # Output file prefix
 PREFIX_M01="M01-3-3"
 PREFIX_M20="M20-2-2"
 PREFIX_M29="M29-2-2"
 PREFIX="mut_3_lines"
 
+# Allele balance filter, minimum and maximum cutoff
+# AB filter applied to phased variants only because on this VCF has the AD format field
+MIN_AB="0.30"
+MAX_AB="0.70"
+
 VCFTOOLS_CUSTOM_FILTER="~/GitHub/Barley_Mutated/01_snp_filtering/filters.txt"
 
 # List of regions where REF has stretches of N's
-REF_Ns_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
+REF_Ns_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
 # Repeat annotations
-REPEAT_ANN="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
+REPEAT_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
 # High copy regions (e.g., chloroplasts, mitochondria, rDNA repeats, centromere repeats, etc.)
-HIGH_COPY_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
+HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
 
 # BED file containing sites that differ between 10x Morex and Morex reference
-#BED_EXCLUSION_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/Filtered/morex-sample2_diffs_from_ref.bed"
+#BED_EXCLUSION_LIST="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/Filtered/morex-sample2_diffs_from_ref.bed"
 
 #----------------------------------------
 # Check if out dir exists, if not make it
@@ -81,6 +86,26 @@ function pass1_filtering() {
 
 export -f pass1_filtering
 
+function pass1_AB_filtering() {
+    local phased_var_vcf="$1"
+    local out_dir="$2"
+    local sample_prefix="$3"
+    local min_ab="$4"
+    local max_ab="$5"
+    # For phased variants only (has AD format field) that are heterozygotes, filter by allelic balance where cutoffs are set above
+    # AB defined the same way as Pedersen et al. 2021: alt/(ref+alt)
+    # Use bcftools to set genotypes to missing based on cutoffs
+    #   -i in +setGT means if GT ann meet condition, set to missing
+    #   FMT/AD[0:1] means first sample, second AD value
+    # Then remove sites where single sample has been set to missing
+    # This way allows us to build up the command and check if our expressions work as expected
+    bcftools +setGT ${phased_var_vcf} -- -t q -n "." -i "(GT='het' & (FMT/AD[0:1])/(FMT/AD[0:0]+FMT/AD[0:1])<${min_ab}) | (GT='het' & (FMT/AD[0:1])/(FMT/AD[0:0]+FMT/AD[0:1])>${max_ab})" | bcftools filter -e 'GT="mis"' -O z -o ${out_dir}/${sample_prefix}_phased_variants.10xCustomFilt.ABfilt.vcf.gz
+    # Index vcf
+    tabix -p vcf ${out_dir}/${sample_prefix}_phased_variants.10xCustomFilt.ABfilt.vcf.gz
+}
+
+export -f pass1_AB_filtering
+
 function pass2_filtering() {
     local del_vcf="$1"
     local large_svs_vcf="$2"
@@ -110,13 +135,19 @@ pass1_filtering ${DEL_VCF_M01} ${LSV_VCF_M01} ${PHV_VCF_M01} ${OUT_DIR} ${PREFIX
 pass1_filtering ${DEL_VCF_M20} ${LSV_VCF_M20} ${PHV_VCF_M20} ${OUT_DIR} ${PREFIX_M20}
 pass1_filtering ${DEL_VCF_M29} ${LSV_VCF_M29} ${PHV_VCF_M29} ${OUT_DIR} ${PREFIX_M29}
 
+# For phased variants only, filter on AB
+# This takes the ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.vcf.gz as input for each respective sample
+pass1_AB_filtering ${OUT_DIR}/${PREFIX_M01}_phased_variants.10xCustomFilt.vcf.gz ${OUT_DIR} ${PREFIX_M01} ${MIN_AB} ${MAX_AB}
+pass1_AB_filtering ${OUT_DIR}/${PREFIX_M20}_phased_variants.10xCustomFilt.vcf.gz ${OUT_DIR} ${PREFIX_M20} ${MIN_AB} ${MAX_AB}
+pass1_AB_filtering ${OUT_DIR}/${PREFIX_M29}_phased_variants.10xCustomFilt.vcf.gz ${OUT_DIR} ${PREFIX_M29} ${MIN_AB} ${MAX_AB}
+
 # Pass2 filtering
 # Remove SVs that overlap with repeat annotated regions and that overlap with stretches of Ns
 # M01
 pass2_filtering \
     ${OUT_DIR}/${PREFIX_M01}_dels.10xCustomFilt.noBND.vcf.gz \
     ${OUT_DIR}/${PREFIX_M01}_large_svs.10xCustomFilt.noBND.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M01}_phased_variants.10xCustomFilt.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M01}_phased_variants.10xCustomFilt.ABfilt.vcf.gz \
     ${OUT_DIR} \
     ${PREFIX_M01} \
     ${REPEAT_ANN} \
@@ -126,7 +157,7 @@ pass2_filtering \
 pass2_filtering \
     ${OUT_DIR}/${PREFIX_M20}_dels.10xCustomFilt.noBND.vcf.gz \
     ${OUT_DIR}/${PREFIX_M20}_large_svs.10xCustomFilt.noBND.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M20}_phased_variants.10xCustomFilt.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M20}_phased_variants.10xCustomFilt.ABfilt.vcf.gz \
     ${OUT_DIR} \
     ${PREFIX_M20} \
     ${REPEAT_ANN} \
@@ -136,7 +167,7 @@ pass2_filtering \
 pass2_filtering \
     ${OUT_DIR}/${PREFIX_M29}_dels.10xCustomFilt.noBND.vcf.gz \
     ${OUT_DIR}/${PREFIX_M29}_large_svs.10xCustomFilt.noBND.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M29}_phased_variants.10xCustomFilt.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M29}_phased_variants.10xCustomFilt.ABfilt.vcf.gz \
     ${OUT_DIR} \
     ${PREFIX_M29} \
     ${REPEAT_ANN} \

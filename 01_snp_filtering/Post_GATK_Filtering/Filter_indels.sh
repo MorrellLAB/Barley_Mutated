@@ -39,7 +39,7 @@ MAX_DP="86"
 # GQ cutoff per sample
 GQ_CUTOFF="6"
 # Allele balance filter, minimum deviation +/- threshold
-MIN_DEV="0.20"
+#MIN_DEV="0.20"
 # Max proportion missing
 MAX_MISS="0.30"
 # Proportion heterozygous genotypes threshold

@@ -14,26 +14,29 @@ module load python3/3.8.3_anaconda2020.07_mamba
 module load htslib/1.9
 # Export path to directory containing custom script for converting 10x Genomics VCF
 #   containing dels, dups, and SVs where the end position is in the INFO field
-export PATH=${PATH}:/panfs/roc/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering
+export PATH=${PATH}:/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering
 
 # User provided input arguments
 # VCF files: dels.vcf.gz, large_svs.vcf.gz, phased_variants.vcf.gz
-DEL_VCF="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/morex-sample2/outs/morex-sample2_dels.vcf.gz"
-LSV_VCF="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch/morex-sample2_large_svs_noRefMismatch.vcf.gz"
-PHV_VCF="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants/morex-sample2_phased_variants_noComplex.vcf.gz"
+DEL_VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/morex-sample2/outs/morex-sample2_dels.vcf.gz"
+LSV_VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch/morex-sample2_large_svs_noRefMismatch.vcf.gz"
+PHV_VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants/morex-sample2_phased_variants_noComplex.vcf.gz"
 # Where do we output our files?
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered"
 # Output file prefix
 PREFIX="morex-sample2"
 
-#BEDPE="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/morex-sample2_large_sv_calls.bedpe"
+# Allele balance filter, minimum and maximum cutoff
+# AB filter applied to phased variants only because on this VCF has the AD format field
+MIN_AB="0.30"
+MAX_AB="0.70"
 
 # List of regions where REF has stretches of N's
-REF_Ns_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
+REF_Ns_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
 # Repeat annotations
-REPEAT_ANN="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
+REPEAT_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
 # High copy regions (e.g., chloroplasts, mitochondria, rDNA repeats, centromere repeats, etc.)
-HIGH_COPY_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
+HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
 
 #---------------------
 # Check if out dir exists, if not make it
@@ -51,6 +54,16 @@ bcftools filter --targets "^chrUn" -e 'FILTER=="LOWQ"' ${DEL_VCF} -O z -o ${OUT_
 bcftools filter --targets "^chrUn" -e 'FILTER=="LOWQ"' ${LSV_VCF} | bcftools filter -e 'ALT~"chrUn"' -O z -o ${OUT_DIR}/${PREFIX}_large_svs.10xCustomFilt.vcf.gz
 # Phased variants
 bcftools filter --targets "^chrUn" -e 'FILTER=="10X_QUAL_FILTER" || FILTER=="10X_ALLELE_FRACTION_FILTER" || FILTER=="10X_PHASING_INCONSISTENT" || FILTER=="10X_HOMOPOLYMER_UNPHASED_INSERTION" || FILTER=="10X_RESCUED_MOLECULE_HIGH_DIVERSITY"' ${PHV_VCF} -O z -o ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.vcf.gz
+# For phased variants only (has AD format field) that are heterozygotes, filter by allelic balance where cutoffs are set above
+# AB defined the same way as Pedersen et al. 2021: alt/(ref+alt)
+# Use bcftools to set genotypes to missing based on cutoffs
+#   -i in +setGT means if GT ann meet condition, set to missing
+#   FMT/AD[0:1] means first sample, second AD value
+# Then remove sites where single sample has been set to missing
+# This way allows us to build up the command and check if our expressions work as expected
+bcftools +setGT ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.vcf.gz -- -t q -n "." -i "(GT='het' & (FMT/AD[0:1])/(FMT/AD[0:0]+FMT/AD[0:1])<${MIN_AB}) | (GT='het' & (FMT/AD[0:1])/(FMT/AD[0:0]+FMT/AD[0:1])>${MAX_AB})" | bcftools filter -e 'GT="mis"' -O z -o ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.ABfilt.vcf.gz
+# Index vcf
+tabix -p vcf ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.ABfilt.vcf.gz
 
 # Second pass filtering
 # A) Separate variants with the DP annotation from ones that don't have the DP annotation
@@ -64,7 +77,7 @@ bcftools filter --targets "^chrUn" -e 'FILTER=="10X_QUAL_FILTER" || FILTER=="10X
 # C) Remove sites that are homozygous reference, we want to identify sites that are differences from reference
 # D) Also separate BND type SVs into separate files (BND only in dels.vcf.gz and large svs vcf)
 # Phased variants
-bcftools filter -i 'INFO/DP > 5 && INFO/DP < 78' ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.vcf.gz | bcftools view -e 'GT[*]="RR"' -O z -o ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.vcf.gz
+bcftools filter -i 'INFO/DP > 5 && INFO/DP < 78' ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.ABfilt.vcf.gz | bcftools view -e 'GT[*]="RR"' -O z -o ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.vcf.gz
 # Index vcf
 bcftools index ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.vcf.gz
 

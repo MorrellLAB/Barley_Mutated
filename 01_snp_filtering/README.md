@@ -134,11 +134,22 @@ Filter WGS sample GATK variant calls, scripts are in subdirectory `Post_GATK_Fil
 
 **Step 2:** Pull Morex and mutated VCFs into IGV to see how much heterogeneity there is
 
+Morex VCFs include:
+- 10x Genomics morex-sample2
+- smoove called on 10x Genomics morex-sample2 data
+- ONT morex-sample2
+- ONT 85x Morex (100 seedlings from Mascher et al. 2021)
+- PacBio Morex (100 seedlings from Mascher et al. 2021)
+
+Mutated VCFs include:
+- 10x Genomics three mutated lines (M01, M20, and M29)
+- smoove called on 10x Genomics three mutated lines data
+
 Tune VCF filtering if necessary.
 
 **Step 3:** Remove (subtract) everything that intersects between morex and mutated lines (using Longranger’s filtering)
 
-Identify differences between 10x Morex and Morex references (outputs a BED file containing differences from reference).
+Identify differences between our morex sample (a.k.a morex-sample2) and the Morex reference. We want to output a BED file containing differences between Morex and Morex reference.
 
 Filter mutated lines by quality metrics (using 10x Genomics custom filters and DP), exclude sites that differ between 10x Morex and Morex reference, and exclude non-unique variants (i.e., variants that are present in more than 1 of the mutated lines). The script below was used and serve as a log of the filtering commands run.
 
@@ -146,6 +157,8 @@ Filter mutated lines by quality metrics (using 10x Genomics custom filters and D
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
 vcf_filtering-mut_3_lines.sh
 ```
+
+Before finalizing filtering, check 10-15 variants in IGV to see if we need to go back and tune our filtering a little more before proceeding.
 
 Remove variants shared between 10x Genomics Morex line and mutant lines. So, we want variants private to the mutant lines that are NOT in the 10x Genomics Morex line.
 
@@ -156,3 +169,11 @@ bcftools isec -p /scratch.global/liux1299 mut_3_lines_filtered_singletons_only_a
 # 0000.vcf contains records private to mut_3_lines_filtered_singletons_only_annotated_DEL.vcf.gz
 cp /scratch.global/liux1299/0000.vcf mut_3_lines_filtered_singletons_only_annotated_DEL_de_novo_sites.vcf
 ```
+
+## File Locations
+
+Filtered VCFs (quality control/minimize errors):
+
+
+Differences between Morex samples and Morex reference:
+

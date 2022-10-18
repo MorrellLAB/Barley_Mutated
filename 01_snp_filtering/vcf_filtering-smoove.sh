@@ -6,24 +6,30 @@ set -o pipefail
 # Filter anno.vcf.gz output from smoove called for all WGS short read data
 
 # Dependencies
-module load bcftools_PML/1.15.1
+module load bcftools/1.9
 module load htslib/1.9
 module load bedtools/2.29.2
 
 # User provided input arguments
 # VCF files
-VCF="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/results_smoove/results_genotyped/mut_barley_cohort_sites.smoove.square.anno.vcf.gz"
+VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/results_smoove/results_genotyped/mut_barley_cohort_sites.smoove.square.anno.vcf.gz"
 # Where do we output our files?
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/results_smoove/results_genotyped/filtered"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/smoove_processing/results_smoove/results_genotyped/filtered"
 # Output file prefix
 PREFIX="mut_barley_cohort"
 
+# Allele balance filter, minimum and maximum cutoff
+MIN_AB="0.30"
+MAX_AB="0.70"
+# DP cutoff
+DP_CUTOFF="5"
+
 # List of regions where REF has stretches of N's
-REF_Ns_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
+REF_Ns_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
 # Repeat annotations
-REPEAT_ANN="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
+REPEAT_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
 # High copy regions (e.g., chloroplasts, mitochondria, rDNA repeats, centromere repeats, etc.)
-HIGH_COPY_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
+HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
 
 #---------------------
 # Check if out dir exists, if not make it
@@ -41,7 +47,11 @@ bcftools view -e 'INFO/SVTYPE="BND"' ${VCF} -O v -o ${vcf_dir}/${vcf_prefix}.noB
 #   Sets heterozygotes to missing if the AB deviates too much from 0.5.
 #   Use '&' to select for sites where conditions are satisfied within the same sample
 # Set per sample DP to missing if below threshold and remove chrUn
-bcftools +setGT ${vcf_dir}/${vcf_prefix}.noBND.vcf -- -t q -n "." -i 'GT="het" & FMT/AB<0.3 | FMT/AB>0.7' | bcftools +setGT -- -t q -n "." -i 'FMT/DP<5' | bcftools filter --targets "^chrUn" -O z -o ${OUT_DIR}/${PREFIX}.filtAB-DP.vcf.gz
+bcftools +setGT ${vcf_dir}/${vcf_prefix}.noBND.vcf -- -t q -n "." -i "(GT='het' & FMT/AB<${MIN_AB}) | (GT='het' & FMT/AB>${MAX_AB})" | bcftools +setGT -- -t q -n "." -i "FMT/DP<${DP_CUTOFF}" | bcftools filter --targets "^chrUn" -O z -o ${OUT_DIR}/${PREFIX}.filtAB-DP.vcf.gz
+# Can check if AB was correctly filtered with the following:
+# This removes all INFO fields and all FORMAT fields except for GT and AB
+#   bcftools annotate -x INFO,^FORMAT/GT,FORMAT/AB mut_barley_cohort.filtAB-DP.vcf.gz -O z -o temp_AB_only_mut_barley_cohort.filtAB-DP.vcf.gz
+#   bcftools annotate -x INFO,^FORMAT/GT,FORMAT/AB ${vcf_dir}/${vcf_prefix}.noBND.vcf -O z -o ${OUT_DIR}/temp_AB_only_${vcf_prefix}.noBND.vcf.gz
 # Index vcf
 tabix -p vcf ${OUT_DIR}/${PREFIX}.filtAB-DP.vcf.gz
 
