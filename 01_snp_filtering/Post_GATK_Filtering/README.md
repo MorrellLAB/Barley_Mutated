@@ -91,3 +91,13 @@ Compare plots of joint annotations and unfiltered vs filtered variants using sci
 Jupyter Notebook: `Evaluate_filtering-indels.ipynb`
 
 Run with MSI Jupyter Noteooks job profile "Mesabi High-mem - 12 cores, 128 GB, 4 hours, 180 GB local scratch", Python v3.8.3.
+
+---
+
+### Select relevant samples
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering
+# For both snps and indels
+sbatch select_samples.sh
+```

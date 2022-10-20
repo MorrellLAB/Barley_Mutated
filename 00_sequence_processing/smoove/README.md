@@ -47,3 +47,10 @@ Run steps 2-5 of population-level calling together utilizing GNU parallel where 
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/smoove
 sbatch run_smoove-step2-5.sh
 ```
+
+Separate smoove called samples into 10x Genomics mutated lines, 8 mutated wgs lines, and the 13 hybrid barley lines relevant to this study.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/smoove
+sbatch select_samples_smoove.sh
+```
