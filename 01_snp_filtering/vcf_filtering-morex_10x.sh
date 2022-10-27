@@ -12,6 +12,7 @@ module load bedops_ML/2.4.38
 module load bedtools/2.29.2
 module load python3/3.8.3_anaconda2020.07_mamba
 module load htslib/1.9
+module load gatk/4.1.2
 # Export path to directory containing custom script for converting 10x Genomics VCF
 #   containing dels, dups, and SVs where the end position is in the INFO field
 export PATH=${PATH}:/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering
@@ -130,6 +131,18 @@ bcftools concat --allow-overlaps \
     | bcftools sort -O z -o ${OUT_DIR}/${PREFIX}_all_var_filt_concat.noBND.noRepeatOverlap.noRefNs.vcf.gz
 # Index vcf
 tabix -p vcf ${OUT_DIR}/${PREFIX}_all_var_filt_concat.noBND.noRepeatOverlap.noRefNs.vcf.gz
+
+# For phased variants, separate SNPs and indels
+# Select SNPs only from phased variants VCF
+gatk SelectVariants \
+    -V "${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.noRepeatOverlap.noRefNs.vcf.gz" \
+    -select-type SNP \
+    -O "${OUT_DIR}/${PREFIX}_phased_variants-snps.DPfilt.noRepeatOverlap.noRefNs.vcf.gz"
+# Select indels only from phased variants VCF
+gatk SelectVariants \
+    -V "${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.noRepeatOverlap.noRefNs.vcf.gz" \
+    -select-type INDEL \
+    -O "${OUT_DIR}/${PREFIX}_phased_variants-indels.DPfilt.noRepeatOverlap.noRefNs.vcf.gz"
 
 # Convert diffs from ref VCF to BED using bedops tool for typical VCF format (phased variants)
 # and use a custom script for 10x Genomics specific dels, dups, and SVs formatting
