@@ -8,9 +8,9 @@ set -o pipefail
 
 # Dependencies
 module load bcftools/1.9
-module load bedops_ML/2.4.38
 module load bedtools/2.29.2
 module load python3/3.8.3_anaconda2020.07_mamba
+module load vcflib_ML/1.0.0_rc2
 module load htslib/1.9
 module load gatk/4.1.2
 # Export path to directory containing custom script for converting 10x Genomics VCF
@@ -41,7 +41,7 @@ HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequence
 
 #---------------------
 # Check if out dir exists, if not make it
-mkdir -p ${OUT_DIR}
+mkdir -p ${OUT_DIR} ${OUT_DIR}/Intermediates
 
 # First pass filtering
 # Filter out sites using 10x Genomics custom filters
@@ -147,8 +147,22 @@ gatk SelectVariants \
 # Convert diffs from ref VCF to BED using bedops tool for typical VCF format (phased variants)
 # and use a custom script for 10x Genomics specific dels, dups, and SVs formatting
 # These files will be used as exclusion lists
-vcf2bed < ${OUT_DIR}/${PREFIX}_filtered.dp_ann.vcf.gz | cut -f 1,2,3 > ${OUT_DIR}/${PREFIX}_diffs_from_ref.dp_ann.bed
+# Use vcflib to convert vcf to bed
+# snps
+zcat ${OUT_DIR}/${PREFIX}_phased_variants-snps.DPfilt.noRepeatOverlap.noRefNs.vcf.gz | vcf2bed.py - | cut -f 1,2,3 > ${OUT_DIR}/${PREFIX}_phased_variants-snps.DPfilt.noRepeatOverlap.noRefNs.diffs_from_ref.bed
+# indels (1 bp from phased variants VCF)
+zcat ${OUT_DIR}/${PREFIX}_phased_variants-indels.DPfilt.noRepeatOverlap.noRefNs.vcf.gz | vcf2bed.py - | cut -f 1,2,3 > ${OUT_DIR}/${PREFIX}_phased_variants-indels.DPfilt.noRepeatOverlap.noRefNs.diffs_from_ref.bed
 # Custom script for 10x Genomics specific format that are NOT BND (breakend sets)
-vcf_10x_genomics_to_bed.py ${OUT_DIR}/${PREFIX}_filtered.noBND.vcf.gz > ${OUT_DIR}/${PREFIX}_diffs_from_ref.noBND.bed
+#vcf_10x_genomics_to_bed.py ${OUT_DIR}/${PREFIX}_filtered.noBND.vcf.gz > ${OUT_DIR}/${PREFIX}_diffs_from_ref.noBND.bed
 # BND sites VCF to BEDPE
-bedtools intersect -wa -a ${BEDPE} -b ${OUT_DIR}/${PREFIX}_filtered.BND_only.vcf.gz | sort -uV -k1,3 > ${OUT_DIR}/${PREFIX}_diffs_from_ref.BND_only.bedpe
+#bedtools intersect -wa -a ${BEDPE} -b ${OUT_DIR}/${PREFIX}_filtered.BND_only.vcf.gz | sort -uV -k1,3 > ${OUT_DIR}/${PREFIX}_diffs_from_ref.BND_only.bedpe
+
+# Cleanup, move intermediate filtering steps output to sub directory
+# phased variants VCFs
+mv ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.vcf.gz* \
+    ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.ABfilt.vcf.gz* \
+    ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.vcf.gz* \
+    ${OUT_DIR}/Intermediates
+# larger indels vcfs
+
+# larger SVs vcfs
