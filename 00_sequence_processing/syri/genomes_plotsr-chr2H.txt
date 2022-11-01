@@ -1,0 +1,6 @@
+##ft	=   File type (fa:fasta/cl:chromosome_length, default = fa. cl files are fasters)
+##lc	=	line colour
+##lw	=	line width
+#file	name	tags
+/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/assembly/split_by_chr/HvulgareMorex_702_V3.hardmasked-chr2H.fa.gz	Morex_v3_chr2H	ft:fa;lw:1.5
+/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/split_by_chr/Barley_Morex_V2_pseudomolecules-chr2H.fa.gz	Morex_v2_chr2H	ft:fa;lw:1.5

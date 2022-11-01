@@ -1,0 +1,7 @@
+/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/00_sequence_processing/syri/genomes_plotsr-chr1H.txt
+/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/00_sequence_processing/syri/genomes_plotsr-chr2H.txt
+/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/00_sequence_processing/syri/genomes_plotsr-chr3H.txt
+/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/00_sequence_processing/syri/genomes_plotsr-chr4H.txt
+/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/00_sequence_processing/syri/genomes_plotsr-chr5H.txt
+/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/00_sequence_processing/syri/genomes_plotsr-chr6H.txt
+/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/00_sequence_processing/syri/genomes_plotsr-chr7H.txt
