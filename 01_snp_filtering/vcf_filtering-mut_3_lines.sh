@@ -11,6 +11,7 @@ module load bcftools/1.9
 module load htslib/1.9
 module load bedtools/2.29.2
 module load vcftools_ML/0.1.16
+module load gatk/4.1.2
 # Required for vcf-annotate that is part of vcftools
 export PERL5LIB=$PERL5LIB:/panfs/jay/groups/9/morrellp/public/Software/vcftools_ML-0.1.16/share/perl5
 
@@ -50,12 +51,19 @@ REPEAT_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/B
 # High copy regions (e.g., chloroplasts, mitochondria, rDNA repeats, centromere repeats, etc.)
 HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
 
-# BED file containing sites that differ between 10x Morex and Morex reference
-#BED_EXCLUSION_LIST="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v2/morex-sample2/Filtered/morex-sample2_diffs_from_ref.bed"
+# BED file containing sites that differ between 10x morex-sample2 and Morex reference
+# SNPs and Indels called in the phased variants VCF
+PHV_MOREX_DIFFS_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_phased_variants-snps.DPfilt.noRepeatOverlap.noRefNs.diffs_from_ref.bed"
+PHV_MOREX_DIFFS_INDELS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_phased_variants-indels.DPfilt.noRepeatOverlap.noRefNs.diffs_from_ref.bed"
+
+# Known SNPs
+SNPs_BOPA="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/bopa_9k_50k/bopa_idt95_noRescuedSNPs_partsRef.vcf"
+SNPs_9k="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/bopa_9k_50k/9k_idt95_noRescuedSNPs_partsRef.vcf"
+SNPs_50k="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/bopa_9k_50k/50k_idt95_noRescuedSNPs_partsRef.vcf"
 
 #----------------------------------------
 # Check if out dir exists, if not make it
-mkdir -p ${OUT_DIR}
+mkdir -p ${OUT_DIR} ${OUT_DIR}/Intermediates
 
 # Pass 1 filtering
 # Filter out sites using 10x Genomics custom filters and exclude chrUn
@@ -129,6 +137,32 @@ function pass2_filtering() {
 }
 
 export -f pass2_filtering
+
+function separate_snps_and_indels() {
+    local vcf="$1"
+    local out_dir="$2"
+    # For phased variants VCF, separate SNPs and indels
+    # Prepare output file basename
+    if [[ "${vcf}" == *"gz"* ]]; then
+        # We are working with gzipped VCF file
+        out_bn=$(basename ${vcf} .vcf.gz)
+    else
+        # We are working with uncompressed vcf
+        out_bn=$(basename ${vcf} .vcf)
+    fi
+    # Select SNPs only from phased variants VCF
+    gatk SelectVariants \
+        -V "${vcf}" \
+        -select-type SNP \
+        -O "${out_dir}/${out_bn}.SNPs.vcf.gz"
+    # Select indels only from phased variants VCF
+    gatk SelectVariants \
+        -V "${vcf}" \
+        -select-type INDEL \
+        -O "${out_dir}/${out_bn}.INDELs.vcf.gz"
+}
+
+export -f separate_snps_and_indels
 
 # Pass1 filtering: 10x Genomics custom filters and separating BND variants
 pass1_filtering ${DEL_VCF_M01} ${LSV_VCF_M01} ${PHV_VCF_M01} ${OUT_DIR} ${PREFIX_M01}
@@ -204,16 +238,39 @@ bcftools concat --allow-overlaps \
     ${OUT_DIR}/${PREFIX}_large_svs_merged.noRepeatOverlap.noRefNs.vcf.gz \
     | bcftools sort -O v -o ${OUT_DIR}/${PREFIX}_all_var_filt_concat.vcf
 
+# Separate SNPs and indels in phased variants VCF
+separate_snps_and_indels ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz ${OUT_DIR}
+separate_snps_and_indels ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz ${OUT_DIR}
+separate_snps_and_indels ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz ${OUT_DIR}
+
 # Exclude sites that differ between 10x Morex and Morex reference
-#grep "#" ${OUT_DIR}/${PREFIX}_filtMorexDiffs.vcf > ${OUT_DIR}/${PREFIX}_filtered_no_morex_diffs.vcf
-bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX}_filtMorexDiffs.vcf -b ${BED_EXCLUSION_LIST} >> ${OUT_DIR}/${PREFIX}_filtered_no_morex_diffs.vcf
+# Also exclude sites that are known variants
+# M01
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
 
-# Exclude non-unique variants (i.e., variants that are present in more than 1 of the mutated lines)
-cat ${OUT_DIR}/${PREFIX}_filtered_no_morex_diffs.vcf | vcf-annotate -f ${VCFTOOLS_CUSTOM_FILTER} > ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf
-# Create a file containing only singletons
-# and remove chrUn variants
-grep "#" ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf > ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf
-grep -v "#" ${OUT_DIR}/${PREFIX}_filtered_singleton_ann.vcf | grep -v "chrUn" | grep "SINGLETON" >> ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
 
-# Pull out homozygous sites only
-bcftools view -i 'GT[*]="hom"' ${OUT_DIR}/${PREFIX}_filtered_singletons_only.vcf > ${OUT_DIR}/${PREFIX}_filtered_hom_singletons_only.vcf
+# M20
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
+
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
+# M29
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
+
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
+
+# Cleanup, move intermediate filtering steps output to sub directory
+# phased variants VCFs
+mv ${OUT_DIR}/${PREFIX_M01}_phased_variants.10xCustomFilt.vcf.gz* \
+    ${OUT_DIR}/${PREFIX_M20}_phased_variants.10xCustomFilt.vcf.gz* \
+    ${OUT_DIR}/${PREFIX_M29}_phased_variants.10xCustomFilt.vcf.gz* \
+    ${OUT_DIR}/${PREFIX_M01}_phased_variants.10xCustomFilt.ABfilt.vcf.gz* \
+    ${OUT_DIR}/${PREFIX_M20}_phased_variants.10xCustomFilt.ABfilt.vcf.gz* \
+    ${OUT_DIR}/${PREFIX_M29}_phased_variants.10xCustomFilt.ABfilt.vcf.gz* \
+    ${OUT_DIR}/Intermediates

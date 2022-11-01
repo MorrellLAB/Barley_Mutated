@@ -158,6 +158,13 @@ Filter mutated lines by quality metrics (using 10x Genomics custom filters and D
 vcf_filtering-mut_3_lines.sh
 ```
 
+Exclude differences between 10x Genomics morex-sample2 and Morex reference for 8 WGS mutated lines.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering
+./exclude_diffs_from_ref_mut8wgs.sh
+```
+
 Before finalizing filtering, check 10-15 variants in IGV to see if we need to go back and tune our filtering a little more before proceeding.
 
 Remove variants shared between 10x Genomics Morex line and mutant lines. So, we want variants private to the mutant lines that are NOT in the 10x Genomics Morex line.
@@ -168,6 +175,13 @@ module load bcftools/1.9
 bcftools isec -p /scratch.global/liux1299 mut_3_lines_filtered_singletons_only_annotated_DEL.vcf.gz
 # 0000.vcf contains records private to mut_3_lines_filtered_singletons_only_annotated_DEL.vcf.gz
 cp /scratch.global/liux1299/0000.vcf mut_3_lines_filtered_singletons_only_annotated_DEL_de_novo_sites.vcf
+```
+
+**Step 4:** Identify variants private to each mutated sample
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
+./vcf_filtering-de_novo_mut.sh
 ```
 
 ## File Locations
