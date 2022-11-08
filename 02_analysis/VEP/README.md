@@ -20,11 +20,20 @@ Run VeP with scripts:
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/VEP
-./Vep_hom_singletons_by_sample.job
-./Vep_hom_singletons_only.job
-./Vep_morex-sample2.job
-./Vep_singletons_by_sample.job
-./Vep_singletons.job
+# All samples combined
+./Vep_singletons-mut_snps.sh
+./Vep_singletons-mut_indels.sh
+# Vep for each sample individually
+./Vep_singletons_by_sample-mut_snps.sh
+./Vep_singletons_by_sample-mut_indels.sh
+
+# Hybrid VCF is much larger, will need to submit as Slurm job
+sbatch Vep-hybrid_snps.sh
+sbatch Vep-hybrid_indels.sh
+
+./Vep_morex-sample2.sh
+# ./Vep_singletons_by_sample.job
+# ./Vep_singletons.job
 ```
 
 **Note:** When running VeP, don't use `--total_length` flag. Turning on this flag messes up the file format for BAD_Mutations `Vep_to_Subs.py` script.

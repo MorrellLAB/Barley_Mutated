@@ -9,6 +9,7 @@ set -o pipefail
 # Dependencies
 module load bcftools/1.10.2
 module load htslib/1.9
+module load parallel/20210822
 
 # User provided input arguments
 # 8 WGS mutated lines VCF SNPs and 1 bp indels
@@ -27,6 +28,8 @@ M29_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longr
 
 OUT_PREFIX="mut8_and_3mut10xGenomics"
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs"
+
+SAMPLE_LIST="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs/mut_sample_names.txt"
 
 #----------------
 mkdir -p ${OUT_DIR} ${OUT_DIR}/Intermediates
@@ -59,6 +62,26 @@ function count_sites() {
 }
 
 export -f count_sites
+
+function split_by_sample() {
+    local vcf="$1"
+    local curr_sample="$2"
+    local out_dir="$3"
+    # Prepare subdirectory
+    mkdir -p ${out_dir}
+    # Prep output file prefix
+    if [[ "${vcf}" == *".gz"* ]]; then
+        prefix=$(basename ${vcf} .vcf.gz)
+    else
+        prefix=$(basename ${vcf} .vcf)
+    fi
+    # Pull out current sample
+    # Remove sites where there are missing genotypes or ref-ref genotypes
+    bcftools view --samples "${curr_sample}" ${vcf} | bcftools view -e "GT='mis' | GT='RR'" -O z -o ${out_dir}/${curr_sample}_${prefix}.vcf.gz
+    tabix -p vcf ${out_dir}/${curr_sample}_${prefix}.vcf.gz
+}
+
+export -f split_by_sample
 
 # Merge mutated line samples into one VCF
 # SNPs
@@ -117,3 +140,9 @@ count_sites ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.HOM.vcf.gz ${OUT_DIR}/${OUT_PR
 count_sites ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.HET.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_SNPs_num_sites.log
 count_sites ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.HOM.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_INDELs_num_sites.log
 count_sites ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.HET.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_INDELs_num_sites.log
+
+# Split by sample
+# Some downstream analyses work better when each VCF only has one sample without
+#   a bunch of extra missing genotypes
+parallel --verbose split_by_sample ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.vcf.gz {} "${OUT_DIR}/split_by_sample_SNPs_private" :::: ${SAMPLE_LIST}
+parallel --verbose split_by_sample ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.vcf.gz {} "${OUT_DIR}/split_by_sample_INDELs_private" :::: ${SAMPLE_LIST}
