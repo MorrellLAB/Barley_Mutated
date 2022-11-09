@@ -52,9 +52,9 @@ function full_spectra_analysis() {
     local combined_counts_file="$1"
     local out_dir="$2"
     local plot_file_bn="$3"
-    mutation_analysis spectra -1 ${combined_counts_file} -o ${out_dir}/full_spectra_analysis --strand_symmetry
+    mutation_analysis spectra -1 ${combined_counts_file} -o ${out_dir} --strand_symmetry
     # Rename output files so they are more meaningful and easier to collate later
-    cd ${out_dir}/full_spectra_analysis
+    cd ${out_dir}
     rename -v ".pdf" "_${plot_file_bn}.pdf" *.pdf
     rename -v ".json" "_${plot_file_bn}.json" *.json
     rename -v ".txt" "_${plot_file_bn}.txt" *.txt
