@@ -1,6 +1,6 @@
 # Context of Mutations analysis
 
-Run Mutation Motif to analyze the context of mutations.
+Run [Mutation Motif](https://github.com/HuttleyLab/MutationMotif/) to analyze the context of mutations.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/mutation_motif
