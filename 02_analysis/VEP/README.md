@@ -32,8 +32,6 @@ sbatch Vep-hybrid_snps.sh
 sbatch Vep-hybrid_indels.sh
 
 ./Vep_morex-sample2.sh
-# ./Vep_singletons_by_sample.job
-# ./Vep_singletons.job
 ```
 
 **Note:** When running VeP, don't use `--total_length` flag. Turning on this flag messes up the file format for BAD_Mutations `Vep_to_Subs.py` script.

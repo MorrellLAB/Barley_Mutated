@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Shared functions for preparing counts tables
-
 # Define functions
 function vcf_to_bed() {
     local vcf="$1"

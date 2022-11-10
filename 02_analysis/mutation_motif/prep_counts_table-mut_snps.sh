@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=16
 #SBATCH --mem=8gb
 #SBATCH --tmp=6gb
-#SBATCH -t 00:30:00
+#SBATCH -t 00:20:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t
@@ -25,7 +25,7 @@ source activate /panfs/jay/groups/9/morrellp/liux1299/.conda/envs/mut_motif_env
 source ~/GitHub/Barley_Mutated/02_analysis/mutation_motif/prep_counts_functions.sh
 
 # User provided input arguments
-VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs/mut8_and_3mut10xGenomics.SNPs.private.vcf"
+VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs/mut8_and_3mut10xGenomics.SNPs.private.vcf.gz"
 # Reference fasta file
 REF_FASTA="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
 REF_FAI="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta.fai"
