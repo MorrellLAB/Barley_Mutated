@@ -119,6 +119,8 @@ We'll proceed with 72 species for alignment located in the following directory:
 
 We may decide to go with either ANNOVAR annotations instead of VeP ones or some version of an intersect between the two.
 
+Prepare VeP files to be converted to .subs format for BAD_Mutations. Pull out nonsynonymous variants as defined by VeP, which uses Sequence Ontology's definition (http://www.sequenceontology.org/).
+
 This step converts the VeP .txt.gz files to a format that can be included in BAD_Mutations.
 
 ```bash
@@ -127,6 +129,8 @@ This step converts the VeP .txt.gz files to a format that can be included in BAD
 ```
 
 #### Step 4: Generate alignments and trees
+
+> **IMPORTANT NOTE:** This is how we originally ran BAD_Mutations relative to Morex_v2 but then we decided to move to Morex v3. For Morex_v3, Giulia ran this step and generated the alignments and trees. We utilized Giulia's output from this step to run predictions.
 
 To take advantage of GNU parallel and job arrays, we will first split the *H. vulgare* all CDS fasta file into one sequence record per file.
 
@@ -291,32 +295,38 @@ We'll need to regenerate the `FASTA_LIST_OF_LISTS` to exclude problematic CDS se
 
 #### Step 5: Predict substitutions
 
-Generate a list of directories that contain the `*.subs` files. In this case, each subdirectory corresponds to one sample.
+The following parts inside the block quote was already run by Giulia since we used her align and trees output:
 
-```bash
-# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs
-find $(pwd -P) -mindepth 1 -maxdepth 1 -type d > subs_dir_list.txt
-```
+> Generate a list of directories that contain the `*.subs` files. In this case, each subdirectory corresponds to one sample.
 
-BAD_Mutations `predict` step only works with fasta files that end in `.fasta` and NOT `.fa`. Rename fasta files.
+> ```bash
+> # In dir: ~/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs
+> find $(pwd -P) -mindepth 1 -maxdepth 1 -type d > subs_dir_list.txt
+> ```
 
-```bash
-# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
-./rename_fasta_extension.sh
-```
+> BAD_Mutations `predict` step only works with fasta files that end in `.fasta` and NOT `.fa`. Rename fasta files.
 
-To reduce the number of files we need to run, generate a list of primary transcripts only. The primary transcripts can be downloaded from Phytozome13 (https://phytozome-next.jgi.doe.gov/).
+> ```bash
+> # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+> ./rename_fasta_extension.sh
+> ```
 
-```bash
-# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
-./get_primary_transcripts_only.sh
-```
+> To reduce the number of files we need to run, generate a list of primary transcripts only. The primary transcripts can be downloaded from Phytozome13 (https://phytozome-next.jgi.doe.gov/).
 
-Run BAD_Mutations predict. The `.job` script stores filepaths and calls on the main script `bad_mut_predict.sh`. The general command to submit arrays is as below, but in practice we submitted them in batches of 200 array indices for trackability.
+> ```bash
+> # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+> ./get_primary_transcripts_only.sh
+> ```
+
+Run BAD_Mutations predict. The `bad_mut_predict-mut.sh` script stores filepaths and calls on the main script `bad_mut_predict.sh`. The general command to submit arrays is as below, but in practice we submitted them in batches of 200 array indices for trackability.
 
 **USEFUL:** For each batch of array indices submitted, there will be some array indices that have timed out or failed and need to be re-run. To generate a list of re-run array indices, run the script `get_re-run_array_indices.sh`.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
-sbatch --array=0-4729 bad_mut_predict-mut_3_lines.job
+sbatch --array=0-209 bad_mut_predict-mut.sh
 ```
+
+#### Step 6: Compile predictions
+
+
