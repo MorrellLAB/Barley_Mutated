@@ -109,17 +109,31 @@ count_sites ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INDELs.vcf.gz ${OUT_DIR}/${OU
 # Exclude non-unique variants (i.e., variants that are present in more than 1 of the mutated lines)
 # We want variants private to each sample
 # First, create a file where only one sample has an alternate allele
+# Also keep only biallelic variants
 # SNPs
-bcftools view -i "COUNT(GT='alt')=1" ${OUT_DIR}/Intermediates/${OUT_PREFIX}.SNPs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.vcf.gz
+bcftools view -m2 -M2 -i "COUNT(GT='alt')=1" ${OUT_DIR}/Intermediates/${OUT_PREFIX}.SNPs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.vcf.gz
 tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.vcf.gz
 # Check number of sites
 count_sites ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_SNPs_num_sites.log
 
 # Indels
-bcftools view -i "COUNT(GT='alt')=1" ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INDELs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.vcf.gz
+bcftools view -m2 -M2 -i "COUNT(GT='alt')=1" ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INDELs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.vcf.gz
 tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.vcf.gz
 # Check number of sites
 count_sites ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_INDELs_num_sites.log
+
+# Separate multiallelic variants
+# SNPs multiallelic
+bcftools view --min-alleles 3 ${OUT_DIR}/Intermediates/${OUT_PREFIX}.SNPs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.multiallelic.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.multiallelic.vcf.gz
+# Check number of sites
+count_sites ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.multiallelic.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_SNPs_num_sites.log
+
+# Indels multiallelic
+bcftools view --min-alleles 3 ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INDELs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.INDELs.multiallelic.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.INDELs.multiallelic.vcf.gz
+# Check number of sites
+count_sites ${OUT_DIR}/${OUT_PREFIX}.INDELs.multiallelic.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_INDELs_num_sites.log
 
 # Pull out homozygous (alt-alt hom) sites only
 bcftools view -i 'GT="AA"' ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.HOM.vcf.gz
