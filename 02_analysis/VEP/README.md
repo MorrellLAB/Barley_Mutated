@@ -30,7 +30,14 @@ Run VeP with scripts:
 # Hybrid VCF is much larger, will need to submit as Slurm job
 sbatch Vep-hybrid_snps.sh
 sbatch Vep-hybrid_indels.sh
+# Rare vs common SNPs
+sbatch Vep-hybrid_rare_snps.sh
+sbatch Vep-hybrid_common_snps.sh
+# Rare vs common indels
+sbatch Vep-hybrid_rare_indels.sh
+sbatch Vep-hybrid_common_indels.sh
 
+# Morex-sample2
 ./Vep_morex-sample2.sh
 ```
 
