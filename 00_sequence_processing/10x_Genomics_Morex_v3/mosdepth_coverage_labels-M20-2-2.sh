@@ -19,9 +19,9 @@ module load bedtools/2.29.2
 export PATH=${PATH}:/panfs/jay/groups/9/morrellp/shared/Software/mosdepth
 
 # Input arguments
-BAM="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3/Morex_ont_partsRefv3_90_wRG.bam"
-SAMPLE_NAME="morex_ont"
-OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3"
+BAM="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/M20-2-2/outs/M20-2-2_phased_possorted_bam.bam"
+SAMPLE_NAME="M20-2-2"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/mosdepth_coverage"
 WIN_SIZE="10"
 LOW_COV_CUTOFF="5"
 NUM_THREADS="4"

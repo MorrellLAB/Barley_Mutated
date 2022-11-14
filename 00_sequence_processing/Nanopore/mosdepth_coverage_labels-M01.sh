@@ -14,6 +14,7 @@ set -e
 set -o pipefail
 
 # Dependencies
+module load bedtools/2.29.2
 # Mosdepth version 0.3.1
 export PATH=${PATH}:/panfs/jay/groups/9/morrellp/shared/Software/mosdepth
 
@@ -21,8 +22,13 @@ export PATH=${PATH}:/panfs/jay/groups/9/morrellp/shared/Software/mosdepth
 BAM="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/M01_ont_partsRefv3/M01_ont_partsRefv3_90_wRG.bam"
 SAMPLE_NAME="M01_ont"
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/mosdepth_coverage"
+WIN_SIZE="10"
+LOW_COV_CUTOFF="5"
+NUM_THREADS="4"
 
 #-----------------------
+# Make output directory
+mkdir -p ${OUT_DIR}
 # Go into output directory
 cd ${OUT_DIR}
 
@@ -33,4 +39,8 @@ export MOSDEPTH_Q2=CALLABLE      # 5..149
 export MOSDEPTH_Q3=HIGH_COVERAGE # 150 ...
 
 # Get BED with labels for coverage
-mosdepth -n --quantize 0:1:5:150: ${SAMPLE_NAME} ${BAM}
+mosdepth --by ${WIN_SIZE} --threads ${NUM_THREADS} --fast-mode --no-per-base --quantize 0:1:5:150: ${SAMPLE_NAME} ${BAM}
+
+# Use mosdepth output file
+# Remove chrUn and merge overlapping or "book-ended' features
+zcat ${OUT_DIR}/${SAMPLE_NAME}.regions.bed.gz | awk -v my_cutoff=${LOW_COV_CUTOFF} '$4 < my_cutoff' | grep -v "chrUn" | bedtools merge -i - > ${OUT_DIR}/${SAMPLE_NAME}.regions.lt${LOW_COV_CUTOFF}.bed

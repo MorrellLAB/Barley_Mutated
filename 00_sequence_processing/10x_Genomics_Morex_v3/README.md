@@ -36,3 +36,13 @@ rename -v "" "M29-2-2_" *
 # In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/morex-sample2/outs
 rename -v "" "morex-sample2_" *
 ```
+
+#### Step 3: Coverage estimates
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/10x_Genomics_Morex_v3
+sbatch mosdepth_coverage_labels-morex-sample2.sh
+sbatch mosdepth_coverage_labels-M01-3-3.sh
+sbatch mosdepth_coverage_labels-M20-2-2.sh
+sbatch mosdepth_coverage_labels-M29-2-2.sh
+```
