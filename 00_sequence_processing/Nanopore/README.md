@@ -93,6 +93,16 @@ module load bedtools/2.29.2
 bedtools merge -d 10 -i Morex_ont_partsRefv3_90_wRG.high_cov.bed > Morex_ont_partsRefv3_90_wRG.high_cov.exclude.bed
 ```
 
+Get coverage with labels to identify low coverage regions.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
+sbatch mosdepth_coverage_labels-morex.sh
+sbatch mosdepth_coverage_labels-M01.sh
+sbatch mosdepth_coverage_labels-M20.sh
+sbatch mosdepth_coverage_labels-M29.sh
+```
+
 ---
 
 ### Morex 85X ONT data
