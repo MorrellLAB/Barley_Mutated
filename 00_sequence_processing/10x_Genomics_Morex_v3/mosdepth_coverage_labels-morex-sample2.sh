@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=6
 #SBATCH --mem=12gb
 #SBATCH --tmp=10gb
-#SBATCH -t 00:30:00
+#SBATCH -t 01:00:00
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=liux1299@umn.edu
 #SBATCH -p small,ram256g,ram1t
