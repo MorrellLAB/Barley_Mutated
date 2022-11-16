@@ -12,22 +12,29 @@ This directory contains all scripts used to prepare and filter VCF files.
 
 **Step 0:** Prepare the VCFs
 
+Prepare large SVs vcf so low confidence large SV calls are excluded.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
+./prep_10x_large_svs_files.sh
+```
+
 Do some checks to see which files have REF allele mismatches (this is a known problem we have run into with output from 10x Genomics longranger outputs). We repeat the following check for all samples:
 
 ```bash
 # Dependencies
 module load bcftools/1.10.2
-export PATH=${PATH}:/panfs/roc/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering
+export PATH=${PATH}:/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering
 
 # Shared variables
-REF="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
+REF="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
 
 # Morex-sample2
 # In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/morex-sample2/outs
 check_10x_ref_allele_mismatches.sh \
     ${REF} \
     morex-sample2_dels.vcf.gz \
-    morex-sample2_large_svs.vcf.gz \
+    morex-sample2_large_svs.calls.nochrUn.noDUP-UNK.vcf \
     morex-sample2_phased_variants.vcf.gz
 # Output messages:
 # Unique warnings for DELs:
@@ -37,47 +44,46 @@ check_10x_ref_allele_mismatches.sh \
 # Unique warnings for Large SVs:
 # Lines   total/split/realigned/skipped:
 # NON_ACGTN_ALT
-# REF_MISMATCH
 
 # Unique warnings for Phased Variants:
 # Lines   total/split/realigned/skipped:
 
 # Check how many REF_MISMATCH
 grep "REF_MISMATCH" temp_ref_check_warn_morex-sample2_large_svs.log | wc -l
-    4276
+#    0
 
 # M01
 # In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/M01-3-3/outs
 check_10x_ref_allele_mismatches.sh \
     ${REF} \
     M01-3-3_dels.vcf.gz \
-    M01-3-3_large_svs.vcf.gz \
+    M01-3-3_large_svs.calls.nochrUn.noDUP-UNK.vcf \
     M01-3-3_phased_variants.vcf.gz
 # Check how many REF_MISMATCH
 grep "REF_MISMATCH" temp_ref_check_warn_M01-3-3_large_svs.log | wc -l
-    4949
+#    2
 
 # M20
 # In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/M20-2-2/outs
 check_10x_ref_allele_mismatches.sh \
     ${REF} \
     M20-2-2_dels.vcf.gz \
-    M20-2-2_large_svs.vcf.gz \
+    M20-2-2_large_svs.calls.nochrUn.noDUP-UNK.vcf \
     M20-2-2_phased_variants.vcf.gz
 # Check how many REF_MISMATCH
 grep "REF_MISMATCH" temp_ref_check_warn_M20-2-2_large_svs.log | wc -l
-    4117
+#    2
 
 # M29
 # In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/M29-2-2/outs
 check_10x_ref_allele_mismatches.sh \
     ${REF} \
     M29-2-2_dels.vcf.gz \
-    M29-2-2_large_svs.vcf.gz \
+    M29-2-2_large_svs.calls.nochrUn.noDUP-UNK.vcf \
     M29-2-2_phased_variants.vcf.gz
 # Check how many REF_MISMATCH
 grep "REF_MISMATCH" temp_ref_check_warn_M29-2-2_large_svs.log | wc -l
-    6402
+#   1
 
 # Cleanup unnecessary files
 rm temp_ref_check_*.vcf
@@ -89,8 +95,8 @@ Remove ref allele mismatches for large SVs.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
-# morex-sample2 and mutated lines
-sbatch --array=0-3 fix_ref_allele_large_svs.sh
+# mutated lines (morex-sample2 didn't have any ref mismatches)
+sbatch --array=0-2 fix_ref_allele_large_svs.sh
 ```
 
 A majority of the REF allele mismatches in the large SVs VCF files were `LOWQ` and would have been removed anyways, there were only a handful or less of sites where they were marked as `PASS`.

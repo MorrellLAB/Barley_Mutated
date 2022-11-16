@@ -13,19 +13,19 @@
 set -e
 set -o pipefail
 
-module load bcftools/1.9
+module load bcftools/1.10.2
 
 # Removes mismatching REF allele positions using Slurm job arrays.
 
 # User provided arguments
 # IMPORTANT: Make sure vcf list and log list are sorted in the same order
 # List of large_svs vcfs
-VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/largeSVs_vcf_list.txt"
+VCF_LIST="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/largeSVs_vcf_list.txt"
 # List of log files containing REF_MISMATCH identifiers
 # See CL README on Github for how log files were created, these files should be named something
 # like: temp_ref_check_warn_M01-3-3_large_svs.log
-LOG_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/largeSVs_ref_mismatch_targets_list.txt"
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch"
+LOG_LIST="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/largeSVs_ref_mismatch_targets_list.txt"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/fix_ref_mismatch"
 
 #----------------------
 mkdir -p ${OUT_DIR}
@@ -40,7 +40,7 @@ echo "Maximum array limit is ${MAX_ARRAY_LIMIT}."
 CURR_VCF=${VCF_ARR[${SLURM_ARRAY_TASK_ID}]}
 echo "Currently processing VCF file: ${CURR_VCF}"
 # Get the current REF_MISMATCH targets from the log file list
-SAMPLE_NAME=$(basename ${CURR_VCF} _large_svs.vcf.gz)
+SAMPLE_NAME=$(basename ${CURR_VCF} _large_svs.calls.nochrUn.noDUP-UNK.vcf)
 TARGETS=$(grep ${SAMPLE_NAME} ${LOG_LIST})
 
 # Create targets file of REF_MISMATCH from log files
