@@ -19,8 +19,8 @@ module load bcftools/1.9
 
 # User provided arguments
 # List of full filepaths to phased variants VCF files
-VCF_LIST="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/phased_var_vcf_list.txt"
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants"
+VCF_LIST="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/phased_var_vcf_list.txt"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/complex_variants"
 
 #----------------------
 mkdir -p ${OUT_DIR}
