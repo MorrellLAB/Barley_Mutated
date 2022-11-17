@@ -11,6 +11,7 @@ Where:
 
 import sys
 import os
+import gzip
 
 if len(sys.argv) < 2:
     print(__doc__)
@@ -19,7 +20,7 @@ if len(sys.argv) < 2:
 # User provided input arguments
 VCF = os.path.expanduser(sys.argv[1])
 
-with open(VCF, 'r') as f:
+def convert_10xG_to_bed(f):
     for line in f:
         if line.startswith("#"):
             continue
@@ -30,3 +31,12 @@ with open(VCF, 'r') as f:
             start = str(int(vl[1])-1)
             end = vl[7].split(';')[0].split('=')[1]
             print('\t'.join([chrom, start, end]))
+
+
+# Read file in line-by-line
+if "gz" in VCF:
+    with gzip.open(VCF, 'rt') as f:
+        convert_10xG_to_bed(f)
+else:
+    with open(VCF, 'rt') as f:
+        convert_10xG_to_bed(f)

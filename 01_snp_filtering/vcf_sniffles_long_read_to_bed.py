@@ -12,6 +12,7 @@ Where:
 
 import sys
 import os
+import gzip
 
 if len(sys.argv) < 2:
     print(__doc__)
@@ -20,7 +21,7 @@ if len(sys.argv) < 2:
 # User provided input arguments
 VCF = os.path.expanduser(sys.argv[1])
 
-with open(VCF, 'r') as f:
+def sniffles_to_bed(f):
     for line in f:
         if line.startswith("#"):
             continue
@@ -36,3 +37,12 @@ with open(VCF, 'r') as f:
                 end_pos_idx = [i for i, elem in enumerate(info_field) if 'END=' in elem]
                 end = info_field[end_pos_idx[0]].split('=')[1]
                 print('\t'.join([chrom, start, end]))
+
+
+# Read file in line-by-line
+if "gz" in VCF:
+    with gzip.open(VCF, 'rt') as f:
+        sniffles_to_bed(f)
+else:
+    with open(VCF, 'r') as f:
+        sniffles_to_bed(f)
