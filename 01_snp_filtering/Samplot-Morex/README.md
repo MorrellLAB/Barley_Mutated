@@ -74,3 +74,61 @@ Visualize variants from VCFs.
 # Reheader and merge VCFs
 ./reheader_and_merge_vcf-Morex.sh
 ```
+
+---
+
+### Score post-filtering SVs
+
+After filtering (to reduce total number of SVs), generate Samplot images for SV-plaudit. We'll score the 208 DELs from the file `/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_dels.10xCustomFilt.noBND.noRepeatOverlap.noRefNs.vcf.gz` to finalize filtering this file.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
+#sbatch --array=0 samplot_plot-Morex_10x.sh
+sbatch samplot_vcf-Morex_10x.sh
+```
+
+Run SV-Plaudit following PlotCritic setup instructions in Github repo: https://github.com/jbelyeu/SV-plaudit.
+
+```bash
+# Load dependencies
+module load python3/3.8.3_anaconda2020.07_mamba
+
+# Create a PlotCritic website
+# Ran the following substituting our own fields
+python /panfs/jay/groups/9/morrellp/liux1299/Software/SV-plaudit/PlotCritic/project_setup.py \
+    -p morex_10x_Genomics \
+    -e example_user@umn.edu \
+    -a [ACCESS_KEY] -s [SECRET_ACCESS_ID] \
+    -q "Does evidence in the sample support the variant called?" \
+    -A "s":"Supports" "n":"Does not support" "d":"De novo" -r \
+    -R "chrom" "start" "end" "sv_type" "titles" "bams" \
+    -S "chrom" "start" "end" "sv_type"
+
+# Upload images to PlotCritic website
+python /panfs/jay/groups/9/morrellp/liux1299/Software/SV-plaudit/PlotCritic/upload.py \
+    -d /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/samplot-morex_10x/DEL \
+    -c /panfs/jay/groups/9/morrellp/liux1299/Software/SV-plaudit/PlotCritic/config.json
+```
+
+Score images, then retrieve scores and pull out supported SVs. Download both `summary_report.tsv` and `raw_report.tsv`, then rename files to include sample name. *Note:* Tried the command line retrieval but that resulted in an empty file, so we just downloaded it from the PlotCritic site where we scored the variants.
+
+Couldn't get SV-plaudit's `annotate.py` script to work (I think there are multiple one-off errors with the field that parts of the script is pulling from). So, we'll use a workaround instead.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/samplot-morex_10x
+# Create file containing only supports positions
+awk '$5 == "100.0" { print $0 }' morex_sample2_DEL_summary_report.tsv | cut -f 1-3 | sort -k1,1 -k2,2n > morex_sample2_DEL.supports.bed
+
+# Use bedtools
+module load bedtools/2.29.2
+# Prepare header
+zgrep "#" /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_dels.10xCustomFilt.noBND.noRepeatOverlap.noRefNs.vcf.gz > ~/Projects/Mutant_Barley/samplot-morex_10x/morex-sample2_dels.10xCustomFilt.noBND.noRepeatOverlap.noRefNs.supports.vcf
+# Intersect VCF with supports bed file
+bedtools intersect -wa -a /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_dels.10xCustomFilt.noBND.noRepeatOverlap.noRefNs.vcf.gz -b morex_sample2_DEL.supports.bed | sort -uV -k1,1 -k2,2n >> ~/Projects/Mutant_Barley/samplot-morex_10x/morex-sample2_dels.10xCustomFilt.noBND.noRepeatOverlap.noRefNs.supports.vcf
+```
+
+VCF file including only variants that were scored as "supports":
+
+```bash
+/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/samplot-morex_10x/morex-sample2_dels.10xCustomFilt.noBND.noRepeatOverlap.noRefNs.supports.vcf
+```
