@@ -10,7 +10,9 @@ This directory contains all scripts used to prepare and filter VCF files.
 
 ## Methods
 
-**Step 0:** Prepare the VCFs
+**Step 0:** Prepare the VCFs and uncallable regions
+
+**VCFs**
 
 Prepare large SVs vcf so low confidence large SV calls are excluded.
 
@@ -122,6 +124,13 @@ We want to focus on single bp changes and will remove any complex variants from 
 sbatch --array=0-3 remove_complex_variants.sh
 ```
 
+**Uncallable regions**
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
+./prep_uncallable_regions.sh
+```
+
 **Step 1:** Filter VCFs.
 
 We'll keep the `dels.vcf.gz`, `large_svs.vcf.gz`, and `phased_variants.vcf.gz` separate for the first part of our vcf filtering because each file has different types of annotations we can use for filtering so it is easier to keep them separate for now.
@@ -130,6 +139,9 @@ Filter morex-sample2 (10x Genomics VCF and Nanopore VCF), morex PacBio VCF, and 
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
+# morex-sample2 10x Genomics VCF
+# Did some filtering, then sent the filtered DELs to SV-plaudit and scored them.
+#   Scripts and steps for SV-plaudit are in the subdirectory `Samplot-Morex`
 vcf_filtering-morex_10x.sh
 vcf_filtering-morex_ont.sh
 vcf_filtering-morex_pacbio.sh
