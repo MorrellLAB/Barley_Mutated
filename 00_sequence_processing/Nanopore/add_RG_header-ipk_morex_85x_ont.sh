@@ -32,4 +32,4 @@ OUT_PREFIX=$(basename ${BAM} .bam)
 # Add @RG header line to bam
 samtools addreplacerg -r ${RG_LINE} --threads ${NUM_THREADS} -o ${OUT_DIR}/${OUT_PREFIX}_wRG.bam ${BAM}
 # Index SAM
-samtools index -c ${OUT_DIR}/${OUT_PREFIX}_wRG.bam
+samtools index -c -@ ${NUM_THREADS} ${OUT_DIR}/${OUT_PREFIX}_wRG.bam
