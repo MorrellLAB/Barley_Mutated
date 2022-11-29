@@ -129,6 +129,11 @@ sbatch --array=0-3 remove_complex_variants.sh
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
 ./prep_uncallable_regions.sh
+
+# Convert Morex 85x ONT from parts to pseudomolecular positions
+#   since this sample alone was aligned to the pseudo pos reference
+# In dir: ~/Projects/Mutant_Barley/uncallable_regions
+~/GitHub/File_Conversions/Barley_Parts_to_Pseudomolecules.py --bed morex_v3_combined_uncallable.low_complexity.nochrUn.bed morex_v3 > morex_v3_combined_uncallable.low_complexity.nochrUn.pseudo_pos.bed
 ```
 
 **Step 1:** Filter VCFs.
@@ -144,8 +149,8 @@ Filter morex-sample2 (10x Genomics VCF and Nanopore VCF), morex PacBio VCF, and 
 #   Scripts and steps for SV-plaudit are in the subdirectory `Samplot-Morex`
 vcf_filtering-morex_10x.sh
 vcf_filtering-morex_ont.sh
+vcf_filtering-morex_85x_ont.sh
 vcf_filtering-morex_pacbio.sh
-vcf_filtering-smoove.sh
 ```
 
 Filter WGS sample GATK variant calls, scripts are in subdirectory `Post_GATK_Filtering`.

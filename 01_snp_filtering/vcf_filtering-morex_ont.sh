@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 
-# Filter VCFs for Morex Nanopore data for the purposes of getting a set of diffs from reference
+# Filter VCFs for morex-sample2 Nanopore data for the purposes of getting a set of diffs from reference
 
 # Dependencies
 module load bcftools/1.10.2
@@ -12,43 +12,58 @@ module load bedtools/2.29.2
 
 # User provided input arguments
 # VCF files
-VCF="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3/Morex_ont_partsRefv3_90_renamed.vcf"
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3/filtered"
+VCF="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3/Morex_ont_partsRefv3_90_renamed.vcf"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3/filtered"
 # Output file prefix
 OUT_PREFIX="morex_ont"
-# List of regions where REF has stretches of N's
-REF_Ns_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
 # Minimum number of reads supporting the variant call
-MIN_SUPPORT="1"
-REPEAT_ANN="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
-# High copy regions (e.g., chloroplasts, mitochondria, rDNA repeats, centromere repeats, etc.)
-HIGH_COPY_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
-# High confidence genes
-#HIGH_CONF_GENES="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v2/gene_annotation/Barley_Morex_V2_gene_annotation_PGSB.HC.parts.sorted.uniq.bed"
+MIN_SUPPORT="5"
+
+# Uncallable regions
+# This includes:
+#   Regions where REF has stretches of N's
+#   Repeat annotations
+#   High copy regions (e.g., chloroplasts, mitochondria, rDNA repeats, centromere repeats, etc.)
+#   Low complexity regions generated from JGI's BBMask, but includes 10% around gene models
+UNCALLABLE="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallable_regions/morex_v3_combined_uncallable.low_complexity.nochrUn.bed"
+
+# Sniffles VCF to BED script
+SNIFFLES_to_BED="/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering/vcf_sniffles_long_read_to_bed.py"
 
 #----------------
 # Make output directories
 mkdir -p ${OUT_DIR} ${OUT_DIR}/intermediates
 
-# Separate BND variants from other variant types
-vcf_dir=$(dirname ${VCF})
-vcf_prefix=$(basename ${VCF} .vcf)
-# File of only BND variants
-bcftools view -i 'INFO/SVTYPE="BND"' ${VCF} -O v -o ${vcf_dir}/${vcf_prefix}.BND_only.vcf
-# File of other SVs, excluded BNDs
-bcftools view -e 'INFO/SVTYPE="BND"' ${VCF} -O v -o ${vcf_dir}/${vcf_prefix}.noBND.vcf
-
 # Remove sites that are homozygous reference, we want to identify sites that are differences from reference
-# We'll also exclude chrUn here too
-bcftools view -e 'GT[*]="RR"' ${vcf_dir}/${vcf_prefix}.noBND.vcf | grep -v "chrUn" > ${OUT_DIR}/${OUT_PREFIX}_noHomRef.vcf
-# Compress
-bgzip ${OUT_DIR}/${OUT_PREFIX}_noHomRef.vcf
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_noHomRef.vcf.gz
-
+# Exclude chrUn
 # Remove sites below the min support threshold
-bcftools view -i "INFO/SUPPORT >= ${MIN_SUPPORT}" ${OUT_DIR}/${OUT_PREFIX}_noHomRef.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}_noHomRef_geSup${MIN_SUPPORT}.vcf.gz
+bcftools filter --targets "^chrUn" -e "GT[*]='RR' | INFO/SUPPORT<${MIN_SUPPORT}" ${VCF} -O z -o ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.vcf.gz
 # Index vcf
-bcftools index ${OUT_DIR}/${OUT_PREFIX}_noHomRef_geSup${MIN_SUPPORT}.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.vcf.gz
 
-# Remove SVs that overlap with repeat annotated regions and that overlap with stretches of Ns
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}_noHomRef_geSup${MIN_SUPPORT}.vcf.gz -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} > ${OUT_DIR}/${OUT_PREFIX}_noHomRef_geSup${MIN_SUPPORT}.noRepeatOverlap.noRefNs.vcf
+# Separate indels from INV, DUP, and BND variants
+# BND only
+bcftools view -i 'INFO/SVTYPE="BND"' ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.BND.vcf
+# DUP only
+bcftools view -i 'INFO/SVTYPE="DUP"' ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.DUP.vcf
+# INV only
+bcftools view -i 'INFO/SVTYPE="INV"' ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.INV.vcf
+# INS and DEL
+bcftools view -i 'INFO/SVTYPE="INS" | INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.INDELs.vcf
+
+# Remove SVs that overlap with uncallable regions
+bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.INDELs.vcf -b ${UNCALLABLE} > ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INDELs.vcf
+# Separate INS and DEL for exploration
+bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.vcf
+bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.vcf
+
+# Convert Sniffles VCF to BED
+python ${SNIFFLES_to_BED} ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.vcf > ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed
+python ${SNIFFLES_to_BED} ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.vcf > ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.bed
+
+# Bgzip and index (required for running samplot)
+bgzip -c ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed > ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed.gz
+tabix -p bed ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed.gz
+
+bgzip -c ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.bed > ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.bed.gz
+tabix -p bed ${OUT_DIR}/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.bed.gz

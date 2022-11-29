@@ -79,11 +79,12 @@ Visualize variants from VCFs.
 
 ### Score post-filtering SVs
 
+#### 10x Genomics morex-sample2
+
 After filtering (to reduce total number of SVs), generate Samplot images for SV-plaudit. We'll score the 208 DELs from the file `/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_dels.10xCustomFilt.noBND.noRepeatOverlap.noRefNs.vcf.gz` to finalize filtering this file.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
-#sbatch --array=0 samplot_plot-Morex_10x.sh
 sbatch samplot_vcf-Morex_10x.sh
 ```
 
@@ -132,3 +133,38 @@ VCF file including only variants that were scored as "supports":
 ```bash
 /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/samplot-morex_10x/morex-sample2_dels.10xCustomFilt.noBND.noRepeatOverlap.noRefNs.supports.vcf
 ```
+
+#### morex-sample2 ONT
+
+Repeat similar steps above for morex-sample2 ONT data after filtering. After filtering (to reduce total number of SVs), generate Samplot images for SV-plaudit. Browse through images quickly and decide if scoring in SV-plaudit is necessary.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
+sbatch samplot_plot-Morex_ont.sh
+```
+
+SV-plaudit scoring wasn't necessary here.
+
+#### morex 85x ONT
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
+sbatch samplot_plot-Morex_85x_ont.sh
+```
+
+SV-plaudit scoring wasn't necessary here.
+
+#### morex PacBio
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Samplot-Morex
+sbatch samplot_plot-Morex_pacbio.sh
+```
+
+SV-plaudit scoring wasn't necessary here.
+
+---
+
+## Final checks
+
+Did a final check of 5-10 variants in IGV through MSI's Open On Demand after filtering.
