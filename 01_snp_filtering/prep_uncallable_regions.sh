@@ -8,14 +8,23 @@
 module load bedtools/2.29.2
 
 # User provided input arguments
+# Out dir for uncallable regions
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallable_regions"
+# Out dir for callable regions
+CALLABLE_OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley"
+# Indexed fasta file (.fasta.fai)
 REF_FAI="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta.fai"
+# BED file of parts was created from the .fai file
+# See https://github.com/MorrellLAB/morex_reference/blob/master/morex_v3/prep_reference/make_parts_bed_file.sh
+# This will be used at the end to create a BED file of all callable regions
+PARTS_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/parts.nochrUn.bed"
 # BED file
 GENE_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/gene_annotation/Hv_Morex.pgsb.Jul2020.sorted.parts.nochrUn.bed"
 RESIZE_FRACTION="0.1"
 
 # Combined BED files will have this output file prefix
 OUT_PREFIX="morex_v3_combined_uncallable"
+CALLABLE_OUT_PREFIX="morex_v3_callable"
 
 # Uncallable regions
 # List of regions where REF has stretches of N's
@@ -54,3 +63,8 @@ bedtools subtract -a ${LOW_COMPLEXITY} -b ${OUT_DIR}/${ann_prefix}.extended_${RE
 cat ${REF_Ns_BED} ${REPEAT_ANN} ${HIGH_COPY_BED} | grep -vw "chrUn" | cut -f 1-3 | sort -k1,1 -k2,2n | bedtools merge -i - > ${OUT_DIR}/${OUT_PREFIX}.nochrUn.bed
 # Add in low complexity regions excluding overlap with gene annotations
 cat ${REF_Ns_BED} ${REPEAT_ANN} ${HIGH_COPY_BED} ${OUT_DIR}/${low_complexity_prefix}.subtracted_gene_ann.bed | grep -vw "chrUn" | cut -f 1-3 | sort -k1,1 -k2,2n | bedtools merge -i - > ${OUT_DIR}/${OUT_PREFIX}.low_complexity.nochrUn.bed
+
+### Callable BED file
+# Create a BED file of all callable regions by subtracting uncallable regions
+# We'll include the low complexity regions for now given our downstream use
+bedtools subtract -a ${PARTS_BED} -b ${OUT_DIR}/${OUT_PREFIX}.nochrUn.bed > ${CALLABLE_OUT_DIR}/${CALLABLE_OUT_PREFIX}.bed
