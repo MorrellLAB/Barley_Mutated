@@ -34,6 +34,10 @@ PREFIX="morex-sample2"
 MIN_AB="0.30"
 MAX_AB="0.70"
 
+# Minimum and maximum per sample DP
+MIN_DP="5"
+MAX_DP="78"
+
 # List of regions where REF has stretches of N's
 REF_Ns_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
 # Repeat annotations
@@ -105,7 +109,7 @@ tabix -p vcf ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.ABfilt.vcf.gz
 # C) Remove sites that are homozygous reference, we want to identify sites that are differences from reference
 # D) Also separate BND type SVs into separate files (BND only in dels.vcf.gz and large svs vcf)
 # Phased variants
-bcftools filter -i 'INFO/DP > 5 && INFO/DP < 78' ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.ABfilt.vcf.gz | bcftools view -e 'GT[*]="RR"' -O z -o ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.vcf.gz
+bcftools filter -i "INFO/DP>${MIN_DP} && INFO/DP<${MAX_DP}" ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.ABfilt.vcf.gz | bcftools view -e 'GT[*]="RR"' -O z -o ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.vcf.gz
 # Index vcf
 bcftools index ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.vcf.gz
 
