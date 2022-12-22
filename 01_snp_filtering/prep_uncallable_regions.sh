@@ -17,7 +17,7 @@ REF_FAI="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barl
 # BED file of parts was created from the .fai file
 # See https://github.com/MorrellLAB/morex_reference/blob/master/morex_v3/prep_reference/make_parts_bed_file.sh
 # This will be used at the end to create a BED file of all callable regions
-PARTS_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/parts.nochrUn.bed"
+PARTS_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/parts_formatted.bed"
 # BED file
 GENE_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/gene_annotation/Hv_Morex.pgsb.Jul2020.sorted.parts.nochrUn.bed"
 RESIZE_FRACTION="0.1"
@@ -66,5 +66,7 @@ cat ${REF_Ns_BED} ${REPEAT_ANN} ${HIGH_COPY_BED} ${OUT_DIR}/${low_complexity_pre
 
 ### Callable BED file
 # Create a BED file of all callable regions by subtracting uncallable regions
-# We'll include the low complexity regions for now given our downstream use
+# Include low complexity regions
 bedtools subtract -a ${PARTS_BED} -b ${OUT_DIR}/${OUT_PREFIX}.nochrUn.bed > ${CALLABLE_OUT_DIR}/${CALLABLE_OUT_PREFIX}.bed
+# Exclude low complexity regions
+bedtools subtract -a ${PARTS_BED} -b ${OUT_DIR}/${OUT_PREFIX}.low_complexity.nochrUn.bed > ${CALLABLE_OUT_DIR}/${CALLABLE_OUT_PREFIX}.low_complexity_excluded.bed
