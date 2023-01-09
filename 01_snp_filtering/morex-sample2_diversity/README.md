@@ -119,3 +119,14 @@ Diversity estimates for morex.
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/morex-sample2_diversity
 sbatch run_pixy.sh
 ```
+
+400bp window sizes captures most of the problematic high diversity regions (>2%). Prepare BED file of these regions.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/longranger_morex_v3/morex-sample2/pixy_output
+awk '$5>0.02 && $5!="NA" { print }' pixy_pi_400bp_win.txt > pixy_pi_400bp_win.gt0.02.txt
+# Prepare uncallable high diversity bed file
+awk '{ print $2 "\t" ($3 - 1) "\t" $4 }' pixy_pi_400bp_win.gt0.02.txt | grep -v "chromosome" > /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallable_regions/pixy_pi_400bp_win.gt0.02.bed
+```
+
+High diversity uncallable regions will be used as additional uncallable regions criteria for the 10x Genomics morex-sample2 VCF.

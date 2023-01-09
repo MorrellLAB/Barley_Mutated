@@ -22,7 +22,7 @@ VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex
 # Populations .txt file
 POP_FILE="/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering/morex-sample2_diversity/pop_file.txt"
 # Window size (bp)
-WIN_SIZE="100"
+WIN_SIZE="400"
 # Number of cores
 NUM_CORES="16"
 # Output directory
