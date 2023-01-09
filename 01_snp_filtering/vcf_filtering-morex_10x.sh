@@ -46,6 +46,8 @@ REPEAT_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/B
 HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
 # Low complexity regions generated from JGI's BBMask
 LOW_COMPLEXITY="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/entropy_masked/Barley_MorexV3_pseudomolecules_parts.entropy_0.7_masked.bed"
+# High diversity, >2% diversity in a 400bp window
+HIGH_DIV_BED="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallable_regions/pixy_pi_400bp_win.gt0.02.bed"
 
 # SV-Plaudit scored VCF (supports only)
 # Note: This is generated from script in the subdirectory Samplot-Morex
@@ -124,9 +126,9 @@ bcftools index ${OUT_DIR}/${PREFIX}_dels.10xCustomFilt.noBND.vcf.gz
 bcftools index ${OUT_DIR}/${PREFIX}_dels.10xCustomFilt.BND_only.vcf.gz
 
 # Third pass filtering
-# Remove SVs that overlap with repeat annotated regions and that overlap with stretches of Ns
+# Remove SVs that overlap with uncallable regions relevant to SNPs and 1bp indels
 # Phased variants
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.vcf.gz -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} | bgzip > ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.noRepeatOverlap.noRefNs.vcf.gz
+bedtools intersect -wa -v -header -a ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.vcf.gz -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} ${HIGH_DIV_BED} | bgzip > ${OUT_DIR}/${PREFIX}_phased_variants.DPfilt.noRepeatOverlap.noRefNs.vcf.gz
 
 # DELs (non BND types)
 bedtools intersect -wa -v -header -a ${OUT_DIR}/${PREFIX}_dels.10xCustomFilt.noBND.vcf.gz -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} ${LOW_COMPLEXITY} | bgzip > ${OUT_DIR}/${PREFIX}_dels.10xCustomFilt.noBND.noRepeatOverlap.noRefNs.vcf.gz
