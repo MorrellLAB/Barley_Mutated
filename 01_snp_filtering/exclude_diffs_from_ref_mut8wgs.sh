@@ -11,16 +11,16 @@ module load bedtools/2.29.2
 module load htslib/1.9
 
 # VCF for 8 mutated lines
-VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_snps_biallelic.noRepeatOverlap.noRefNs.vcf.gz"
-VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_indels_noComplex.noRepeatOverlap.noRefNs.vcf.gz"
+VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_snps_biallelic.callable.vcf.gz"
+VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_indels_noComplex.callable.vcf.gz"
 
 OUT_PREFIX="mut8"
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered"
 
 # BED file containing sites that differ between 10x morex-sample2 and Morex reference
 # SNPs and Indels called in the phased variants VCF
-PHV_MOREX_DIFFS_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_phased_variants-snps.DPfilt.noRepeatOverlap.noRefNs.diffs_from_ref.bed"
-PHV_MOREX_DIFFS_INDELS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_phased_variants-indels.DPfilt.noRepeatOverlap.noRefNs.diffs_from_ref.bed"
+PHV_MOREX_DIFFS_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-snps.DPfilt.callable.diffs_from_ref.bed"
+PHV_MOREX_DIFFS_INDELS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-indels.DPfilt.callable.diffs_from_ref.bed"
 
 # Known SNPs
 SNPs_BOPA="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/bopa_9k_50k/bopa_idt95_noRescuedSNPs_partsRef.vcf"
@@ -61,15 +61,15 @@ export -f count_sites
 
 # Exclude sites that differ between 10x Morex and Morex reference for mutated line samples
 # snps
-bedtools intersect -v -header -a ${VCF_SNPs} -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${VCF_SNPs} -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.SNPs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.SNPs.noMorexDiffs.vcf.gz
 
 # indels
-bedtools intersect -v -header -a ${VCF_INDELs} -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${VCF_INDELs} -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
 
 # Get the number of sites
 count_sites ${VCF_SNPs} ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
 count_sites ${VCF_INDELs} ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
-count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
-count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.SNPs.noMorexDiffs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log

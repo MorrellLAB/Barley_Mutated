@@ -11,8 +11,8 @@ module load htslib/1.9
 module load parallel/20210822
 
 # User provided input arguments
-VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/hybrid13_snps_biallelic.noRepeatOverlap.noRefNs.vcf.gz"
-VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/hybrid13_indels_noComplex.noRepeatOverlap.noRefNs.vcf.gz"
+VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/hybrid13_snps_biallelic.callable.vcf.gz"
+VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/hybrid13_indels_noComplex.callable.vcf.gz"
 
 OUT_PREFIX="hybrid13"
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/hybrid_rare_vcfs"

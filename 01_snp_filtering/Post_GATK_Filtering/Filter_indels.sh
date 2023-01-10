@@ -11,12 +11,12 @@ module load python3/3.7.4_anaconda2019.10
 module load R/4.0.4
 module load bedtools/2.29.2
 module unload R/3.4.4-tiff # One of the packages above also load an older version of R that will mess with downstream plotting
-export PATH=${PATH}:/panfs/roc/groups/9/morrellp/liux1299/Software
+export PATH=${PATH}:/panfs/jay/groups/9/morrellp/liux1299/Software
 
 # User provided input arguments
-VCF="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Create_HC_Subset/mut8_and_hybrid_barley_raw_variants_indels.vcf"
+VCF="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Create_HC_Subset/mut8_and_hybrid_barley_raw_variants_indels.vcf"
 OUT_PREFIX="mut8_and_hybrid_barley_indels"
-OUT_DIR="/panfs/roc/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered"
 # Scratch directory used to store intermediate files that don't need to be kept long term
 SCRATCH_DIR="/scratch.global/liux1299/temp_mut8_and_hybrid_barley"
 
@@ -54,11 +54,13 @@ HET_PROP="0.1"
 FAKE_POLY="0.01"
 
 # List of regions where REF has stretches of N's
-REF_Ns_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
+REF_Ns_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
 # Repeat annotations
-REPEAT_ANN="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
+REPEAT_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
 # High copy regions (e.g., chloroplasts, mitochondria, rDNA repeats, centromere repeats, etc.)
-HIGH_COPY_BED="/panfs/roc/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
+HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
+# High diversity, >2% diversity in a 400bp window for morex-sample2
+HIGH_DIV_BED="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallable_regions/pixy_pi_400bp_win.gt0.02.bed"
 
 #-----------------
 # Check the out dir and scratch dir exist, if not make them
@@ -166,6 +168,7 @@ RemoveComplexVar ${SCRATCH_DIR}/${OUT_PREFIX}.filtMISS.vcf ${OUT_PREFIX} ${OUT_D
 count_sites ${OUT_DIR}/${OUT_PREFIX}_noComplex.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
 
 # Remove indels that overlap with repeat annotated regions, high copy regions, and that overlap with stretches of Ns
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}_noComplex.vcf.gz -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_noComplex.noRepeatOverlap.noRefNs.vcf.gz
+bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}_noComplex.vcf.gz -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} ${HIGH_DIV_BED} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_noComplex.callable.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_noComplex.callable.vcf.gz
 # Get the number of sites left after filtering and append to file
-count_sites ${OUT_DIR}/${OUT_PREFIX}_noComplex.noRepeatOverlap.noRefNs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+count_sites ${OUT_DIR}/${OUT_PREFIX}_noComplex.callable.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log

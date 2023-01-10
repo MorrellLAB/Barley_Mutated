@@ -190,27 +190,25 @@ Exclude differences between 10x Genomics morex-sample2 and Morex reference for 8
 
 Before finalizing filtering, check 10-15 variants in IGV to see if we need to go back and tune our filtering a little more before proceeding.
 
-Remove variants shared between 10x Genomics Morex line and mutant lines. So, we want variants private to the mutant lines that are NOT in the 10x Genomics Morex line.
-
-```bash
-# In dir: ~/Projects/Mutant_Barley/longranger_morex_v2/combined_mutated/Filtered
-module load bcftools/1.9
-bcftools isec -p /scratch.global/liux1299 mut_3_lines_filtered_singletons_only_annotated_DEL.vcf.gz
-# 0000.vcf contains records private to mut_3_lines_filtered_singletons_only_annotated_DEL.vcf.gz
-cp /scratch.global/liux1299/0000.vcf mut_3_lines_filtered_singletons_only_annotated_DEL_de_novo_sites.vcf
-```
-
-**Step 4:** Identify variants private to each mutated sample
+**Step 4:** Identify variants private to each mutated sample and separate hybrid vcfs into rare vs common variants
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
 ./vcf_filtering-de_novo_mut.sh
+# Hybrid - rare vs common variants
+./vcf_filtering-rare_hybrid.sh
 ```
 
 ## File Locations
 
 Filtered VCFs (quality control/minimize errors):
 
+```bash
+# Mutated de novo vcfs
+/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs
+# Hybrid barley parents vcfs
+/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/hybrid_rare_vcfs
+```
 
 Differences between Morex samples and Morex reference:
 

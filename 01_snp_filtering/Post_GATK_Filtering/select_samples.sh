@@ -19,25 +19,25 @@ module load htslib/1.9
 module load parallel/20210822
 
 # Separate mutated and hybrid parents samples and select hybrid parents relevant to this study
-VCF_SNP="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_and_hybrid_barley_snps_biallelic.noRepeatOverlap.noRefNs.vcf.gz"
-VCF_INDEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_and_hybrid_barley_indels_noComplex.noRepeatOverlap.noRefNs.vcf.gz"
+VCF_SNP="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_and_hybrid_barley_snps_biallelic.callable.vcf.gz"
+VCF_INDEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_and_hybrid_barley_indels_noComplex.callable.vcf.gz"
 
 # List of samples to include, must match sample names in VCF files exactly
 MUT_SAMPLES="/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering/wgs_mut_sample_names.txt"
 HYBRID_SAMPLES="/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering/wgs_hybrid_sample_names.txt"
 
 # Output file prefix
-MUT_SNP_PREFIX="mut8_snps_biallelic.noRepeatOverlap.noRefNs"
-HYBRID_SNP_PREFIX="hybrid13_snps_biallelic.noRepeatOverlap.noRefNs"
-MUT_INDEL_PREFIX="mut8_indels_noComplex.noRepeatOverlap.noRefNs"
-HYBRID_INDEL_PREFIX="hybrid13_indels_noComplex.noRepeatOverlap.noRefNs"
+MUT_SNP_PREFIX="mut8_snps_biallelic.callable"
+HYBRID_SNP_PREFIX="hybrid13_snps_biallelic.callable"
+MUT_INDEL_PREFIX="mut8_indels_noComplex.callable"
+HYBRID_INDEL_PREFIX="hybrid13_indels_noComplex.callable"
 
 # Output directory
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered"
 SCRATCH_DIR="/scratch.global/liux1299/temp_mut8_and_hybrid_barley"
 
 #----------------
-mkdir -p ${OUT_DIR}
+mkdir -p ${OUT_DIR} ${SCRATCH_DIR}
 
 # Select relevant samples and remove sites where all genotypes are missing and sites
 #   that are all homozygous reference (account for missing genotypes)

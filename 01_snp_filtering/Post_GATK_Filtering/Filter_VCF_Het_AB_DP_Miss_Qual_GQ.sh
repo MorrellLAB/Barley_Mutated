@@ -57,6 +57,8 @@ REF_Ns_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/B
 REPEAT_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
 # High copy regions (e.g., chloroplasts, mitochondria, rDNA repeats, centromere repeats, etc.)
 HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
+# High diversity, >2% diversity in a 400bp window for morex-sample2
+HIGH_DIV_BED="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallable_regions/pixy_pi_400bp_win.gt0.02.bed"
 
 # Define paths to executables and scripts
 #FILT_AB_DP_GQ_SCRIPT="/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering/filter_vcf_AB_DP_GQ.py"
@@ -163,7 +165,8 @@ count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_n
 echo "Pulling out triallelic sites..."
 bcftools view -m3 ${OUT_DIR}/${OUT_PREFIX}_noFakePoly.vcf.gz -O z -o "${OUT_DIR}/${OUT_PREFIX}_triallelic.vcf.gz"
 
-# Remove variants that overlap with repeat annotated regions, high copy regions, and that overlap with stretches of Ns
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}_biallelic.vcf.gz -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.noRepeatOverlap.noRefNs.vcf.gz
+# Remove variants that overlap with repeat annotated regions, high copy regions, and that overlap with stretches of Ns, and overlap with high diversity regions in morex-sample2
+bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}_biallelic.vcf.gz -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} ${HIGH_DIV_BED} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.vcf.gz
 # Get the number of sites left after filtering and append to file
-count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.noRepeatOverlap.noRefNs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log

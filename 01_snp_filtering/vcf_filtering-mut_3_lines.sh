@@ -44,17 +44,17 @@ MAX_AB="0.70"
 
 VCFTOOLS_CUSTOM_FILTER="~/GitHub/Barley_Mutated/01_snp_filtering/filters.txt"
 
-# List of regions where REF has stretches of N's
-REF_Ns_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/stretches_of_Ns/Barley_MorexV3_pseudomolecules_parts_missing.bed"
-# Repeat annotations
-REPEAT_ANN="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.repeatmasked_assembly_V3.parts.gff3"
-# High copy regions (e.g., chloroplasts, mitochondria, rDNA repeats, centromere repeats, etc.)
-HIGH_COPY_BED="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/high_copy_regions/Morex_v3_high_copy_uniq.parts.bed"
+# Uncallable BED file includes: REF has stretches of N's, repeat annotations, and high copy regions
+UNCALLABLE_BED="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallable_regions/morex_v3_combined_uncallable.nochrUn.bed"
+# Uncallable BED file that includes the above plus low complexity regions
+UNCALLABLE_LOW_COMPLEXITY_BED="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallable_regions/morex_v3_combined_uncallable.low_complexity.nochrUn.bed"
+# High diversity, >2% diversity in a 400bp window for morex-sample2
+HIGH_DIV_BED="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallable_regions/pixy_pi_400bp_win.gt0.02.bed"
 
 # BED file containing sites that differ between 10x morex-sample2 and Morex reference
 # SNPs and Indels called in the phased variants VCF
-PHV_MOREX_DIFFS_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_phased_variants-snps.DPfilt.noRepeatOverlap.noRefNs.diffs_from_ref.bed"
-PHV_MOREX_DIFFS_INDELS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_phased_variants-indels.DPfilt.noRepeatOverlap.noRefNs.diffs_from_ref.bed"
+PHV_MOREX_DIFFS_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-snps.DPfilt.callable.diffs_from_ref.bed"
+PHV_MOREX_DIFFS_INDELS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-indels.DPfilt.callable.diffs_from_ref.bed"
 
 # Known SNPs
 SNPs_BOPA="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/bopa_9k_50k/bopa_idt95_noRescuedSNPs_partsRef.vcf"
@@ -65,14 +65,37 @@ SNPs_50k="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Bar
 # Check if out dir exists, if not make it
 mkdir -p ${OUT_DIR} ${OUT_DIR}/Intermediates
 
+# Prepare large SVs VCF before filtering
+function prep_large_svs() {
+    local large_svs_vcf="$1"
+    # Prepare large SVs VCF basename and dirname
+    lsv_dir=$(dirname ${large_svs_vcf})
+    if [[ "${large_svs_vcf}" == *"vcf.gz" ]]; then
+        lsv_bn=$(basename ${large_svs_vcf} .vcf.gz)
+    elif [[ "${large_svs_vcf}" == *"vcf" ]]; then
+        lsv_bn=$(basename ${large_svs_vcf} .vcf)
+    fi
+    # These will then be stored in bash arrays
+    echo "${lsv_dir}"
+    echo "${lsv_bn}"
+    # Separate: INV, DEL, and BND
+    # These will have different filtering criteria
+    bcftools view -i 'INFO/SVTYPE="DEL"' ${large_svs_vcf} -O v -o ${lsv_dir}/${lsv_bn}.DEL.vcf
+    bcftools view -i 'INFO/SVTYPE="INV"' ${large_svs_vcf} -O v -o ${lsv_dir}/${lsv_bn}.INV.vcf
+    bcftools view -i 'INFO/SVTYPE="BND" | INFO/SVTYPE2="BND"' ${large_svs_vcf} -O v -o ${lsv_dir}/${lsv_bn}.BND.vcf
+}
+
+export -f prep_large_svs
+
 # Pass 1 filtering
 # Filter out sites using 10x Genomics custom filters and exclude chrUn
 function pass1_filtering() {
     local del_vcf="$1"
-    local large_svs_vcf="$2"
-    local phased_var_vcf="$3"
-    local out_dir="$4"
-    local sample_prefix="$5"
+    local large_svs_vcf_del="$2"
+    local large_svs_vcf_inv="$3"
+    local phased_var_vcf="$4"
+    local out_dir="$5"
+    local sample_prefix="$6"
     ### DEL
     bcftools filter --targets "^chrUn" -e 'FILTER=="LOWQ"' ${del_vcf} -O z -o ${out_dir}/${sample_prefix}_dels.10xCustomFilt.vcf.gz
     # Separate BNDs from other variant types
@@ -81,12 +104,8 @@ function pass1_filtering() {
     # File of only BND variants
     bcftools view -i 'INFO/SVTYPE=="BND" | INFO/SVTYPE2=="BND"' ${out_dir}/${sample_prefix}_dels.10xCustomFilt.vcf.gz -O z -o ${out_dir}/${sample_prefix}_dels.10xCustomFilt.BND_only.vcf.gz
     ### Large SVs
-    bcftools filter --targets "^chrUn" -e 'FILTER=="LOWQ"' ${large_svs_vcf} | bcftools filter -e 'ALT~"chrUn"' -O z -o ${out_dir}/${sample_prefix}_large_svs.10xCustomFilt.vcf.gz
-    # Separate BNDs from other variant types
-    # File of other SVs, excluded BNDs
-    bcftools view -e 'INFO/SVTYPE=="BND" | INFO/SVTYPE2=="BND" | INFO/SVTYPE=="UNK"' ${out_dir}/${sample_prefix}_large_svs.10xCustomFilt.vcf.gz -O z -o ${out_dir}/${sample_prefix}_large_svs.10xCustomFilt.noBND.vcf.gz
-    # File of only BND variants
-    bcftools view -i 'INFO/SVTYPE=="BND" | INFO/SVTYPE2=="BND" | INFO/SVTYPE=="UNK"' ${out_dir}/${sample_prefix}_large_svs.10xCustomFilt.vcf.gz -O z -o ${out_dir}/${sample_prefix}_large_svs.10xCustomFilt.BND_only.vcf.gz
+    bcftools filter --targets "^chrUn" -e 'FILTER=="LOWQ"' ${large_svs_vcf_del} | bcftools filter -e 'ALT~"chrUn"' -O z -o ${out_dir}/${sample_prefix}_large_svs.DEL.10xCustomFilt.vcf.gz
+    bcftools filter --targets "^chrUn" -e 'FILTER=="LOWQ"' ${large_svs_vcf_inv} | bcftools filter -e 'ALT~"chrUn"' -O z -o ${out_dir}/${sample_prefix}_large_svs.INV.10xCustomFilt.vcf.gz
     # Phased variants
     # Use 10x Genomics tuned filters and filter out sites with DP < 5
     bcftools filter --targets "^chrUn" -e 'FILTER=="10X_QUAL_FILTER" || FILTER=="10X_ALLELE_FRACTION_FILTER" || FILTER=="10X_PHASING_INCONSISTENT" || FILTER=="10X_HOMOPOLYMER_UNPHASED_INSERTION" || FILTER=="10X_RESCUED_MOLECULE_HIGH_DIVERSITY"' ${phased_var_vcf} | bcftools filter -e 'INFO/DP < 5' -O z -o ${out_dir}/${sample_prefix}_phased_variants.10xCustomFilt.vcf.gz
@@ -120,20 +139,20 @@ function pass2_filtering() {
     local phased_var_vcf="$3"
     local out_dir="$4"
     local sample_prefix="$5"
-    local repeat_ann="$6"
-    local high_copy_bed="$7"
-    local ref_ns_bed="$8"
+    local uncallable_bed="$6"
+    local uncallable_low_complexity_bed="$7"
+    local high_div_bed="$8"
     # Remove SVs that overlap with repeat annotated regions, high copy regions, and that overlap with stretches of Ns
     # DEL
-    bedtools intersect -wa -v -header -a ${del_vcf} -b ${repeat_ann} ${high_copy_bed} ${ref_ns_bed} | bgzip > ${out_dir}/${sample_prefix}_dels.noRepeatOverlap.noRefNs.vcf.gz
+    bedtools intersect -wa -v -header -a ${del_vcf} -b ${uncallable_low_complexity_bed} | bgzip > ${out_dir}/${sample_prefix}_dels.callable.vcf.gz
     # Large SVs
-    bedtools intersect -wa -v -header -a ${large_svs_vcf} -b ${repeat_ann} ${high_copy_bed} ${ref_ns_bed} | bgzip > ${out_dir}/${sample_prefix}_large_svs.noRepeatOverlap.noRefNs.vcf.gz
+    bedtools intersect -wa -v -header -a ${large_svs_vcf} -b ${uncallable_bed} | bgzip > ${out_dir}/${sample_prefix}_large_svs.callable.vcf.gz
     # Phased variants
-    bedtools intersect -wa -v -header -a ${phased_var_vcf} -b ${repeat_ann} ${high_copy_bed} ${ref_ns_bed} | bgzip > ${out_dir}/${sample_prefix}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz
+    bedtools intersect -wa -v -header -a ${phased_var_vcf} -b ${uncallable_bed} ${high_div_bed} | bgzip > ${out_dir}/${sample_prefix}_phased_variants.callable.vcf.gz
     # Index vcfs
-    tabix -p vcf ${out_dir}/${sample_prefix}_dels.noRepeatOverlap.noRefNs.vcf.gz
-    tabix -p vcf ${out_dir}/${sample_prefix}_large_svs.noRepeatOverlap.noRefNs.vcf.gz
-    tabix -p vcf ${out_dir}/${sample_prefix}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz
+    tabix -p vcf ${out_dir}/${sample_prefix}_dels.callable.vcf.gz
+    tabix -p vcf ${out_dir}/${sample_prefix}_large_svs.callable.vcf.gz
+    tabix -p vcf ${out_dir}/${sample_prefix}_phased_variants.callable.vcf.gz
 }
 
 export -f pass2_filtering
@@ -164,10 +183,26 @@ function separate_snps_and_indels() {
 
 export -f separate_snps_and_indels
 
+# Prepare large SVs before additional filtering
+LSV_M01_ARR=($(prep_large_svs ${LSV_VCF_M01}))
+LSV_M01_DIR=${LSV_M01_ARR[0]}
+LSV_M01_BN=${LSV_M01_ARR[1]}
+
+LSV_M20_ARR=($(prep_large_svs ${LSV_VCF_M20}))
+LSV_M20_DIR=${LSV_M20_ARR[0]}
+LSV_M20_BN=${LSV_M20_ARR[1]}
+
+LSV_M29_ARR=($(prep_large_svs ${LSV_VCF_M29}))
+LSV_M29_DIR=${LSV_M29_ARR[0]}
+LSV_M29_BN=${LSV_M29_ARR[1]}
+
 # Pass1 filtering: 10x Genomics custom filters and separating BND variants
-pass1_filtering ${DEL_VCF_M01} ${LSV_VCF_M01} ${PHV_VCF_M01} ${OUT_DIR} ${PREFIX_M01}
-pass1_filtering ${DEL_VCF_M20} ${LSV_VCF_M20} ${PHV_VCF_M20} ${OUT_DIR} ${PREFIX_M20}
-pass1_filtering ${DEL_VCF_M29} ${LSV_VCF_M29} ${PHV_VCF_M29} ${OUT_DIR} ${PREFIX_M29}
+pass1_filtering ${DEL_VCF_M01} ${LSV_M01_DIR}/${LSV_M01_BN}.DEL.vcf ${LSV_M01_DIR}/${LSV_M01_BN}.INV.vcf ${PHV_VCF_M01} ${OUT_DIR} ${PREFIX_M01}
+pass1_filtering ${DEL_VCF_M20} ${LSV_M20_DIR}/${LSV_M20_BN}.DEL.vcf ${LSV_M20_DIR}/${LSV_M20_BN}.INV.vcf ${PHV_VCF_M20} ${OUT_DIR} ${PREFIX_M20}
+pass1_filtering ${DEL_VCF_M29} ${LSV_M29_DIR}/${LSV_M29_BN}.DEL.vcf ${LSV_M29_DIR}/${LSV_M29_BN}.INV.vcf ${PHV_VCF_M29} ${OUT_DIR} ${PREFIX_M29}
+# At this point, look at large SVs INV in IGV and Loupe software
+#   and decide if any of them look real. Here, we have less than a handful remaining after filtering
+#   so it is manageable to look through in IGV and Loupe.
 
 # For phased variants only, filter on AB
 # This takes the ${OUT_DIR}/${PREFIX}_phased_variants.10xCustomFilt.vcf.gz as input for each respective sample
@@ -180,90 +215,92 @@ pass1_AB_filtering ${OUT_DIR}/${PREFIX_M29}_phased_variants.10xCustomFilt.vcf.gz
 # M01
 pass2_filtering \
     ${OUT_DIR}/${PREFIX_M01}_dels.10xCustomFilt.noBND.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M01}_large_svs.10xCustomFilt.noBND.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M01}_large_svs.DEL.10xCustomFilt.vcf.gz \
     ${OUT_DIR}/${PREFIX_M01}_phased_variants.10xCustomFilt.ABfilt.vcf.gz \
     ${OUT_DIR} \
     ${PREFIX_M01} \
-    ${REPEAT_ANN} \
-    ${HIGH_COPY_BED} \
-    ${REF_Ns_BED}
+    ${UNCALLABLE_BED} \
+    ${UNCALLABLE_LOW_COMPLEXITY_BED} \
+    ${HIGH_DIV_BED}
+
 # M20
 pass2_filtering \
     ${OUT_DIR}/${PREFIX_M20}_dels.10xCustomFilt.noBND.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M20}_large_svs.10xCustomFilt.noBND.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M20}_large_svs.DEL.10xCustomFilt.vcf.gz \
     ${OUT_DIR}/${PREFIX_M20}_phased_variants.10xCustomFilt.ABfilt.vcf.gz \
     ${OUT_DIR} \
     ${PREFIX_M20} \
-    ${REPEAT_ANN} \
-    ${HIGH_COPY_BED} \
-    ${REF_Ns_BED}
+    ${UNCALLABLE_BED} \
+    ${UNCALLABLE_LOW_COMPLEXITY_BED} \
+    ${HIGH_DIV_BED}
+
 # M29
 pass2_filtering \
     ${OUT_DIR}/${PREFIX_M29}_dels.10xCustomFilt.noBND.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M29}_large_svs.10xCustomFilt.noBND.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M29}_large_svs.DEL.10xCustomFilt.vcf.gz \
     ${OUT_DIR}/${PREFIX_M29}_phased_variants.10xCustomFilt.ABfilt.vcf.gz \
     ${OUT_DIR} \
     ${PREFIX_M29} \
-    ${REPEAT_ANN} \
-    ${HIGH_COPY_BED} \
-    ${REF_Ns_BED}
+    ${UNCALLABLE_BED} \
+    ${UNCALLABLE_LOW_COMPLEXITY_BED} \
+    ${HIGH_DIV_BED}
 
 # Merge and concat files at this stage to explore visually in IGV
 # DELs
 bcftools merge \
-    ${OUT_DIR}/${PREFIX_M01}_dels.noRepeatOverlap.noRefNs.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M20}_dels.noRepeatOverlap.noRefNs.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M29}_dels.noRepeatOverlap.noRefNs.vcf.gz \
-    -O z -o ${OUT_DIR}/${PREFIX}_dels_merged.noRepeatOverlap.noRefNs.vcf.gz
+    ${OUT_DIR}/${PREFIX_M01}_dels.callable.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M20}_dels.callable.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M29}_dels.callable.vcf.gz \
+    -O z -o ${OUT_DIR}/${PREFIX}_dels_merged.callable.vcf.gz
 # Large SVs
 bcftools merge \
-    ${OUT_DIR}/${PREFIX_M01}_large_svs.noRepeatOverlap.noRefNs.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M20}_large_svs.noRepeatOverlap.noRefNs.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M29}_large_svs.noRepeatOverlap.noRefNs.vcf.gz \
-    -O z -o ${OUT_DIR}/${PREFIX}_large_svs_merged.noRepeatOverlap.noRefNs.vcf.gz
+    ${OUT_DIR}/${PREFIX_M01}_large_svs.callable.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M20}_large_svs.callable.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M29}_large_svs.callable.vcf.gz \
+    -O z -o ${OUT_DIR}/${PREFIX}_large_svs_merged.callable.vcf.gz
 # Phased variants
 bcftools merge \
-    ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz \
-    ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz \
-    -O z -o ${OUT_DIR}/${PREFIX}_phased_variants_merged.noRepeatOverlap.noRefNs.vcf.gz
+    ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.vcf.gz \
+    ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.vcf.gz \
+    -O z -o ${OUT_DIR}/${PREFIX}_phased_variants_merged.callable.vcf.gz
 # Index vcfs
-tabix -p vcf ${OUT_DIR}/${PREFIX}_phased_variants_merged.noRepeatOverlap.noRefNs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${PREFIX}_dels_merged.noRepeatOverlap.noRefNs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${PREFIX}_large_svs_merged.noRepeatOverlap.noRefNs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX}_phased_variants_merged.callable.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX}_dels_merged.callable.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX}_large_svs_merged.callable.vcf.gz
 # Concatenate files for IGV exploration
 bcftools concat --allow-overlaps \
-    ${OUT_DIR}/${PREFIX}_phased_variants_merged.noRepeatOverlap.noRefNs.vcf.gz \
-    ${OUT_DIR}/${PREFIX}_dels_merged.noRepeatOverlap.noRefNs.vcf.gz \
-    ${OUT_DIR}/${PREFIX}_large_svs_merged.noRepeatOverlap.noRefNs.vcf.gz \
+    ${OUT_DIR}/${PREFIX}_phased_variants_merged.callable.vcf.gz \
+    ${OUT_DIR}/${PREFIX}_dels_merged.callable.vcf.gz \
+    ${OUT_DIR}/${PREFIX}_large_svs_merged.callable.vcf.gz \
     | bcftools sort -O v -o ${OUT_DIR}/${PREFIX}_all_var_filt_concat.vcf
 
 # Separate SNPs and indels in phased variants VCF
-separate_snps_and_indels ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz ${OUT_DIR}
-separate_snps_and_indels ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz ${OUT_DIR}
-separate_snps_and_indels ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.vcf.gz ${OUT_DIR}
+separate_snps_and_indels ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.vcf.gz ${OUT_DIR}
+separate_snps_and_indels ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.vcf.gz ${OUT_DIR}
+separate_snps_and_indels ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.vcf.gz ${OUT_DIR}
 
 # Exclude sites that differ between 10x Morex and Morex reference
 # Also exclude sites that are known variants
 # M01
-bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
 
-bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${PREFIX_M01}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
 
 # M20
-bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
 
-bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${PREFIX_M20}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
 # M29
-bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
 
-bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${PREFIX_M29}_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
 
 # Cleanup, move intermediate filtering steps output to sub directory
 # phased variants VCFs

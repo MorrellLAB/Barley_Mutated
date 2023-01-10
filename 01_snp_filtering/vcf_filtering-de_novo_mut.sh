@@ -13,18 +13,18 @@ module load parallel/20210822
 
 # User provided input arguments
 # 8 WGS mutated lines VCF SNPs and 1 bp indels
-MUT8_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_biallelic.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz"
-MUT8_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_biallelic.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz"
+MUT8_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_biallelic.callable.SNPs.noMorexDiffs.vcf.gz"
+MUT8_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_biallelic.callable.INDELs.noMorexDiffs.vcf.gz"
 
 # 10x Genomics phased variants VCF SNPs and 1 bp indels
-M01_VCF_SNPS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M01-3-3_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz"
-M01_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M01-3-3_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz"
+M01_VCF_SNPS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M01-3-3_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz"
+M01_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M01-3-3_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz"
 
-M20_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M20-2-2_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz"
-M20_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M20-2-2_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz"
+M20_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M20-2-2_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz"
+M20_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M20-2-2_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz"
 
-M29_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M29-2-2_phased_variants.noRepeatOverlap.noRefNs.SNPs.noMorexDiffs.vcf.gz"
-M29_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M29-2-2_phased_variants.noRepeatOverlap.noRefNs.INDELs.noMorexDiffs.vcf.gz"
+M29_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M29-2-2_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz"
+M29_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M29-2-2_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz"
 
 OUT_PREFIX="mut8_and_3mut10xGenomics"
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs"
