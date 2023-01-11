@@ -125,7 +125,8 @@ This step converts the VeP .txt.gz files to a format that can be included in BAD
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
-./vep_to_subs.sh
+./vep_to_subs-mut.sh
+./vep_to_subs-hybrid_rare.sh
 ```
 
 #### Step 4: Generate alignments and trees
@@ -324,7 +325,22 @@ Run BAD_Mutations predict. The `bad_mut_predict-mut.sh` script stores filepaths 
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+# Full path to per transcript substitutions directory containing .subs files
+#	This output is from the VeP_to_Subs.py supporting script
+SUBS_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs-mut/per_transcript_subs-mut_SNPs_private"
+# Sample name will be used as a prefix for outputs
+SAMPLE_NAME="mut_lines"
+# Full path to output directory
+OUT_DIR="/scratch.global/liux1299/bad_mutations/predict_output_${SAMPLE_NAME}"
+# Full path to a list of primary transcripts, one per line
+PRIMARY_TRANSCRIPTS="/panfs/jay/groups/9/morrellp/shared/Projects/WBDC_inversions/bad_mutations/results/phytozome13_download_V3_primary_transcript/hvulgare_primary_transcripts_only.txt"
+
+# Prepare subs list that intersects with primary transcripts list
+./intersect_primary_transcripts_and_subs.sh ${SUBS_DIR} ${OUT_DIR} ${PRIMARY_TRANSCRIPTS}
+
+# Run bad mutations predict
 sbatch --array=0-209 bad_mut_predict-mut.sh
+#sbatch --array=20,23,25,31,40,47,50,54-56,58,60,69,71-72,74-77,79,81-83,86-90,94,96-100,102,104-106,111,113,117-118,120-121,123-133,135-140,145,147-148,152-154,156-169,171,173,175-178,180-182,184-188,191-193 bad_mut_predict-mut.sh
 ```
 
 #### Step 6: Compile predictions

@@ -21,7 +21,7 @@ export PATH=$PATH:/panfs/jay/groups/9/morrellp/shared/Software/ensembl-vep-relea
 
 # User provided input arguments
 # Note: VeP only works on bgzipped and tabix indexed VCF files
-VCF="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/hybrid13_indels_noComplex.noRepeatOverlap.noRefNs.vcf.gz"
+VCF="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/hybrid13_indels_noComplex.callable.vcf.gz"
 # Full filepath to GFF file
 GFF="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/gene_annotation/Hv_Morex.pgsb.Jul2020.sorted.parts.gff3.gz"
 # Reference FASTA file

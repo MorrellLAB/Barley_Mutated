@@ -11,8 +11,8 @@ export PATH=$PATH:/panfs/jay/groups/9/morrellp/shared/Software/ensembl-vep-relea
 
 # User provided input arguments
 # Note: VeP only works on bgzipped and tabix indexed VCF files
-VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_phased_variants-snps.DPfilt.noRepeatOverlap.noRefNs.vcf.gz"
-VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/morex-sample2_phased_variants-indels.DPfilt.noRepeatOverlap.noRefNs.vcf.gz"
+VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-snps.DPfilt.callable.vcf.gz"
+VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-indels.DPfilt.callable.vcf.gz"
 # Output file prefix
 OUT_PREFIX="morex-sample2"
 # Full filepath to GFF file
