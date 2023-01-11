@@ -3,6 +3,8 @@
 set -e
 set -o pipefail
 
+set -x # For debugging
+
 # User provided input arguments
 # Full path to a list of lists (to utilize GNU parallel and job arrays)
 # List of lists here should only include FASTA files that had an alignment
@@ -12,19 +14,19 @@ FASTA_LIST_OF_LISTS="$1"
 CONFIG_FILE="$2"
 # Full path to a list of MSA_Output directories that contain *.fa and *.tree files
 MSA_DIR_LIST="$3"
-# Full path to per transcript substitutions .subs files
-#   This output is from the VeP_to_Subs.py supporting script
+# Full path to per transcript substitutions directory containing .subs files
+#	This output is from the VeP_to_Subs.py supporting script
 SUBS_DIR="$4"
-# Full path to a list of primary transcripts, one per line
-PRIMARY_TRANSCRIPTS="$5"
-# Sample name will be used as a prefix for outputs
-SAMPLE_NAME="$6"
+# List of subs names only that intersect with primary transcripts
+# See script: intersect_primary_transcripts_and_subs.sh
+#   Outputs the file: primary_transcript_intersect_names_only.txt
+SUBS_NAMES_LIST="$5"
 # Full path to output directory
-OUT_DIR="$7"
+OUT_DIR="$6"
 # Full path to the BAD_Mutations.py script
-BAD_MUT_SCRIPT="$8"
+BAD_MUT_SCRIPT="$7"
 # Full path to where we want to store the log files output from parallel
-LOG_FILE_DIR="$9"
+LOG_FILE_DIR="$8"
 
 #------------------------------
 function check_filepaths() {
@@ -42,31 +44,32 @@ export -f check_filepaths
 # Check if out dir exist, if not make them
 mkdir -p ${OUT_DIR} ${LOG_FILE_DIR} ${OUT_DIR}/all_predict_log
 
-# Preparation steps
-# Generate list of substitutions files
-find ${SUBS_DIR} -name "*.subs" | sort -V > ${OUT_DIR}/subs_list.txt
+# # Preparation steps
+# # Generate list of substitutions files
+# find ${SUBS_DIR} -name "*.subs" | sort -V > ${OUT_DIR}/subs_list.txt
 
-# Intersect primary transcripts and substitutions files
-if [ -f ${OUT_DIR}/primary_transcript_subs_list.txt ]
-then
-    echo "Primary transcript subs file list exists, proceeding with current list..."
-else
-    echo "Intersecting primary transcript names and substitutions files"
-    for pt in $(cat ${PRIMARY_TRANSCRIPTS})
-    do
-        if grep -wq ${pt} ${OUT_DIR}/subs_list.txt
-        then
-            # Primary transcript name is present in subs_list.txt
-            grep -w ${pt} ${OUT_DIR}/subs_list.txt >> ${OUT_DIR}/primary_transcript_subs_list.txt
-            # Also save just the primary transcript name due to naming scheme
-            #   (e.g., primary transcript is phvul.001g001100.1 and subs file is phvul.001g001100.1.v2.1.subs)
-            echo ${pt} >> ${OUT_DIR}/primary_transcript_intersect_names_only.txt
-        fi
-    done
-fi
+# # Intersect primary transcripts and substitutions files
+# if [ -f ${OUT_DIR}/primary_transcript_subs_list.txt ]
+# then
+#     echo "Primary transcript subs file list exists, proceeding with current list..."
+# else
+#     echo "Intersecting primary transcript names and substitutions files"
+#     for pt in $(cat ${PRIMARY_TRANSCRIPTS})
+#     do
+#         if grep -wq ${pt} ${OUT_DIR}/subs_list.txt
+#         then
+#             # Primary transcript name is present in subs_list.txt
+#             grep -w ${pt} ${OUT_DIR}/subs_list.txt >> ${OUT_DIR}/primary_transcript_subs_list.txt
+#             # Also save just the primary transcript name due to naming scheme
+#             #   (e.g., primary transcript is phvul.001g001100.1 and subs file is phvul.001g001100.1.v2.1.subs)
+#             echo ${pt} >> ${OUT_DIR}/primary_transcript_intersect_names_only.txt
+#         fi
+#     done
+# fi
 
 # Build array of substutions files from primary transcripts only
-PT_SUBS_ARR=($(cat ${OUT_DIR}/primary_transcript_intersect_names_only.txt))
+#PT_SUBS_ARR=($(cat ${OUT_DIR}/primary_transcript_intersect_names_only.txt))
+PT_SUBS_ARR=($(cat ${SUBS_NAMES_LIST}))
 # Build array of MSA_output subdirectories containing .fa and .tree files
 # Each task array index will be one current subdirectory (e.g., hvulgare_cds_list-000)
 MSA_DIR_ARR=($(cat ${MSA_DIR_LIST}))

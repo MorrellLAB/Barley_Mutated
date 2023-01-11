@@ -36,13 +36,14 @@ CONFIG_FILE="/panfs/jay/groups/9/morrellp/gfrascar/bad_mutations_scripts/config.
 #MSA_DIR_LIST=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/MSA_output/all_msa_output_dir_list.txt
 MSA_DIR_LIST="/panfs/jay/groups/9/morrellp/shared/Projects/WBDC_inversions/bad_mutations/results/MSA_output/MSA_out_dir_list_of_dir.txt"
 
-# Full path to per transcript substitutions .subs files
+# Full path to per transcript substitutions directory containing .subs files
 #	This output is from the VeP_to_Subs.py supporting script
 SUBS_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs-mut/per_transcript_subs-mut_SNPs_private"
 
-# Full path to a list of primary transcripts, one per line
-#PRIMARY_TRANSCRIPTS=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/hvulgare_primary_transcripts_only.txt
-PRIMARY_TRANSCRIPTS="/panfs/jay/groups/9/morrellp/shared/Projects/WBDC_inversions/bad_mutations/results/phytozome13_download_V3_primary_transcript/hvulgare_primary_transcripts_only.txt"
+# List of subs names only that intersect with primary transcripts
+# See script: intersect_primary_transcripts_and_subs.sh
+#   Outputs the file: primary_transcript_intersect_names_only.txt
+SUBS_NAMES_LIST="/scratch.global/liux1299/bad_mutations/predict_output_mut_lines/primary_transcript_intersect_names_only.txt"
 
 # Sample name will be used as a prefix for outputs
 SAMPLE_NAME="mut_lines"
@@ -65,8 +66,7 @@ ${PREDICT_SCRIPT} ${FASTA_LIST_OF_LISTS} \
 	${CONFIG_FILE} \
 	${MSA_DIR_LIST} \
 	${SUBS_DIR} \
-	${PRIMARY_TRANSCRIPTS} \
-	${SAMPLE_NAME} \
+    ${SUBS_NAMES_LIST} \
 	${OUT_DIR} \
 	${BAD_MUT_SCRIPT} \
 	${LOG_FILE_DIR}
