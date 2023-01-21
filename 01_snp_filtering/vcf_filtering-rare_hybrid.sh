@@ -119,5 +119,8 @@ count_sites ${OUT_DIR}/${OUT_PREFIX}.INDELs.rare.HET.vcf.gz ${OUT_DIR}/${OUT_PRE
 #   a bunch of extra missing genotypes
 parallel --verbose split_by_sample ${VCF_SNPs} {} "${OUT_DIR}/split_by_sample_SNPs" :::: ${SAMPLE_LIST}
 parallel --verbose split_by_sample ${OUT_DIR}/${OUT_PREFIX}.SNPs.rare.vcf.gz {} "${OUT_DIR}/split_by_sample_SNPs_rare" :::: ${SAMPLE_LIST}
+parallel --verbose split_by_sample ${OUT_DIR}/${OUT_PREFIX}.SNPs.common.vcf.gz {} "${OUT_DIR}/split_by_sample_SNPs_common" :::: ${SAMPLE_LIST}
+
 parallel --verbose split_by_sample ${VCF_INDELs} {} "${OUT_DIR}/split_by_sample_INDELs" :::: ${SAMPLE_LIST}
 parallel --verbose split_by_sample ${OUT_DIR}/${OUT_PREFIX}.INDELs.rare.vcf.gz {} "${OUT_DIR}/split_by_sample_INDELs_rare" :::: ${SAMPLE_LIST}
+parallel --verbose split_by_sample ${OUT_DIR}/${OUT_PREFIX}.INDELs.common.vcf.gz {} "${OUT_DIR}/split_by_sample_INDELs_common" :::: ${SAMPLE_LIST}

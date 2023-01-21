@@ -101,3 +101,10 @@ Run with MSI Jupyter Noteooks job profile "Mesabi High-mem - 12 cores, 128 GB, 4
 # For both snps and indels
 sbatch select_samples.sh
 ```
+
+Calculate Ts/Tv of final filtered VCFs.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/Post_GATK_Filtering
+sbatch tstv_final_filtered.sh
+```

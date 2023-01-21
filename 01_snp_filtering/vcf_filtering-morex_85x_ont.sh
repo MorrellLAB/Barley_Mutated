@@ -65,10 +65,6 @@ bedtools intersect -wa -v -header -a ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRe
 bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INDELs.vcf -O v -o ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.vcf
 bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INDELs.vcf -O v -o ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.vcf
 
-# Convert Sniffles VCF to BED
-python ${SNIFFLES_to_BED} ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.vcf > ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed
-python ${SNIFFLES_to_BED} ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.vcf > ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.bed
-
 # Bgzip and index (required for running samplot)
 bgzip -c ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed > ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed.gz
 tabix --csi -p bed ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed.gz
@@ -80,3 +76,11 @@ tabix --csi -p bed ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPO
 python ${PSEUDO_to_PARTS} --vcf ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.vcf morex_v3 > ${OUT_DIR}/parts_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.vcf
 
 python ${PSEUDO_to_PARTS} --vcf ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.vcf morex_v3 > ${OUT_DIR}/parts_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.vcf
+
+# Convert Sniffles VCF to BED
+# Pseudo pos
+python ${SNIFFLES_to_BED} ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.vcf > ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed
+python ${SNIFFLES_to_BED} ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.vcf > ${OUT_DIR}/pseudo_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.bed
+# Parts pos
+python ${SNIFFLES_to_BED} ${OUT_DIR}/parts_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.vcf > ${OUT_DIR}/parts_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.INS.bed
+python ${SNIFFLES_to_BED} ${OUT_DIR}/parts_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.vcf > ${OUT_DIR}/parts_pos/${OUT_PREFIX}.noHomRef.geSup${MIN_SUPPORT}.callable.DEL.bed

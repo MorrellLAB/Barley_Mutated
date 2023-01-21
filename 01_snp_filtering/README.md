@@ -194,9 +194,19 @@ Before finalizing filtering, check 10-15 variants in IGV to see if we need to go
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
+# Mut SNPs and 1 bp indels
 ./vcf_filtering-de_novo_mut.sh
 # Hybrid - rare vs common variants
 ./vcf_filtering-rare_hybrid.sh
+```
+
+Filter larger SVs.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering
+./vcf_filtering-mut_ont
+# Will need to run Samplot/SV-Plaudit partway through
+./vcf_filtering-de_novo_SVs_mut.sh
 ```
 
 ## File Locations
@@ -204,9 +214,9 @@ Before finalizing filtering, check 10-15 variants in IGV to see if we need to go
 Filtered VCFs (quality control/minimize errors):
 
 ```bash
-# Mutated de novo vcfs
+# Mutated de novo vcfs SNPs and 1bp INDELs
 /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs
-# Hybrid barley parents vcfs
+# Hybrid barley parents vcfs SNPs and 1bp INDELs
 /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/hybrid_rare_vcfs
 ```
 

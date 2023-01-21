@@ -283,22 +283,26 @@ separate_snps_and_indels ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.vcf.g
 # Exclude sites that differ between 10x Morex and Morex reference
 # Also exclude sites that are known variants
 # M01
+# phased variants - SNPs
 bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
 tabix -p vcf ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
-
+# phased variants - INDELs
 bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
 tabix -p vcf ${OUT_DIR}/${PREFIX_M01}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
 
 # M20
+# phased variants - SNPs
 bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
 tabix -p vcf ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
-
+# phased variants - INDELs
 bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
 tabix -p vcf ${OUT_DIR}/${PREFIX_M20}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
+
 # M29
+# phased variants - SNPs
 bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.SNPs.vcf.gz -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_BOPA} ${SNPs_9k} ${SNPs_50k} | bgzip > ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
 tabix -p vcf ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz
-
+# phased variants - INDELs
 bedtools intersect -v -header -a ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.INDELs.vcf.gz -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
 tabix -p vcf ${OUT_DIR}/${PREFIX_M29}_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz
 
@@ -310,4 +314,12 @@ mv ${OUT_DIR}/${PREFIX_M01}_phased_variants.10xCustomFilt.vcf.gz* \
     ${OUT_DIR}/${PREFIX_M01}_phased_variants.10xCustomFilt.ABfilt.vcf.gz* \
     ${OUT_DIR}/${PREFIX_M20}_phased_variants.10xCustomFilt.ABfilt.vcf.gz* \
     ${OUT_DIR}/${PREFIX_M29}_phased_variants.10xCustomFilt.ABfilt.vcf.gz* \
+    ${OUT_DIR}/Intermediates
+
+# large SVs
+
+# dels
+mv ${OUT_DIR}/*_dels.10xCustomFilt.vcf.gz* \
+    ${OUT_DIR}/*_dels.10xCustomFilt.BND_only.vcf.gz* \
+    ${OUT_DIR}/*_dels.10xCustomFilt.noBND.vcf.gz* \
     ${OUT_DIR}/Intermediates

@@ -75,6 +75,15 @@ Reheader VCF so `SAMPLE` gets replaced with actual sample ID.
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
 ./reheader_vcf-ONT_Morex-sample2.sh
+# Repeat for mutated lines
+./reheader_vcf-ONT_mut_lines.sh
+```
+
+Merge mut ONT samples into a single VCF.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
+./merge_mut_ont.sh
 ```
 
 Get high coverage regions.
@@ -103,7 +112,7 @@ sbatch mosdepth_coverage_labels-M20.sh
 sbatch mosdepth_coverage_labels-M29.sh
 ```
 
-Prepare low coverage regions output for IGV explorationa and possible filtering.
+Prepare low coverage regions output for IGV exploration and possible filtering.
 
 ---
 
