@@ -30,29 +30,3 @@ sbatch Vep-hybrid_common_indels.sh
 ```
 
 **Note:** When running VeP, don't use `--total_length` flag. Turning on this flag messes up the file format for BAD_Mutations `Vep_to_Subs.py` script.
-
-#### Preparing VeP files for bad_mutations analysis
-
-Pull out missense variants and stop lost variants for BAD_Mutations analysis. BAD_Mutations likely can only annotate missense variants, but might take stop lost variants too, so we will try.
-
-```bash
-# In dir: ~/Projects/Mutant_Barley/results/VEP/HC_parts_gff
-mkdir for_bad_mut
-
-vep_report=/panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_parts_gff/mut_3_lines_filtered_singletons_only.txt
-
-prefix=$(basename ${vep_report} .txt)
-grep "#" ${vep_report} > for_bad_mut/${prefix}_missense_and_stoplost.txt
-# Store each type of consequence in sepearate temp files
-grep "missense" ${vep_report} >> tmp_${prefix}_missense.txt
-grep "stop_lost" ${vep_report} >> tmp_${prefix}_stoplost.txt
-# Combine temp files
-cat tmp_${prefix}_missense.txt tmp_${prefix}_stoplost.txt | sort -Vu -k2,2 >> for_bad_mut/${prefix}_missense_and_stoplost.txt
-# Vep_to_Subs.py only works with gzipped files
-gzip for_bad_mut/${prefix}_missense_and_stoplost.txt
-# Cleanup
-rm tmp_${prefix}_missense.txt
-rm tmp_${prefix}_stoplost.txt
-```
-
-**Note:** M01-3-3 doesn't have missense variants or stop lost variants.

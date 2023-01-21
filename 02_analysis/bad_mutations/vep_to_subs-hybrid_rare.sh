@@ -30,12 +30,12 @@ if [[ "${VEP_REPORT}" == *"gz"* ]]; then
     out_prefix=$(basename ${VEP_REPORT} .txt.gz)
     # Pull out nonsynonymous variants defined by VeP
     zgrep "#" ${VEP_REPORT} > ${vep_dir}/${out_prefix}.nonsyn.txt
-    zgrep 'missense_variant\|start_lost\|stop_gained\|stop_lost' ${VEP_REPORT} >> ${vep_dir}/${out_prefix}.nonsyn.txt
+    zgrep 'missense_variant\|start_lost\|stop_gained\|stop_lost' ${VEP_REPORT} | uniq >> ${vep_dir}/${out_prefix}.nonsyn.txt
 else
     out_prefix=$(basename ${VEP_REPORT} .txt)
     # Pull out nonsynonymous variants defined by VeP
     grep "#" ${VEP_REPORT} > ${vep_dir}/${out_prefix}.nonsyn.txt
-    grep 'missense_variant\|start_lost\|stop_gained\|stop_lost' ${VEP_REPORT} >> ${vep_dir}/${out_prefix}.nonsyn.txt
+    grep 'missense_variant\|start_lost\|stop_gained\|stop_lost' ${VEP_REPORT} | uniq >> ${vep_dir}/${out_prefix}.nonsyn.txt
 fi
 # Gzip .txt file
 gzip ${vep_dir}/${out_prefix}.nonsyn.txt

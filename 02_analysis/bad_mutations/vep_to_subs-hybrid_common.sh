@@ -9,10 +9,10 @@ set -o pipefail
 module load python3/3.8.3_anaconda2020.07_mamba
 
 # User defined input arguments
-VEP_REPORT="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_LC_gff_SNPs_private_all_samples/mut8_and_3mut10xGenomics.SNPs.private.txt"
-SUBDIR_BN="mut_SNPs_private"
+VEP_REPORT="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_LC_gff_SNPs_hybrid13_common/hybrid13.SNPs.common.txt"
+SUBDIR_BN="hybrid_SNPs_common"
 # Full path to out directory
-OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs-mut"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs-hybrid13"
 # Path to VeP_to_Subs.py script directory
 SCRIPT_DIR="/panfs/jay/groups/9/morrellp/liux1299/Software/BAD_Mutations/Supporting"
 
