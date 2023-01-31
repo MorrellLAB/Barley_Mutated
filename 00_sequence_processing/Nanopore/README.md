@@ -176,3 +176,20 @@ tabix -p vcf --csi ${VCF_DIR}/temp_${VCF_PREFIX}_parts.vcf.gz
 mv ${VCF_DIR}/temp_${VCF_PREFIX}_parts_fixedHeader.vcf ${VCF_DIR}/${VCF_PREFIX}_parts.vcf
 rm ${VCF_DIR}/temp_${VCF_PREFIX}_parts.vcf*
 ```
+
+### Run cuteSV
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/00_sequence_processing/Nanopore
+sbatch cutesv-M01.sh
+sbatch cutesv-M20.sh
+sbatch cutesv-M29.sh
+
+# In dir: ~/Alignments/nanopore_mutated_barley
+# Re-organize files
+mv cutesv_calls-M01_ont/M01_ont.vcf cutesv_calls
+mv cutesv_calls-M20_ont/M20_ont.vcf cutesv_call
+mv cutesv_calls-M29_ont/M29_ont.vcf cutesv_calls
+# Cleanup empty directories
+rm -rf cutesv_calls-M01_ont cutesv_calls-M20_ont cutesv_calls-M29_ont
+```
