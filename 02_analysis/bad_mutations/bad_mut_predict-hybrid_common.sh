@@ -38,15 +38,15 @@ MSA_DIR_LIST="/panfs/jay/groups/9/morrellp/shared/Projects/WBDC_inversions/bad_m
 
 # Full path to per transcript substitutions directory containing .subs files
 #	This output is from the VeP_to_Subs.py supporting script
-SUBS_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs-mut/per_transcript_subs-mut_SNPs_private"
+SUBS_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs-hybrid13/per_transcript_subs-hybrid_SNPs_common"
 
 # List of subs names only that intersect with primary transcripts
 # See script: intersect_primary_transcripts_and_subs.sh
 #   Outputs the file: primary_transcript_intersect_names_only.txt
-SUBS_NAMES_LIST="/scratch.global/liux1299/bad_mutations/predict_output_mut_lines/primary_transcript_intersect_names_only.txt"
+SUBS_NAMES_LIST="/scratch.global/liux1299/bad_mutations/predict_output_hybrid_common/primary_transcript_intersect_names_only.txt"
 
 # Sample name will be used as a prefix for outputs
-SAMPLE_NAME="mut_lines"
+SAMPLE_NAME="hybrid_common"
 
 # Full path to output directory
 OUT_DIR="/scratch.global/liux1299/bad_mutations/predict_output_${SAMPLE_NAME}"

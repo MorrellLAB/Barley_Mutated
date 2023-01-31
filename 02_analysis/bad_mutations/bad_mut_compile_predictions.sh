@@ -45,7 +45,7 @@ function compile_predictions() {
 export -f compile_predictions
 
 # Parallelize across predict subdirectories
-parallel compile_predictions ${BAD_MUT_SCRIPT} {} ${LONG_SUBS_FILE} ::: ${PREDICT_DIR_ARR[@]}
+parallel --verbose compile_predictions ${BAD_MUT_SCRIPT} {} ${LONG_SUBS_FILE} ::: ${PREDICT_DIR_ARR[@]}
 
 # BAD_Mutations.py compile outputs combined reports in each subdirectory
 # Now, compile reports in subdirectories into a single file
@@ -54,9 +54,9 @@ parallel compile_predictions ${BAD_MUT_SCRIPT} {} ${LONG_SUBS_FILE} ::: ${PREDIC
 PREDICT_BASE_DIR=$(dirname ${PREDICT_DIR_ARR[0]})
 
 # Make a list of Combined_Report.txt files in subdirectories to compile into single file
-find ${PREDICT_BASE_DIR} -name "Combined_Report.txt" | sort -V > ${OUT_DIR}/predict_subdir_reports_list.txt
+find ${PREDICT_BASE_DIR} -name "Combined_Report.txt" | sort -V > ${OUT_DIR}/${PROJECT}_predict_subdir_reports_list.txt
 # Store in array
-REPORTS_ARR=($(cat ${OUT_DIR}/predict_subdir_reports_list.txt))
+REPORTS_ARR=($(cat ${OUT_DIR}/${PROJECT}_predict_subdir_reports_list.txt))
 
 # Prepare header line for final compiled reports file
 head -n 1 ${REPORTS_ARR[0]} > ${OUT_DIR}/${PROJECT}_Combined_Report.txt

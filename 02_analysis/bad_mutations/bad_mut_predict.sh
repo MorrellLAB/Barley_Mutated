@@ -131,18 +131,42 @@ function predict_sub() {
     subdir_name="${curr_list_prefix}"
     # Check if out subdirectory exists, if not make it
     mkdir -p ${out_dir}/${subdir_name} ${out_dir}/all_predict_log/${subdir_name} ${out_dir}/${subdir_name}/problematic_predictions
-
+    
+    # Check if fasta file is in the list before if variable is empty
+    if [ -z "$fasta_file" ]; then
+        # Variable is empty
+        # Look for fasta file in list before
+        curr_list_num=$(echo $curr_list_prefix | cut -d'-' -f 2)
+        if [ $curr_list_num != "000" ]; then
+            # Look for fasta file in one list before
+            # Remove leading zeroes
+            list_num=$(echo $curr_list_num | sed 's/^0*//')
+            prev_list_num=$(expr $list_num - 1)
+            # Use fasta list from one list before
+            # Example:
+            # Current list: /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/final_lists/hvulgare_cds_list-033.txt
+            # One list before: /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/final_lists/hvulgare_cds_list-032.txt
+            prev_fasta_list=$(echo $fasta_list | sed -e "s/${list_num}.txt/${prev_list_num}.txt/")
+            # Get fasta file that corresponds with MSA fasta file
+            fasta_file=$(grep -w ${msa_name} ${prev_fasta_list})
+        fi
+    fi
     # Check that all files exist
     check_filepaths ${config_file}
     check_filepaths ${fasta_file}
     check_filepaths ${msa_fasta}
     check_filepaths ${msa_tree}
     check_filepaths ${subs_file}
+    # echo "Config file: ${config_file}"
+    # echo "Fasta file: ${fasta_file}"
+    # echo "MSA fasta: ${msa_fasta}"
+    # echo "MSA tree: ${msa_tree}"
+    # echo "Subs file: ${subs_file}"
 
     # Predict substitutions
     # Redirect only stdout to log file and NOT stderr
-    set -x # Start debugging
     echo "Start predict step: ${out_dir}/${subdir_name}."
+    set -x #Start debugging
     python ${bad_mut_script} predict \
         -c ${config_file} \
         -f ${fasta_file} \

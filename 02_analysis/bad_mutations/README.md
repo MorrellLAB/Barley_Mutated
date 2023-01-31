@@ -127,6 +127,7 @@ This step converts the VeP .txt.gz files to a format that can be included in BAD
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
 ./vep_to_subs-mut.sh
 ./vep_to_subs-hybrid_rare.sh
+./vep_to_subs-hybrid_common.sh
 ```
 
 #### Step 4: Generate alignments and trees
@@ -340,9 +341,85 @@ PRIMARY_TRANSCRIPTS="/panfs/jay/groups/9/morrellp/shared/Projects/WBDC_inversion
 
 # Run bad mutations predict
 sbatch --array=0-209 bad_mut_predict-mut.sh
-#sbatch --array=20,23,25,31,40,47,50,54-56,58,60,69,71-72,74-77,79,81-83,86-90,94,96-100,102,104-106,111,113,117-118,120-121,123-133,135-140,145,147-148,152-154,156-169,171,173,175-178,180-182,184-188,191-193 bad_mut_predict-mut.sh
+```
+
+Check which subdirectories have problematic predictions (i.e., error when this step was run resulting in output files with error messages).
+
+```bash
+# In dir: ~/scratch/bad_mutations/predict_output_mut_lines
+for i in $(find hvulgare_cds_list-* -mindepth 1 -maxdepth 1 -not -empty -type d); do
+    ls $i/*
+done
+# Output
+# hvulgare_cds_list-015/problematic_predictions/HORVU.MOREX.r3.1HG0058740.1_Predictions.txt
+# hvulgare_cds_list-078/problematic_predictions/HORVU.MOREX.r3.3HG0305520.1_Predictions.txt
+# hvulgare_cds_list-110/problematic_predictions/HORVU.MOREX.r3.5HG0428210.1_Predictions.txt
+# hvulgare_cds_list-145/problematic_predictions/HORVU.MOREX.r3.6HG0565340.1_Predictions.txt
+# hvulgare_cds_list-179/problematic_predictions/HORVU.MOREX.r3.7HG0696890.1_Predictions.txt
+
+# Error types
+# 1) Internal error, dumping the offending likelihood function to /tmp/hyphy.dump 
+# 2) The leaf of the tree:givenTree labeled _41562 had no match in the data. Please make sure that all leaf names correspond to a sequence name in the data file.
+```
+
+Repeat for Hybrid rare and Hybrid common SNPs.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+# Full path to per transcript substitutions directory containing .subs files
+#	This output is from the VeP_to_Subs.py supporting script
+SUBS_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs-hybrid13/per_transcript_subs-hybrid_SNPs_rare"
+# Sample name will be used as a prefix for outputs
+SAMPLE_NAME="hybrid_rare"
+# Full path to output directory
+OUT_DIR="/scratch.global/liux1299/bad_mutations/predict_output_${SAMPLE_NAME}"
+# Full path to a list of primary transcripts, one per line
+PRIMARY_TRANSCRIPTS="/panfs/jay/groups/9/morrellp/shared/Projects/WBDC_inversions/bad_mutations/results/phytozome13_download_V3_primary_transcript/hvulgare_primary_transcripts_only.txt"
+
+# Prepare subs list that intersects with primary transcripts list
+./intersect_primary_transcripts_and_subs.sh ${SUBS_DIR} ${OUT_DIR} ${PRIMARY_TRANSCRIPTS}
+
+# Run bad mutations predict
+sbatch --array=0-209 bad_mut_predict-hybrid_rare.sh
+# Continue running timeout indices
+sbatch --array=0-4,8,10,14,16-17,19-35,37-38,42-111,113-193 bad_mut_predict-hybrid_rare.sh
+# Continue running timeout indices while troubleshooting failed indices
+sbatch --array=0-4,16,20-31,45-48,50-62,64,69,72,75-83,85-88,90-91,98,100-102,105-107,109-110,119,124,126-128,132,135-140,159-163,165,167-169,173,187-188,191 bad_mut_predict-hybrid_rare.sh
+# Re-run failed indices after update to code
+sbatch --array=17,19,32-35,37-38,42-44,49,63,65-68,70-71,73-74,84,89,92-97,99,103-104,108,111,113-118,120-123,125,129-131,133-134,141-158,164,166,170-172,174-186,189-190,192-193 bad_mut_predict-hybrid_rare.sh
+```
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+# Full path to per transcript substitutions directory containing .subs files
+#	This output is from the VeP_to_Subs.py supporting script
+SUBS_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/vep_to_subs-hybrid13/per_transcript_subs-hybrid_SNPs_common"
+# Sample name will be used as a prefix for outputs
+SAMPLE_NAME="hybrid_common"
+# Full path to output directory
+OUT_DIR="/scratch.global/liux1299/bad_mutations/predict_output_${SAMPLE_NAME}"
+# Full path to a list of primary transcripts, one per line
+PRIMARY_TRANSCRIPTS="/panfs/jay/groups/9/morrellp/shared/Projects/WBDC_inversions/bad_mutations/results/phytozome13_download_V3_primary_transcript/hvulgare_primary_transcripts_only.txt"
+
+# Prepare subs list that intersects with primary transcripts list
+./intersect_primary_transcripts_and_subs.sh ${SUBS_DIR} ${OUT_DIR} ${PRIMARY_TRANSCRIPTS}
+
+# Run bad mutations predict
+sbatch --array=0-209 bad_mut_predict-hybrid_common.sh
+# Continue running timeout indices
+sbatch --array=0-7,10-61,63-193 bad_mut_predict-hybrid_common.sh
+# Continue running timout indices while debugging failed
+sbatch --array=0-6,10-37,39-61,64-65,70-90,98-114,117-119,122-142,145,147-149,152-174,176,178-181,183-184,186-193 bad_mut_predict-hybrid_common.sh
+# Re-run failed indices after update to code
+sbatch --array=7,38,63,66-69,91-97,115-116,120-121,143-144,146,150-151,175,177,182,185 bad_mut_predict-hybrid_common.sh
 ```
 
 #### Step 6: Compile predictions
 
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+sbatch bad_mut_compile_predict-mut.sh
+sbatch bad_mut_compile_predict-hyb_rare.sh
+sbatch bad_mut_compile_predict-hyb_common.sh
+```
 
