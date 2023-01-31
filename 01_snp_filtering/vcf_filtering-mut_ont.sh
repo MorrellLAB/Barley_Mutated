@@ -7,6 +7,7 @@ set -o pipefail
 module load bcftools/1.10.2
 module load htslib/1.9
 module load bedtools/2.29.2
+module load python3/3.8.3_anaconda2020.07_mamba
 
 # User provided input arguments
 VCF="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/mut_ont.vcf.gz"
@@ -69,3 +70,9 @@ bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT
 # Separate INS and DEL for exploration
 bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.INS.vcf
 bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.DEL.vcf
+
+# Only include SVs private to each line
+bcftools view -i "COUNT(GT='alt')=1" ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.private.INDELs.vcf
+
+# Prepare BED format
+${SNIFFLES_to_BED} ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.private.INDELs.vcf > ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.private.INDELs.bed
