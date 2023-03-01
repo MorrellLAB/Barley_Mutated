@@ -12,7 +12,9 @@ module load htslib/1.9
 
 # VCF for 8 mutated lines
 VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_snps_biallelic.callable.vcf.gz"
-VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_indels_noComplex.callable.vcf.gz"
+#VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_indels_noComplex.callable.vcf.gz"
+VCF_INDELs_B="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_indels_biallelic.callable.vcf.gz"
+VCF_INDELs_M="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_indels_multiallelic.callable.vcf.gz"
 
 OUT_PREFIX="mut8"
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered"
@@ -65,11 +67,19 @@ bedtools intersect -v -header -a ${VCF_SNPs} -b ${PHV_MOREX_DIFFS_SNPs} ${SNPs_B
 tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.SNPs.noMorexDiffs.vcf.gz
 
 # indels
-bedtools intersect -v -header -a ${VCF_INDELs} -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
+# bedtools intersect -v -header -a ${VCF_INDELs} -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
+# tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
+# Indels - biallelic
+bedtools intersect -v -header -a ${VCF_INDELs_B} -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
 tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
+# Indels - multiallelic
+bedtools intersect -v -header -a ${VCF_INDELs_M} -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_multiallelic.callable.INDELs.noMorexDiffs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_multiallelic.callable.INDELs.noMorexDiffs.vcf.gz
 
 # Get the number of sites
 count_sites ${VCF_SNPs} ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
 count_sites ${VCF_INDELs} ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
 count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.SNPs.noMorexDiffs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+#count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
 count_sites ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+count_sites ${OUT_DIR}/${OUT_PREFIX}_multiallelic.callable.INDELs.noMorexDiffs.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log

@@ -21,10 +21,11 @@ module load python3/3.8.3_anaconda2020.07_mamba
 source activate /panfs/jay/groups/9/morrellp/liux1299/.conda/envs/samplot_env
 
 # User provided input arguments
-OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/samplot-mut_10x"
+#OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/samplot-mut_10x"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/samplot-mut_10x_dels"
 # VCF file
 # All of the following VCFs have excluded HOM REF sites
-DEL_VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/de_novo_larger_svs/mut_3_lines_dels_merged.callable.noRefDiffs.private.vcf.gz"
+DEL_VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/mut_3_lines_dels.private.callable.noMorexDiffs.vcf.gz"
 # BAM file
 BAM1="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/M01-3-3/outs/M01-3-3_phased_possorted_bam.bam"
 BAM2="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/M20-2-2/outs/M20-2-2_phased_possorted_bam.bam"

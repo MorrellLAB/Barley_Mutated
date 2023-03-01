@@ -5,6 +5,7 @@ set -o pipefail
 
 # Dependencies
 module load bcftools_PML/1.15.1
+module load java/openjdk-8_202
 module load gatk/4.1.2
 module load htslib/1.9
 module load python3/3.7.4_anaconda2019.10
@@ -38,12 +39,13 @@ MIN_DP="5"
 MAX_DP="86"
 # GQ cutoff per sample
 GQ_CUTOFF="6"
-# Allele balance filter, minimum deviation +/- threshold
-#MIN_DEV="0.20"
 # Max proportion missing
 MAX_MISS="0.30"
 # Proportion heterozygous genotypes threshold
 HET_PROP="0.1"
+# Allele balance filter for het
+MIN_AB="0.3"
+MAX_AB="0.7"
 # Cutoff for filtering fake polymorphic sites
 # These are sites that are actually monomorphic but show up as polymorphic
 #   due to missingness and how programs handle that
@@ -162,13 +164,27 @@ echo "Done removing sites with missingness exceeding threshold."
 # Get the number of sites left after filtering and append to file
 count_sites ${SCRATCH_DIR}/${OUT_PREFIX}.filtMISS.vcf ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
 
-# Remove complex variants (>=3 in length) in REF and ALT alleles columns
-RemoveComplexVar ${SCRATCH_DIR}/${OUT_PREFIX}.filtMISS.vcf ${OUT_PREFIX} ${OUT_DIR}
-# Get the number of sites left after filtering and append to file
-count_sites ${OUT_DIR}/${OUT_PREFIX}_noComplex.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
-
 # Remove indels that overlap with repeat annotated regions, high copy regions, and that overlap with stretches of Ns
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}_noComplex.vcf.gz -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} ${HIGH_DIV_BED} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_noComplex.callable.vcf.gz
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_noComplex.callable.vcf.gz
+bedtools intersect -wa -v -header -a ${SCRATCH_DIR}/${OUT_PREFIX}.filtMISS.vcf -b ${REPEAT_ANN} ${HIGH_COPY_BED} ${REF_Ns_BED} ${HIGH_DIV_BED} | bgzip > ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz
 # Get the number of sites left after filtering and append to file
-count_sites ${OUT_DIR}/${OUT_PREFIX}_noComplex.callable.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+count_sites ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+
+# Filter to variants private to each mutated line (variants present in only a single sample)
+bcftools view -i "COUNT(GT='alt')=1" ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.callable.private.vcf.gz
+
+# Separate into biallelic vs multiallelic so AB filtering is easier
+bcftools view -m2 -M2 ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.callable.biallelic.vcf
+bcftools view -m3 ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.callable.multiallelic.vcf
+# Get the number of sites left after filtering and append to file
+count_sites ${OUT_DIR}/${OUT_PREFIX}.callable.biallelic.vcf ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+count_sites ${OUT_DIR}/${OUT_PREFIX}.callable.multiallelic.vcf ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
+
+# Set GT to missing for het that fail allelic balance threshold
+bcftools +setGT ${OUT_DIR}/${OUT_PREFIX}.callable.biallelic.vcf -- -t q -n "." -i "(GT='het' & (FMT/AD[*:1])/(FMT/AD[*:0]+FMT/AD[*:1])<${MIN_AB}) | (GT='het' & (FMT/AD[*:1])/(FMT/AD[*:0]+FMT/AD[*:1])>${MAX_AB})" > ${OUT_DIR}/${OUT_PREFIX}.callable.biallelic.AB.vcf
+
+# # Remove complex variants (>=3 in length) in REF and ALT alleles columns
+# # Complex variants will be saved to a separate file
+# RemoveComplexVar ${SCRATCH_DIR}/${OUT_PREFIX}.filtMISS.vcf ${OUT_PREFIX} ${OUT_DIR}
+# # Get the number of sites left after filtering and append to file
+# count_sites ${OUT_DIR}/${OUT_PREFIX}_noComplex.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
