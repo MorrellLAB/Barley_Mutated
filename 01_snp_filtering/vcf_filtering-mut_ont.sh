@@ -30,8 +30,8 @@ UNCALLABLE="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/uncallabl
 REF_DIFFS_10x_del="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_dels_diffs_from_ref.noBND.bed"
 REF_DIFFS_ONT_DEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3/filtered/morex_ont.noHomRef.geSup5.callable.DEL.bed"
 REF_DIFFS_ONT_INS="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3/filtered/morex_ont.noHomRef.geSup5.callable.INS.bed"
-REF_DIFFS_85xONT_DEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_85x_ont/filtered/parts_pos/morex_85x_ont.noHomRef.geSup5.callable.DEL.bed"
-REF_DIFFS_85xONT_INS="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_85x_ont/filtered/parts_pos/morex_85x_ont.noHomRef.geSup5.callable.INS.bed"
+REF_DIFFS_85xONT_DEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_85x_ont/filtered/parts_pos/morex_85x_ont.noHomRef.geSup5.callable.parts.DEL.bed"
+REF_DIFFS_85xONT_INS="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_85x_ont/filtered/parts_pos/morex_85x_ont.noHomRef.geSup5.callable.parts.INS.bed"
 REF_DIFFS_PacBio_DEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v3/filtered/morex_pacbio.noHomRef.geSup5.callable.DEL.bed"
 REF_DIFFS_PacBio_INS="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v3/filtered/morex_pacbio.noHomRef.geSup5.callable.INS.bed"
 
@@ -43,36 +43,35 @@ SNIFFLES_to_BED="/panfs/jay/groups/9/morrellp/liux1299/GitHub/Barley_Mutated/01_
 mkdir -p ${OUT_DIR} ${OUT_DIR}/intermediates
 
 # Include only sites that have at least one alt GT
-bcftools view -i "GT[*]='alt' & INFO/SUPPORT>=${MIN_SUPPORT}" ${VCF} -O z -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.vcf.gz
+# and SVs private to each line
+# Filter on minimum support
+bcftools view -i "GT[*]='alt' & COUNT(GT='alt')=1" ${VCF} | bcftools view -i "INFO/SUPPORT>=${MIN_SUPPORT}" -O z -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.vcf.gz
 # Index vcf
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.vcf.gz
 
 # Separate indels from INV, DUP, and BND variants
 # BND only
-bcftools view -i 'INFO/SVTYPE="BND"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.BND.vcf
+bcftools view -i 'INFO/SVTYPE="BND"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.BND.vcf
 # DUP only
-bcftools view -i 'INFO/SVTYPE="DUP"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.DUP.vcf
+bcftools view -i 'INFO/SVTYPE="DUP"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.DUP.vcf
 # INV only
-bcftools view -i 'INFO/SVTYPE="INV"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.INV.vcf
+bcftools view -i 'INFO/SVTYPE="INV"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.INV.vcf
 # INS and DEL
-bcftools view -i 'INFO/SVTYPE="INS" | INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.INDELs.vcf
+bcftools view -i 'INFO/SVTYPE="INS" | INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.INDELs.vcf
 
 # Remove SVs that overlap with uncallable regions
 # For DUP and INV, zero SVs remain after considering uncallable regions
 # So, we'll just proceed with indels
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.INDELs.vcf -b ${UNCALLABLE} > ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.INDELs.vcf
+bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.INDELs.vcf -b ${UNCALLABLE} > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.INDELs.vcf
 # Separate INS and DEL for exploration
-bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.INS.vcf
-bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.DEL.vcf
+bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.INS.vcf
+bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.DEL.vcf
 
 # Remove SVs that overlap with diffs in ref of our Morex sample and Mascher et al. Morex
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.INDELs.vcf -b ${REF_DIFFS_10x_del} ${REF_DIFFS_ONT_DEL} ${REF_DIFFS_ONT_INS} ${REF_DIFFS_85xONT_DEL} ${REF_DIFFS_85xONT_INS} ${REF_DIFFS_PacBio_DEL} ${REF_DIFFS_PacBio_INS} > ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf
+bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.INDELs.vcf -b ${REF_DIFFS_10x_del} ${REF_DIFFS_ONT_DEL} ${REF_DIFFS_ONT_INS} ${REF_DIFFS_85xONT_DEL} ${REF_DIFFS_85xONT_INS} ${REF_DIFFS_PacBio_DEL} ${REF_DIFFS_PacBio_INS} > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf
 # Separate INS and DEL for exploration
-bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.INS.vcf
-bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.DEL.vcf
-
-# Only include SVs private to each line
-bcftools view -i "COUNT(GT='alt')=1" ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.private.INDELs.vcf
+bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INS.vcf
+bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.DEL.vcf
 
 # Prepare BED format
-${SNIFFLES_to_BED} ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.private.INDELs.vcf > ${OUT_DIR}/${OUT_PREFIX}.geSup${MIN_SUPPORT}.callable.noRefDiffs.private.INDELs.bed
+${SNIFFLES_to_BED} ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.bed

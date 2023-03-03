@@ -38,7 +38,7 @@ REF_DIFFS_PacBio_DEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/pa
 REF_DIFFS_PacBio_INS="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v3/filtered/morex_pacbio.noHomRef.geSup5.callable.INS.bed"
 
 #-----------------
-mkdir -p ${OUT_DIR}
+mkdir -p ${OUT_DIR} ${OUT_DIR}/Intermediates
 
 # Prepare file basenames
 m01_bn=$(basename ${VCF_M01} .vcf)
@@ -51,49 +51,56 @@ m29_bn=$(basename ${VCF_M29} .vcf)
 # Include only sites that have at least one alt GT
 # M01
 # INS and DEL
-bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M01} | bcftools reheader --samples ${SAMP1} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INS" | SVTYPE="DEL"' -O v -o ${OUT_DIR}/${m01_bn}.INDELs.vcf
+bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M01} | bcftools reheader --samples ${SAMP1} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INS" | SVTYPE="DEL"' -O z -o ${OUT_DIR}/Intermediates/${m01_bn}.INDELs.vcf.gz
 # INV
-bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M01} | bcftools reheader --samples ${SAMP1} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INV"' -O v -o ${OUT_DIR}/${m01_bn}.INV.vcf
+bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M01} | bcftools reheader --samples ${SAMP1} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INV"' -O z -o ${OUT_DIR}/Intermediates/${m01_bn}.INV.vcf.gz
 
 # M20
 # INS and DEL
-bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M20} | bcftools reheader --samples ${SAMP2} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INS" | SVTYPE="DEL"' -O v -o ${OUT_DIR}/${m20_bn}.INDELs.vcf
+bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M20} | bcftools reheader --samples ${SAMP2} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INS" | SVTYPE="DEL"' -O z -o ${OUT_DIR}/Intermediates/${m20_bn}.INDELs.vcf.gz
 # INV
-bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M20} | bcftools reheader --samples ${SAMP2} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INV"' -O v -o ${OUT_DIR}/${m20_bn}.INV.vcf
+bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M20} | bcftools reheader --samples ${SAMP2} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INV"' -O z -o ${OUT_DIR}/Intermediates/${m20_bn}.INV.vcf.gz
 
 # M29
 # INS and DEL
-bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M29} | bcftools reheader --samples ${SAMP3} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INS" | SVTYPE="DEL"' -O v -o ${OUT_DIR}/${m29_bn}.INDELs.vcf
+bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M29} | bcftools reheader --samples ${SAMP3} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INS" | SVTYPE="DEL"' -O z -o ${OUT_DIR}/Intermediates/${m29_bn}.INDELs.vcf.gz
 # INV
-bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M29} | bcftools reheader --samples ${SAMP3} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INV"' -O v -o ${OUT_DIR}/${m29_bn}.INV.vcf
+bcftools view --targets "^chrUn" -e 'SVTYPE="BND" | SVTYPE="BND"' ${VCF_M29} | bcftools reheader --samples ${SAMP3} | bcftools view -e 'GT[*]="ref"' | bcftools view -i 'SVTYPE="INV"' -O z -o ${OUT_DIR}/Intermediates/${m29_bn}.INV.vcf.gz
 
-# Remove SVs that overlap with uncallable regions
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${m01_bn}.INDELs.vcf -b ${UNCALLABLE} > ${OUT_DIR}/${m01_bn}.callable.INDELs.vcf
-# 0 INV remain after uncallable regions filter
-#bedtools intersect -wa -v -header -a ${OUT_DIR}/${m01_bn}.INV.vcf -b ${UNCALLABLE} > ${OUT_DIR}/${m01_bn}.callable.INV.vcf
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${m20_bn}.INDELs.vcf -b ${UNCALLABLE} > ${OUT_DIR}/${m20_bn}.callable.INDELs.vcf
-# 0 INV remain after uncallable regions filter
-#bedtools intersect -wa -v -header -a ${OUT_DIR}/${m20_bn}.INV.vcf -b ${UNCALLABLE} > ${OUT_DIR}/${m20_bn}.callable.INV.vcf
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${m29_bn}.INDELs.vcf -b ${UNCALLABLE} > ${OUT_DIR}/${m29_bn}.callable.INDELs.vcf
-# 0 INV remain after uncallable regions filter
-#bedtools intersect -wa -v -header -a ${OUT_DIR}/${m29_bn}.INV.vcf -b ${UNCALLABLE} > ${OUT_DIR}/${m29_bn}.callable.INV.vcf
+# Index vcf
+tabix -p vcf ${OUT_DIR}/Intermediates/${m01_bn}.INDELs.vcf.gz
+tabix -p vcf ${OUT_DIR}/Intermediates/${m01_bn}.INV.vcf.gz
+tabix -p vcf ${OUT_DIR}/Intermediates/${m20_bn}.INDELs.vcf.gz
+tabix -p vcf ${OUT_DIR}/Intermediates/${m20_bn}.INV.vcf.gz
+tabix -p vcf ${OUT_DIR}/Intermediates/${m29_bn}.INDELs.vcf.gz
+tabix -p vcf ${OUT_DIR}/Intermediates/${m29_bn}.INV.vcf.gz
 
-# Remove SVs that overlap with diffs in ref of our Morex sample and Mascher et al. Morex
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${m01_bn}.callable.INDELs.vcf -b ${REF_DIFFS_10x_del} ${REF_DIFFS_ONT_DEL} ${REF_DIFFS_ONT_INS} ${REF_DIFFS_85xONT_DEL} ${REF_DIFFS_85xONT_INS} ${REF_DIFFS_PacBio_DEL} ${REF_DIFFS_PacBio_INS} > ${OUT_DIR}/${m01_bn}.callable.noRefDiffs.INDELs.vcf
-bgzip ${OUT_DIR}/${m01_bn}.callable.noRefDiffs.INDELs.vcf
-tabix -p vcf ${OUT_DIR}/${m01_bn}.callable.noRefDiffs.INDELs.vcf.gz
-
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${m20_bn}.callable.INDELs.vcf -b ${REF_DIFFS_10x_del} ${REF_DIFFS_ONT_DEL} ${REF_DIFFS_ONT_INS} ${REF_DIFFS_85xONT_DEL} ${REF_DIFFS_85xONT_INS} ${REF_DIFFS_PacBio_DEL} ${REF_DIFFS_PacBio_INS} > ${OUT_DIR}/${m20_bn}.callable.noRefDiffs.INDELs.vcf
-bgzip ${OUT_DIR}/${m20_bn}.callable.noRefDiffs.INDELs.vcf
-tabix -p vcf ${OUT_DIR}/${m20_bn}.callable.noRefDiffs.INDELs.vcf.gz
-
-bedtools intersect -wa -v -header -a ${OUT_DIR}/${m29_bn}.callable.INDELs.vcf -b ${REF_DIFFS_10x_del} ${REF_DIFFS_ONT_DEL} ${REF_DIFFS_ONT_INS} ${REF_DIFFS_85xONT_DEL} ${REF_DIFFS_85xONT_INS} ${REF_DIFFS_PacBio_DEL} ${REF_DIFFS_PacBio_INS} > ${OUT_DIR}/${m29_bn}.callable.noRefDiffs.INDELs.vcf
-bgzip ${OUT_DIR}/${m29_bn}.callable.noRefDiffs.INDELs.vcf
-tabix -p vcf ${OUT_DIR}/${m29_bn}.callable.noRefDiffs.INDELs.vcf.gz
-
-# Combine into a single file
-bcftools merge ${OUT_DIR}/${m01_bn}.callable.noRefDiffs.INDELs.vcf.gz ${OUT_DIR}/${m20_bn}.callable.noRefDiffs.INDELs.vcf.gz ${OUT_DIR}/${m29_bn}.callable.noRefDiffs.INDELs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.callable.noRefDiffs.INDELs.vcf.gz
+# Combine into single file
+# INDEL
+bcftools merge ${OUT_DIR}/Intermediates/${m01_bn}.INDELs.vcf.gz ${OUT_DIR}/Intermediates/${m20_bn}.INDELs.vcf.gz ${OUT_DIR}/Intermediates/${m29_bn}.INDELs.vcf.gz -O z -o ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INDELs.vcf.gz
+# INV
+bcftools merge ${OUT_DIR}/Intermediates/${m01_bn}.INV.vcf.gz ${OUT_DIR}/Intermediates/${m20_bn}.INV.vcf.gz ${OUT_DIR}/Intermediates/${m29_bn}.INV.vcf.gz -O z -o ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INV.vcf.gz
 
 # Only include INDELs private to each line
-bcftools view -i "COUNT(GT='alt')=1" ${OUT_DIR}/${OUT_PREFIX}.callable.noRefDiffs.INDELs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.callable.noRefDiffs.private.INDELs.vcf.gz
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.callable.noRefDiffs.private.INDELs.vcf.gz
+# INDEL
+bcftools view -i "COUNT(GT='alt')=1" ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INDELs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.private.INDELs.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.INDELs.vcf.gz
+# INV
+bcftools view -i "COUNT(GT='alt')=1" ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INV.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.private.INV.vcf.gz
+
+# Remove SVs that overlap with uncallable regions
+# INDEL
+bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.private.INDELs.vcf.gz -b ${UNCALLABLE} > ${OUT_DIR}/${OUT_PREFIX}.private.callable.INDELs.vcf
+# INV
+# Note: no output file was written since 0 INV remain after the uncallable regions filter
+bedtools intersect -wa -v -a ${OUT_DIR}/${OUT_PREFIX}.private.INV.vcf.gz -b ${UNCALLABLE} | wc -l
+
+# Remove SVs that overlap with diffs in ref of our Morex sample and Mascher et al. Morex
+bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.private.callable.INDELs.vcf -b ${REF_DIFFS_10x_del} ${REF_DIFFS_ONT_DEL} ${REF_DIFFS_ONT_INS} ${REF_DIFFS_85xONT_DEL} ${REF_DIFFS_85xONT_INS} ${REF_DIFFS_PacBio_DEL} ${REF_DIFFS_PacBio_INS} | uniq > ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INDELs.vcf
+
+# Separate INS and DEL
+bcftools view -i 'SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INDELs.vcf -O z -o ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INS.vcf.gz
+bcftools view -i 'SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INDELs.vcf -O z -o ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.DEL.vcf.gz
+# Index vcf files
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INS.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.DEL.vcf.gz

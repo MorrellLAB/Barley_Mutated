@@ -214,11 +214,33 @@ Filter larger SVs.
 Filtered VCFs (quality control/minimize errors):
 
 ```bash
-# Mutated de novo vcfs SNPs and 1bp INDELs
+# Mutated de novo vcfs SNPs and INDELs from 10x Genomics phased_variants VCF and GATK called variants
 /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs
 # Hybrid barley parents vcfs SNPs and 1bp INDELs
 /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/hybrid_rare_vcfs
+
+# 10x Genomics deletions from dels.vcf files
+# Note: large_svs.vcf files had 1 deletion called in M20, but weak read evidence, so we have 0 deletions from the large_svs.vcf files
+/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/samplot-mut_10x_dels/mut_10x_dels.private.callable.noMorexDiffs.supports.vcf
+
+# ONT datasets
+# Sniffles2 - 3 mutated lines
+/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/filtered/mut_ont.private.geSup3.callable.noRefDiffs.DEL.vcf
+/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/filtered/mut_ont.private.geSup3.callable.noRefDiffs.INS.vcf
+# cuteSV - 3 mutated lines
+/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/cutesv_calls/filtered/mut_ont_cutesv.private.callable.noRefDiffs.DEL.vcf.gz
+/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/cutesv_calls/filtered/mut_ont_cutesv.private.callable.noRefDiffs.INS.vcf.gz
 ```
 
 Differences between Morex samples and Morex reference:
 
+```bash
+# Differences from Morex reference
+REF_DIFFS_10x_del="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_dels_diffs_from_ref.noBND.bed"
+REF_DIFFS_ONT_DEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3/filtered/morex_ont.noHomRef.geSup5.callable.DEL.bed"
+REF_DIFFS_ONT_INS="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_ont_partsRefv3/filtered/morex_ont.noHomRef.geSup5.callable.INS.bed"
+REF_DIFFS_85xONT_DEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_85x_ont/filtered/parts_pos/morex_85x_ont.noHomRef.geSup5.callable.parts.DEL.bed"
+REF_DIFFS_85xONT_INS="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_morex/Morex_85x_ont/filtered/parts_pos/morex_85x_ont.noHomRef.geSup5.callable.parts.INS.bed"
+REF_DIFFS_PacBio_DEL="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v3/filtered/morex_pacbio.noHomRef.geSup5.callable.DEL.bed"
+REF_DIFFS_PacBio_INS="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/pacbio_morex/pacbio_morex_v3/filtered/morex_pacbio.noHomRef.geSup5.callable.INS.bed"
+```
