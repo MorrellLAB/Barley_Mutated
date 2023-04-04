@@ -17,7 +17,6 @@ set -o pipefail
 module load bcftools/1.10.2
 module load parallel/20210822
 module load python3/3.8.3_anaconda2020.07_mamba
-module load vcflib_ML/1.0.0_rc2
 module load bedtools/2.29.2
 # Conda environment for mutation motif software
 source activate /panfs/jay/groups/9/morrellp/liux1299/.conda/envs/mut_motif_env
