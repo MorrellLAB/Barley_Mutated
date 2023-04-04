@@ -10,21 +10,24 @@ set -o pipefail
 module load bcftools/1.10.2
 module load htslib/1.9
 module load parallel/20210822
+module load datamash_ML/1.3
 
 # User provided input arguments
 # 8 WGS mutated lines VCF SNPs and 1 bp indels
 MUT8_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_biallelic.callable.SNPs.noMorexDiffs.vcf.gz"
 MUT8_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_barley/Filtered/mut8_biallelic.callable.INDELs.noMorexDiffs.vcf.gz"
 
-# 10x Genomics phased variants VCF SNPs and 1 bp indels
-M01_VCF_SNPS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M01-3-3_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz"
-M01_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M01-3-3_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz"
+# 10x Genomics phased variants VCF SNPs and 1 bp and greater than 1 bp indels
+MUT3_10X_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/mut_3_lines_phased_variants.private.callable.noMorexDiffs.SNPs.vcf.gz"
+MUT3_10X_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/mut_3_lines_phased_variants.private.callable.noMorexDiffs.indels.vcf.gz"
+# M01_VCF_SNPS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M01-3-3_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz"
+# M01_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M01-3-3_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz"
 
-M20_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M20-2-2_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz"
-M20_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M20-2-2_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz"
+# M20_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M20-2-2_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz"
+# M20_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M20-2-2_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz"
 
-M29_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M29-2-2_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz"
-M29_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M29-2-2_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz"
+# M29_VCF_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M29-2-2_phased_variants.callable.SNPs.noMorexDiffs.vcf.gz"
+# M29_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/M29-2-2_phased_variants.callable.INDELs.noMorexDiffs.vcf.gz"
 
 OUT_PREFIX="mut8_and_3mut10xGenomics"
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs"
@@ -87,18 +90,14 @@ export -f split_by_sample
 # SNPs
 bcftools merge \
     ${MUT8_VCF_SNPs} \
-    ${M01_VCF_SNPS} \
-    ${M20_VCF_SNPs} \
-    ${M29_VCF_SNPs} \
+    ${MUT3_10X_SNPs} \
     -O z -o ${OUT_DIR}/Intermediates/${OUT_PREFIX}.SNPs.vcf.gz
 tabix -p vcf ${OUT_DIR}/Intermediates/${OUT_PREFIX}.SNPs.vcf.gz
 
 # Indels
 bcftools merge \
     ${MUT8_VCF_INDELs} \
-    ${M01_VCF_INDELs} \
-    ${M20_VCF_INDELs} \
-    ${M29_VCF_INDELs} \
+    ${MUT3_10X_INDELs} \
     -O z -o ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INDELs.vcf.gz
 tabix -p vcf ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INDELs.vcf.gz
 
@@ -121,19 +120,6 @@ bcftools view -m2 -M2 -i "COUNT(GT='alt')=1" ${OUT_DIR}/Intermediates/${OUT_PREF
 tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.vcf.gz
 # Check number of sites
 count_sites ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_INDELs_num_sites.log
-
-# Separate multiallelic variants
-# SNPs multiallelic
-bcftools view --min-alleles 3 ${OUT_DIR}/Intermediates/${OUT_PREFIX}.SNPs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.multiallelic.vcf.gz
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.multiallelic.vcf.gz
-# Check number of sites
-count_sites ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.multiallelic.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_SNPs_num_sites.log
-
-# Indels multiallelic
-bcftools view --min-alleles 3 ${OUT_DIR}/Intermediates/${OUT_PREFIX}.INDELs.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.INDELs.multiallelic.vcf.gz
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.INDELs.multiallelic.vcf.gz
-# Check number of sites
-count_sites ${OUT_DIR}/${OUT_PREFIX}.INDELs.multiallelic.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_INDELs_num_sites.log
 
 # Pull out homozygous (alt-alt hom) sites only
 bcftools view -i 'GT="AA"' ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.HOM.vcf.gz
@@ -160,3 +146,24 @@ count_sites ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.HET.vcf.gz ${OUT_DIR}/${OUT_
 #   a bunch of extra missing genotypes
 parallel --verbose split_by_sample ${OUT_DIR}/${OUT_PREFIX}.SNPs.private.vcf.gz {} "${OUT_DIR}/split_by_sample_SNPs_private" :::: ${SAMPLE_LIST}
 parallel --verbose split_by_sample ${OUT_DIR}/${OUT_PREFIX}.INDELs.private.vcf.gz {} "${OUT_DIR}/split_by_sample_INDELs_private" :::: ${SAMPLE_LIST}
+
+# Summarize per sample counts (more for quick reference in the future)
+for i in $(ls ${OUT_DIR}/split_by_sample_SNPs_private/*.vcf.gz); do
+    echo $i
+    count_sites $i ${OUT_DIR}/split_by_sample_SNPs_private/num_sites_per_sample_SNPs_private.log
+done
+
+for i in $(ls ${OUT_DIR}/split_by_sample_INDELs_private/*.vcf.gz); do
+    echo $i
+    count_sites $i ${OUT_DIR}/split_by_sample_INDELs_private/num_sites_per_sample_INDELs_private.log
+done
+
+# Calculate on average private variants per sample
+datamash -H mean 2 median 2 < ${OUT_DIR}/split_by_sample_SNPs_private/num_sites_per_sample_SNPs_private.log > ${OUT_DIR}/split_by_sample_SNPs_private/mean_med_per_sample_count_SNPs_private.txt
+
+datamash -H mean 2 median 2 < ${OUT_DIR}/split_by_sample_INDELs_private/num_sites_per_sample_INDELs_private.log > ${OUT_DIR}/split_by_sample_INDELs_private/mean_med_per_sample_count_INDELs_private.txt
+
+# Sort num sites from largest to smallest
+sort -k2,2 --reverse ${OUT_DIR}/split_by_sample_SNPs_private/num_sites_per_sample_SNPs_private.log > ${OUT_DIR}/split_by_sample_SNPs_private/num_sites_per_sample_SNPs_private.count_sorted.log
+
+sort -k2,2 ${OUT_DIR}/split_by_sample_INDELs_private/num_sites_per_sample_INDELs_private.log > ${OUT_DIR}/split_by_sample_INDELs_private/num_sites_per_sample_INDELs_private.count_sorted.log

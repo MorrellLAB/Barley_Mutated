@@ -97,34 +97,6 @@ function count_sites() {
 
 export -f count_sites
 
-function RemoveComplexVar() {
-    local vcf="$1"
-    local accession="$2"
-    local out_dir="$3"
-    # Keep a record of complex variants we removed
-    bcftools filter \
-        -i '(STRLEN(REF) >= 2 & STRLEN(ALT) >= 2) | (STRLEN(REF) > 2 | STRLEN(ALT) > 2)' \
-        -o ${out_dir}/complex_var_only_${accession}.vcf \
-        -O v \
-        ${vcf}
-    # Create a VCF that excludes the complex variants
-    # We want to keep cases like REF is A and ALT is AC, or REF is TC and ALT is T. These are indels.
-    # We DO NOT want cases where REF is GTAAA and ALT is G, or REF is A and ALT is ATGC.
-    # We also DO NOT want cases where REF is CGCGGGACGAC and ALT is TGCGGGACGAC,T.
-    bcftools filter \
-        -e '(STRLEN(REF) >= 2 & STRLEN(ALT) >= 2) | (STRLEN(REF) > 2 | STRLEN(ALT) > 2)' \
-        -o ${out_dir}/${accession}_noComplex.vcf.gz \
-        -O z \
-        ${vcf}
-    # Index the vcf file
-    bcftools index \
-        ${out_dir}/${accession}_noComplex.vcf.gz \
-        -t \
-        -o ${out_dir}/${accession}_noComplex.vcf.gz.tbi
-}
-
-export -f RemoveComplexVar
-
 # Get the number of sites left for starting VCF and append to file
 count_sites ${VCF} ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
 
@@ -170,9 +142,6 @@ tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz
 # Get the number of sites left after filtering and append to file
 count_sites ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log
 
-# Filter to variants private to each mutated line (variants present in only a single sample)
-bcftools view -i "COUNT(GT='alt')=1" ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz -O z -o ${OUT_DIR}/${OUT_PREFIX}.callable.private.vcf.gz
-
 # Separate into biallelic vs multiallelic so AB filtering is easier
 bcftools view -m2 -M2 ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.callable.biallelic.vcf
 bcftools view -m3 ${OUT_DIR}/${OUT_PREFIX}.callable.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.callable.multiallelic.vcf
@@ -182,9 +151,3 @@ count_sites ${OUT_DIR}/${OUT_PREFIX}.callable.multiallelic.vcf ${OUT_DIR}/${OUT_
 
 # Set GT to missing for het that fail allelic balance threshold
 bcftools +setGT ${OUT_DIR}/${OUT_PREFIX}.callable.biallelic.vcf -- -t q -n "." -i "(GT='het' & (FMT/AD[*:1])/(FMT/AD[*:0]+FMT/AD[*:1])<${MIN_AB}) | (GT='het' & (FMT/AD[*:1])/(FMT/AD[*:0]+FMT/AD[*:1])>${MAX_AB})" > ${OUT_DIR}/${OUT_PREFIX}.callable.biallelic.AB.vcf
-
-# # Remove complex variants (>=3 in length) in REF and ALT alleles columns
-# # Complex variants will be saved to a separate file
-# RemoveComplexVar ${SCRATCH_DIR}/${OUT_PREFIX}.filtMISS.vcf ${OUT_PREFIX} ${OUT_DIR}
-# # Get the number of sites left after filtering and append to file
-# count_sites ${OUT_DIR}/${OUT_PREFIX}_noComplex.vcf.gz ${OUT_DIR}/${OUT_PREFIX}_num_sites.log

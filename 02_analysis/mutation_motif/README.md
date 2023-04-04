@@ -49,3 +49,25 @@ realpath *to*.txt | sort -uV > separate_counts_file_list.txt
 # Run analyses and generate plots
 ./context_analysis-hybrid_common_snps.sh
 ```
+
+---
+
+### Motif frequency
+
+Prepare fasta with uncallable regions masked.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/mutation_motif
+./mask_fasta_uncallable.sh
+```
+
+Use [EMOSS compseq](https://www.bioinformatics.nl/cgi-bin/emboss/help/compseq) to calculate motif frequency.
+
+```bash
+# In dir: ~/Projects/Mutant_Barley/results/emboss_compseq
+module load emboss/6.6.0
+# dinucleotides
+compseq -sequence Barley_MorexV3_pseudomolecules_parts.masked_uncallable.fasta -word 2 -outfile dinucleotide_morex_v3.masked_uncallable.comp
+# trinucleotides
+compseq -sequence Barley_MorexV3_pseudomolecules_parts.masked_uncallable.fasta -word 3 -outfile trinucleotide_morex_v3.masked_uncallable.comp
+```

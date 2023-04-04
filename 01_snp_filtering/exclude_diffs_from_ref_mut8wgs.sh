@@ -21,8 +21,11 @@ OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid
 
 # BED file containing sites that differ between 10x morex-sample2 and Morex reference
 # SNPs and Indels called in the phased variants VCF
-PHV_MOREX_DIFFS_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-snps.DPfilt.callable.diffs_from_ref.bed"
-PHV_MOREX_DIFFS_INDELS="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-indels.DPfilt.callable.diffs_from_ref.bed"
+PHV_MOREX_DIFFS_SNPs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-snps.callable.biallelic.diffs_from_ref.bed"
+PHV_MOREX_DIFFS_INDELS_1bp="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-indels.callable.biallelic.1bp.diffs_from_ref.bed"
+# Use VCF instead of bed where size of variant is correct because in the VCF it's represented as a single position,
+# so the range in a bed removes too many variants given how the indel is represented
+PHV_MOREX_DIFFS_INDELS_gt1bp="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/diffs_from_ref/morex-sample2_phased_variants-indels.callable.biallelic.gt1bp.vcf.gz"
 
 # Known SNPs
 SNPs_BOPA="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/bopa_9k_50k/bopa_idt95_noRescuedSNPs_partsRef.vcf"
@@ -70,10 +73,10 @@ tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.SNPs.noMorexDiffs.vcf.g
 # bedtools intersect -v -header -a ${VCF_INDELs} -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
 # tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
 # Indels - biallelic
-bedtools intersect -v -header -a ${VCF_INDELs_B} -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${VCF_INDELs_B} -b ${PHV_MOREX_DIFFS_INDELS_1bp} ${PHV_MOREX_DIFFS_INDELS_gt1bp} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
 tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_biallelic.callable.INDELs.noMorexDiffs.vcf.gz
 # Indels - multiallelic
-bedtools intersect -v -header -a ${VCF_INDELs_M} -b ${PHV_MOREX_DIFFS_INDELS} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_multiallelic.callable.INDELs.noMorexDiffs.vcf.gz
+bedtools intersect -v -header -a ${VCF_INDELs_M} -b ${PHV_MOREX_DIFFS_INDELS_1bp} ${PHV_MOREX_DIFFS_INDELS_gt1bp} | bgzip > ${OUT_DIR}/${OUT_PREFIX}_multiallelic.callable.INDELs.noMorexDiffs.vcf.gz
 tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}_multiallelic.callable.INDELs.noMorexDiffs.vcf.gz
 
 # Get the number of sites

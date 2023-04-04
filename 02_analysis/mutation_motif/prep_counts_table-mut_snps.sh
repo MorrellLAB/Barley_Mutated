@@ -88,7 +88,7 @@ parallel --verbose run_aln_to_counts {} ${OUT_DIR}/counts_tables ${FLANK_SIZE} $
 
 # Combine separate counts table into single file that is suitable for spectra analysis
 all_counts \
-    --counts_pattern "${OUT_DIR}/counts_tables/*${out_prefix}.winFlank${WIN_FLANK_SIZE}bp.txt*" \
+    --counts_pattern "${OUT_DIR}/counts_tables/*to*${out_prefix}.winFlank${WIN_FLANK_SIZE}bp.txt*" \
     --output_path ${OUT_DIR}/counts_tables \
     --strand_symmetric \
     --force_overwrite

@@ -57,3 +57,26 @@ create_report $CURR_VCF $REF \
     --tracks $CURR_VCF $BAM2 \
     --output ~/Projects/Mutant_Barley/longranger_morex_v3/filtered/quality_filtered/igv-report_mut_3_lines_large_svs.DEL.private.callable.noMorexDiffs.html
 ```
+
+#### Final checks 10x Genomics VCFs
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/igv_html_reports
+# SNPs and smaller indels
+sbatch igv_reports-mut_11_final_filtered.sh
+# Larger dels
+./igv_reports-mut_3_10xGenomics_dels.sh
+```
+
+### ONT
+
+ONT Sniffles2 and cuteSV called indels.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/01_snp_filtering/igv_html_reports
+./igv_reports-morex_ont_sniffles2.sh
+./igv_reports-mut_ont_sniffles2.sh
+./igv_reports-mut_ont_cuteSV.sh
+# Overlaps between SV callers
+./igv_reports-mut_ont_overlaps_sniffles2_cuteSV.sh
+```

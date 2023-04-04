@@ -90,8 +90,6 @@ tabix -p vcf ${OUT_DIR}/${PREFIX}_phased_variants_merged.nochrUn.vcf.gz
 # Filter to variants private to each mutated line (variants present in only a single sample)
 bcftools filter -e 'FILTER=="10X_QUAL_FILTER" || FILTER=="10X_ALLELE_FRACTION_FILTER" || FILTER=="10X_PHASING_INCONSISTENT" || FILTER=="10X_HOMOPOLYMER_UNPHASED_INSERTION" || FILTER=="10X_RESCUED_MOLECULE_HIGH_DIVERSITY"' ${OUT_DIR}/${PREFIX}_phased_variants_merged.nochrUn.vcf.gz | bcftools view -i "COUNT(GT='alt')=1" -O z -o ${OUT_DIR}/Intermediates/${PREFIX}_phased_variants.10xCustomFilt.private.vcf.gz
 
-#bcftools filter -e "INFO/DP < ${MIN_DP}" -O z -o ${OUT_DIR}/Intermediates/${PREFIX}_phased_variants.10xCustomFilt.vcf.gz
-
 # bcftools +setGT ${OUT_DIR}/Intermediates/${PREFIX}_phased_variants.10xCustomFilt.biallelic.vcf.gz -- -t q -n "." -i "(GT='het' & (FMT/AD[*:1])/(FMT/AD[*:0]+FMT/AD[*:1])<${MIN_AB}) | (GT='het' & (FMT/AD[*:1])/(FMT/AD[*:0]+FMT/AD[*:1])>${MAX_AB})" | bcftools +setGT - -- -t q -n "." -i "FMT/DP<${MIN_DP}" | bcftools filter -e 'F_PASS(GT="mis") = 1.0' -O z -o ${OUT_DIR}/Intermediates/${PREFIX}_phased_variants.10xCustomFilt.biallelic.ABfilt.vcf.gz
 # # Index vcf
 # tabix -p vcf ${OUT_DIR}/Intermediates/${PREFIX}_phased_variants.10xCustomFilt.biallelic.ABfilt.vcf.gz
@@ -114,8 +112,6 @@ bcftools view -m3 ${OUT_DIR}/Intermediates/${PREFIX}_phased_variants.10xCustomFi
 bedtools intersect -wa -v -header -a ${OUT_DIR}/Intermediates/${PREFIX}_phased_variants.10xCustomFilt.AB_DP.private.biallelic.vcf.gz -b ${UNCALLABLE_BED} ${HIGH_DIV_BED} | bgzip > ${OUT_DIR}/Intermediates/${PREFIX}_phased_variants.private.callable.vcf.gz
 # Index vcf
 tabix -p vcf ${OUT_DIR}/Intermediates/${PREFIX}_phased_variants.private.callable.vcf.gz
-
-# Separate SNPs and indels in phased variants VCF
 
 # Exclude sites that differ between 10x Morex and Morex reference
 # Also exclude sites that are known variants
