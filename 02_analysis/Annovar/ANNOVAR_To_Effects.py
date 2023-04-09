@@ -15,13 +15,15 @@ output from SNP_Effect_Predictor.py:
 """
 
 # This script originated from Tom Kono and was modified by Li Lei
+#   CL updated it to work with formats output from ANNOVAR's latest version of their tools installed as of 2021-11-18
 #   Tom's version: https://github.com/MorrellLAB/File_Conversions/blob/master/ANNOVAR_To_Effects.py
 #   Li's version: https://github.com/lilei1/MBE_samples/blob/master/Script/ANNOVA_To_effects.py
 
 import sys
+import os
 
-all_effects = sys.argv[1]
-exon_effects = sys.argv[2]
+all_effects = os.path.expanduser(sys.argv[1])
+exon_effects = os.path.expanduser(sys.argv[2])
 
 coding_variants = {}
 with open(exon_effects, 'r') as f:
