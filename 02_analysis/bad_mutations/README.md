@@ -10,7 +10,7 @@ module load python3/3.6.3_anaconda5.0.1
 source activate /home/morrellp/liux1299/.conda/envs/bad_mutations
 ```
 
-#### Step 1: Make config
+## Step 1: Make config
 
 ```bash
 # In dir: ~/Software/BAD_Mutations
@@ -21,7 +21,7 @@ source activate /home/morrellp/liux1299/.conda/envs/bad_mutations
     -c ~/Shared/Projects/Mutant_Barley/results/bad_mutations/config.txt
 ```
 
-#### Step 2: Download CDS files
+## Step 2: Download CDS files
 
 Download the CDS files.
 
@@ -115,7 +115,7 @@ We'll proceed with 72 species for alignment located in the following directory:
 /panfs/roc/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/Genomes
 ```
 
-#### Step 3: Generate substitutions files
+## Step 3: Generate substitutions files
 
 We may decide to go with either ANNOVAR annotations instead of VeP ones or some version of an intersect between the two.
 
@@ -130,7 +130,7 @@ This step converts the VeP .txt.gz files to a format that can be included in BAD
 ./vep_to_subs-hybrid_common.sh
 ```
 
-#### Step 4: Generate alignments and trees
+## Step 4: Generate alignments and trees
 
 > **IMPORTANT NOTE:** This is how we originally ran BAD_Mutations relative to Morex_v2 but then we decided to move to Morex v3. For Morex_v3, Giulia ran this step and generated the alignments and trees. We utilized Giulia's output from this step to run predictions.
 
@@ -295,7 +295,7 @@ Check to see if there are any other transcripts that didn't work, if so make a n
 
 We'll need to regenerate the `FASTA_LIST_OF_LISTS` to exclude problematic CDS sequences so our predict script works as intended.didn't work and proceed to the predict step. It is known that some transcripts just don't work.
 
-#### Step 5: Predict substitutions
+## Step 5: Predict substitutions
 
 The following parts inside the block quote was already run by Giulia since we used her align and trees output:
 
@@ -414,7 +414,7 @@ sbatch --array=0-6,10-37,39-61,64-65,70-90,98-114,117-119,122-142,145,147-149,15
 sbatch --array=7,38,63,66-69,91-97,115-116,120-121,143-144,146,150-151,175,177,182,185 bad_mut_predict-hybrid_common.sh
 ```
 
-#### Step 6: Compile predictions
+## Step 6: Compile predictions
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
@@ -423,3 +423,153 @@ sbatch bad_mut_compile_predict-hyb_rare.sh
 sbatch bad_mut_compile_predict-hyb_common.sh
 ```
 
+## Step 7: Post processing and Visualization
+
+Prepare VeP reports for generating figures of BAD_Mutations results.
+
+```bash
+# Dependencies
+module load perl/modules.centos7.5.26.1
+module load htslib/1.9
+export PATH=$PATH:/panfs/jay/groups/9/morrellp/shared/Software/ensembl-vep-release-108.1
+```
+
+```R
+# Mutated lines
+mut_predictions_fp <- "~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/predictions/mut_snps_private_Combined_Report.txt"
+mut_vep_fp <- "~/Dropbox/Projects/Barley_Mutated/analyses/VEP/HC_LC_gff_SNPs_private_all_samples/mut8_and_3mut10xGenomics.SNPs.private.txt"
+
+# Rare
+rare_predictions_fp <- "~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/predictions/hybrid_rare_Combined_Report.txt"
+
+# Common
+common_predictions_fp <- "~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/predictions/hybrid_common_Combined_Report.txt"
+```
+
+**Get Deleterious vs Tolerated:** Merge BAD_Mutations predict compiled report and VeP report. Then, annotate as "Deleterious" vs "Tolerated".
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+./merge_bad_mut_and_vep.R \
+    ~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/predictions/mut_snps_private_Combined_Report.txt \
+    ~/Dropbox/Projects/Barley_Mutated/analyses/VEP/HC_LC_gff_SNPs_private_all_samples/mut8_and_3mut10xGenomics.SNPs.private.txt \
+    ~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/predictions/mut_snps_private_Combined_Report_with_VeP.txt
+
+# Annotate "Deleterious" vs "Tolerated"
+MIN_SEQ="10"
+MAX_CONSTRAINT="1"
+P_CUTOFF="0.05"
+# Mutant
+# Note: this should be the number of nonsynonymous SNPs given as input to the BAD_Mutations predict step
+#   and NOT the number of lines in the compiled report
+NUM_CODONS="611"
+./dSNP_BADMutation_heuristics_masked-vep.py \
+    ~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/predictions/mut_snps_private_Combined_Report_with_VeP.txt \
+    ${MIN_SEQ} ${MAX_CONSTRAINT} ${P_CUTOFF} ${NUM_CODONS} \
+    > ~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/predictions/mut_snps_private_deleterious_vs_tolerated.txt
+```
+
+Repeat above for hybrid rare and common nonsynonymous SNPs.
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+# Rare
+./merge_bad_mut_and_vep.R \
+    ~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/predictions/hybrid_rare_Combined_Report.txt \
+    ~/Dropbox/Projects/Barley_Mutated/analyses/VEP/HC_LC_gff_SNPs_private_all_samples/mut8_and_3mut10xGenomics.SNPs.private.txt \
+    ~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/predictions/mut_snps_private_Combined_Report_with_VeP.txt
+```
+
+**Convert Deleterious vs Tolerated to pseudomolecules positions:**
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+module load python3/3.8.3_anaconda2020.07_mamba
+
+# Mutated
+./del_vs_tol_barley_parts_to_pseudomolecules.py ~/Projects/Mutant_Barley/results/bad_mutations/predictions/mut_snps_private_deleterious_vs_tolerated.txt > ~/Projects/Mutant_Barley/results/bad_mutations/predictions/mut_snps_private_deleterious_vs_tolerated.with_pseudo_pos.txt
+# Convert pseudo position and classification to BED format
+./del_vs_tol_to_extended_bed.sh ~/Projects/Mutant_Barley/results/bad_mutations/predictions/mut_snps_private_deleterious_vs_tolerated.with_pseudo_pos.txt > ~/Projects/Mutant_Barley/results/bad_mutations/predictions/mut_snps_private_deleterious_vs_tolerated.bed
+```
+
+Pull out synonymous variants.
+
+```bash
+MUT_VEP_REPORT="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_LC_gff_SNPs_private_all_samples/mut8_and_3mut10xGenomics.SNPs.private.txt"
+
+MUT_PREFIX=$(basename $MUT_VEP_REPORT .txt)
+MUT_OUT_DIR=$(dirname $MUT_VEP_REPORT)
+
+filter_vep -i $MUT_VEP_REPORT -o $MUT_OUT_DIR/$MUT_PREFIX.synonymous.txt -filter "Consequence is synonymous_variant"
+# Gzip output file
+gzip $MUT_OUT_DIR/$MUT_PREFIX.synonymous.txt
+```
+
+Get the total number of codons for SNPs per codon figure.
+
+```bash
+module load samtools/1.9
+
+# Use primary transcripts in cds from JGI
+fasta_file="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.cds_primaryTranscriptOnly.fa"
+
+samtools faidx $fasta_file > /panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.cds_primaryTranscriptOnly.fa.fai
+```
+
+The length of each cds primary transcript is in the file:
+
+```bash
+CDS_PT_FAI="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.cds_primaryTranscriptOnly.fa.fai"
+# This list was used to determine primary transcripts to run for BAD_Mutations
+# Same transcripts as in the CDS_PT_FAI file
+CDS_PT_NAMES="/panfs/jay/groups/9/morrellp/shared/Projects/WBDC_inversions/bad_mutations/results/phytozome13_download_V3_primary_transcript/hvulgare_primary_transcripts_only.txt"
+```
+
+Will also need the positions of the transcripts from this file:
+
+```bash
+GFF="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.gene.gff3"
+```
+
+Generate intervals for pseudomolecules positions from `.fai` file.
+
+```bash
+module load bedtools/2.29.2
+
+GENOME_FILE="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta.fai"
+# Window size in bp
+WIN_SIZE="10000000"
+TMP_DIR=~/scratch/temp_visualization
+
+# In dir: ~/Projects/Mutant_Barley/results/bad_mutations/visualization
+# Create non-overlapping windows
+bedtools makewindows -g ${GENOME_FILE} -w ${WIN_SIZE} | grep -v "chrUn" > Barley_MorexV3_pseudomolecules.10Mb_windows.bed
+# Split file into one line per file
+split -l 1 --numeric-suffixes --additional-suffix=".bed" --suffix-length=3 Barley_MorexV3_pseudomolecules.10Mb_windows.bed ${TMP_DIR}/Barley_MorexV3_pseudomolecules.10Mb_windows.
+```
+
+Count number of codons per 10 Mbp window.
+
+```bash
+GENOME_FILE="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta.fai"
+GFF="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/PhytozomeV13_HvulgareMorex_V3/annotation/HvulgareMorex_702_V3.gene.gff3"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/visualization"
+WIN_SIZE="10000000"
+
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/num_codons_per_window.sh ${GENOME_FILE} ${GFF} ${OUT_DIR} ${WIN_SIZE} "CDS"
+
+~/GitHub/Barley_Mutated/02_analysis/bad_mutations/num_codons_per_window.sh ${GENOME_FILE} ${GFF} ${OUT_DIR} ${WIN_SIZE} "mRNA"
+```
+
+Count number of "Deleterious" and "Tolerated" SNPs per 10 Mb window.
+
+```bash
+GENOME_FILE="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules.fasta.fai"
+BED="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/predictions/mut_snps_private_deleterious_vs_tolerated.bed"
+OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/visualization"
+OUT_PREFIX="mut_snps_private"
+WIN_SIZE="10000000"
+
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+./num_del_vs_tol_per_window.sh ${GENOME_FILE} ${BED} ${OUT_DIR} ${OUT_PREFIX} ${WIN_SIZE}
+```
