@@ -7,6 +7,7 @@ set -o pipefail
 module load bcftools/1.10.2
 module load htslib/1.9
 module load bedtools/2.29.2
+module load vcflib_ML/1.0.0_rc2
 
 # User provided input arguments
 VCF_M01="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/cutesv_calls/M01_ont.vcf"
