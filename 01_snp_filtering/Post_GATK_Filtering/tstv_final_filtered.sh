@@ -28,6 +28,8 @@ VCF2="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/mut8_and_hybrid_ba
 VCF3="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs/Intermediates/mut8_and_3mut10xGenomics.SNPs.vcf.gz"
 # Hybrid WGS lines - rare
 VCF4="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/hybrid_rare_vcfs/hybrid13.SNPs.rare.vcf.gz"
+# Hybrid WGS lines - common
+VCF5="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/hybrid_rare_vcfs/hybrid13.SNPs.common.vcf.gz"
 
 # Output directory
 OUT_DIR="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/tstv_final_filtered"
@@ -58,6 +60,7 @@ vcf1_prefix=$(basename ${VCF1} .vcf.gz)
 vcf2_prefix=$(basename ${VCF2} .vcf.gz)
 vcf3_prefix=$(basename ${VCF3} .vcf.gz)
 vcf4_prefix=$(basename ${VCF4} .vcf.gz)
+vcf5_prefix=$(basename ${VCF5} .vcf.gz)
 
 # Calculate per sample Ts/Tv
 # Per sample Ts/Tv
@@ -70,6 +73,8 @@ java -jar ${SNPSIFT_JAR} tstv ${VCF2} 1> ${OUT_DIR}/${vcf2_prefix}.snpsiftTsTv.t
 java -jar ${SNPSIFT_JAR} tstv ${VCF3} 1> ${OUT_DIR}/${vcf3_prefix}.snpsiftTsTv.txt
 # VCF4 per sample
 java -jar ${SNPSIFT_JAR} tstv ${VCF4} 1> ${OUT_DIR}/${vcf4_prefix}.snpsiftTsTv.txt
+# VCF5 per sample
+java -jar ${SNPSIFT_JAR} tstv ${VCF5} 1> ${OUT_DIR}/${vcf5_prefix}.snpsiftTsTv.txt
 
 # Calculate Ts/Tv overall summary
-parallel --verbose summarize_tstv {} ${OUT_DIR} ::: ${VCF1} ${VCF2} ${VCF3} ${VCF4}
+parallel --verbose summarize_tstv {} ${OUT_DIR} ::: ${VCF1} ${VCF2} ${VCF3} ${VCF4} ${VCF5}
