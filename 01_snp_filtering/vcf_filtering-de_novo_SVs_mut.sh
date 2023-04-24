@@ -60,10 +60,12 @@ grep "#" ${svplaudit_scored} > ${OUT_DIR}/${dels_bn}.noRefDiffs.private.supports
 grep -v "#" ${svplaudit_scored} | cat - ${OUT_DIR}/tmp_${dels_bn}_overlap_ONT.noRefDiffs.private.vcf | sort -k1,1 -k2,2n | uniq >> ${OUT_DIR}/${dels_bn}.noRefDiffs.private.supports.vcf
 
 # Add tag "BasesToClosestVariant" to remove (mostly) consecutive variants since they are likely not de novo
-vcfdistance < ${OUT_DIR}/${dels_bn}.noRefDiffs.private.supports.vcf | bcftools view -e 'BasesToClosestVariant <= 10 & SVLEN < -10' -O v -o ${OUT_DIR}/${dels_bn}.noRefDiffs.private.supports.final.vcf
+# Exclude based on igv-reports inspection: chr1H_part2     240724048
+vcfdistance < ${OUT_DIR}/${dels_bn}.noRefDiffs.private.supports.vcf | bcftools view -e 'BasesToClosestVariant <= 10 & SVLEN < -10' | bcftools view --targets "^chr1H_part2:240724048" -O v -o ${OUT_DIR}/${dels_bn}.noRefDiffs.private.supports.final.vcf
 
 # Cleanup
 mv ${OUT_DIR}/tmp_${dels_bn}_overlap_ONT.noRefDiffs.private.vcf \
     ${OUT_DIR}/${dels_bn}.noRefDiffs.private.supports.vcf \
     ${OUT_DIR}/*dels_merged.callable.noRefDiffs.vcf* \
+    ${OUT_DIR}/*dels_merged.callable.noRefDiffs.private.vcf.gz* \
     ${OUT_DIR}/Intermediates

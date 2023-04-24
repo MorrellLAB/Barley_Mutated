@@ -73,7 +73,8 @@ bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN
 # Separate INS and DEL
 # Add tag "BasesToClosestVariant" to remove (mostly) consecutive variants since they are likely not de novo
 bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf | vcfdistance | bcftools view -e 'BasesToClosestVariant <= 10 & SVLEN > 10' | bgzip > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.INS.vcf.gz
-bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf | vcfdistance | bcftools view -e 'BasesToClosestVariant <= 43 & SVLEN < -10' | bgzip > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.DEL.vcf.gz
+# Exclude based on igv-reports inspection: chr1H_part2     240724080       Sniffles2.DEL.1E42S1
+bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf | vcfdistance | bcftools view -e 'BasesToClosestVariant <= 43 & SVLEN < -10' | bcftools view --targets "^chr1H_part2:240724080" | bgzip > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.DEL.vcf.gz
 # Index vcf
 tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.INS.vcf.gz
 tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.DEL.vcf.gz
