@@ -8,6 +8,7 @@ module load bcftools/1.10.2
 module load htslib/1.9
 module load bedtools/2.29.2
 module load python3/3.8.3_anaconda2020.07_mamba
+module load vcflib_ML/1.0.0_rc2
 
 # User provided input arguments
 VCF="/panfs/jay/groups/9/morrellp/shared/Datasets/Alignments/nanopore_mutated_barley/mut_ont.vcf.gz"
@@ -69,9 +70,16 @@ bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN
 
 # Remove SVs that overlap with diffs in ref of our Morex sample and Mascher et al. Morex
 bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.INDELs.vcf -b ${REF_DIFFS_10x_del} ${REF_DIFFS_ONT_DEL} ${REF_DIFFS_ONT_INS} ${REF_DIFFS_85xONT_DEL} ${REF_DIFFS_85xONT_INS} ${REF_DIFFS_PacBio_DEL} ${REF_DIFFS_PacBio_INS} > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf
-# Separate INS and DEL for exploration
-bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INS.vcf
-bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.DEL.vcf
+# Separate INS and DEL
+# Add tag "BasesToClosestVariant" to remove (mostly) consecutive variants since they are likely not de novo
+bcftools view -i 'INFO/SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf | vcfdistance | bcftools view -e 'BasesToClosestVariant <= 10 & SVLEN > 10' | bgzip > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.INS.vcf.gz
+bcftools view -i 'INFO/SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf | vcfdistance | bcftools view -e 'BasesToClosestVariant <= 43 & SVLEN < -10' | bgzip > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.DEL.vcf.gz
+# Index vcf
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.INS.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.DEL.vcf.gz
+
+# Concatenate INS and DEL to final INDELs file
+bcftools concat -a ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.INS.vcf.gz ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.DEL.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.INDELs.vcf
 
 # Prepare BED format
-${SNIFFLES_to_BED} ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.vcf > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.INDELs.bed
+${SNIFFLES_to_BED} ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.INDELs.vcf > ${OUT_DIR}/${OUT_PREFIX}.private.geSup${MIN_SUPPORT}.callable.noRefDiffs.final.INDELs.bed

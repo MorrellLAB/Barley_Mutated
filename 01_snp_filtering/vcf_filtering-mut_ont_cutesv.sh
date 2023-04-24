@@ -99,8 +99,12 @@ bedtools intersect -wa -v -a ${OUT_DIR}/${OUT_PREFIX}.private.INV.vcf.gz -b ${UN
 bedtools intersect -wa -v -header -a ${OUT_DIR}/${OUT_PREFIX}.private.callable.INDELs.vcf -b ${REF_DIFFS_10x_del} ${REF_DIFFS_ONT_DEL} ${REF_DIFFS_ONT_INS} ${REF_DIFFS_85xONT_DEL} ${REF_DIFFS_85xONT_INS} ${REF_DIFFS_PacBio_DEL} ${REF_DIFFS_PacBio_INS} | uniq > ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INDELs.vcf
 
 # Separate INS and DEL
-bcftools view -i 'SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INDELs.vcf -O z -o ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INS.vcf.gz
-bcftools view -i 'SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INDELs.vcf -O z -o ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.DEL.vcf.gz
+# Add tag "BasesToClosestVariant" to remove (mostly) consecutive variants since they are likely not de novo
+bcftools view -i 'SVTYPE="INS"' ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INDELs.vcf | vcfdistance | bcftools view -e 'BasesToClosestVariant <= 10 & SVLEN > 10' | bgzip > ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.final.INS.vcf.gz
+bcftools view -i 'SVTYPE="DEL"' ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INDELs.vcf | vcfdistance | bcftools view -e 'BasesToClosestVariant <= 10 & SVLEN < -10' | bgzip > ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.final.DEL.vcf.gz
 # Index vcf files
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.INS.vcf.gz
-tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.DEL.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.final.INS.vcf.gz
+tabix -p vcf ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.final.DEL.vcf.gz
+
+# Concatenate INS and DEL to final INDELs file
+bcftools concat -a ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.final.INS.vcf.gz ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.final.DEL.vcf.gz -O v -o ${OUT_DIR}/${OUT_PREFIX}.private.callable.noRefDiffs.final.INDELs.vcf
