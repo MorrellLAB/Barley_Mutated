@@ -141,7 +141,16 @@ function predict_sub() {
             # Look for fasta file in one list before
             # Remove leading zeroes
             list_num=$(echo $curr_list_num | sed 's/^0*//')
-            prev_list_num=$(expr $list_num - 1)
+            # If current list number is less than or equal to 100
+            if [ ${curr_list_num} == "100" ]; then
+                # Add leading zero
+                # Edge case when list_num=100 and previous list should be 099
+                tmp_list_num=$(expr $list_num - 1)
+                #prev_list_num=$(seq -f '%03g' ${tmp_list_num} ${tmp_list_num})
+                prev_list_num=$(echo ${tmp_list_num} | sed 's/^/0/')
+            else
+                prev_list_num=$(expr $list_num - 1)
+            fi
             # Use fasta list from one list before
             # Example:
             # Current list: /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/final_lists/hvulgare_cds_list-033.txt
