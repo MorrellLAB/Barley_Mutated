@@ -56,15 +56,11 @@ with open(fp, 'r') as f:
             amino_acids = snp[24].split('/')
             ref_aa = amino_acids[0]
             alt_aa = amino_acids[1]
-            # Extra check to make sure ref amino acids match in merged input file
-            if ref_aa_column == ref_aa:
-                rn = aln.count(ref_aa)
-                an = aln.count(alt_aa)
-                # (min([rn,an]) == 0) -> either the alt or ref allele was not seen in any of the other species
-                if (masked_pval < lrt_sig) and (seq_count >= min_seq) and (masked_constraint < max_constraint) and (min([rn,an]) == 0):
-                    snp.append("Deleterious")
-                else:
-                    snp.append("Tolerated")
+            rn = aln.count(ref_aa)
+            an = aln.count(alt_aa)
+            # (min([rn,an]) == 0) -> either the alt or ref allele was not seen in any of the other species
+            if (masked_pval < lrt_sig) and (seq_count >= min_seq) and (masked_constraint < max_constraint) and (min([rn,an]) == 0):
+                snp.append("Deleterious")
             else:
-                raise Exception("Reference amino acids don't match for SNP: {}".format(snp[0]))
+                snp.append("Tolerated")
             print ('\t'.join(snp))

@@ -579,6 +579,17 @@ module load python3/3.8.3_anaconda2020.07_mamba
     /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/predictions/hybrid13_rare_snps_deleterious_vs_tolerated.txt \
     /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/visualization \
     hybrid13.SNPs.rare
+
+# Common
+# Run as interactive job
+srun -N 1 --ntasks-per-node=8 --mem=36gb --tmp=22gb -t 3:00:00 -p interactive --pty bash
+module load python3/3.8.3_anaconda2020.07_mamba
+./count_dSNP_per_individual.py \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/hybrid_rare_vcfs/hybrid13.SNPs.common.vcf.gz \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_LC_gff_SNPs_hybrid13_common/hybrid13.SNPs.common.txt \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/predictions/hybrid13_common_snps_deleterious_vs_tolerated.txt \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/visualization \
+    hybrid13.SNPs.common
 ```
 
 Count indels (even though we didn't run BAD_Mutations on indels since it takes SNPs, still wanted to get per sample counts with the same counting approach as in the count_dSNP_per_individual.py script).
@@ -587,10 +598,23 @@ Count indels (even though we didn't run BAD_Mutations on indels since it takes S
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
 module load python3/3.8.3_anaconda2020.07_mamba
 
+# Mutated
 ./count_indels_per_individual.py \
     /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs/mut8_and_3mut10xGenomics.INDELs.private.vcf.gz \
     /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/visualization \
     mut_private_indels
+
+# Rare
+./count_indels_per_individual.py \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/hybrid_rare_vcfs/hybrid13.INDELs.rare.vcf.gz \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/visualization \
+    hybrid_rare_indels
+
+# Common
+./count_indels_per_individual.py \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/hybrid_rare_vcfs/hybrid13.INDELs.common.vcf.gz \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/visualization \
+    hybrid_common_indels
 ```
 
 See `03_figures` directory for plottings scripts.
