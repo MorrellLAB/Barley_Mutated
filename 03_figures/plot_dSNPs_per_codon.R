@@ -2,6 +2,7 @@
 
 library(tidyr)
 library(ggplot2)
+library(gridExtra)
 
 # Generate plots of dSNPs per codon
 # Inspired from Tom Kono's dSNP per codon plotting script:
@@ -176,7 +177,8 @@ ggplot(df_rare_cds, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) 
   facet_wrap(~chr, ncol=1, scales='free') +
   scale_color_manual(values=c(del_col, tol_col), name="") +
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
-  scale_y_continuous(limits=c(0, max(df_rare_cds$snp_per_codon)+(max(df_rare_cds$snp_per_codon)*0.2)))
+  #scale_y_continuous(limits=c(0, max(df_rare_cds$snp_per_codon)+(max(df_rare_cds$snp_per_codon)*0.2)))
+  scale_y_continuous(limits=c(0, 0.012))
 # Save plot
 ggsave(filename="dSNPs_per_codon_cds-hybrid_rare.jpg", dpi=300)
 
@@ -218,6 +220,36 @@ ggplot(df_common_cds, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))
   facet_wrap(~chr, ncol=1, scales='free') +
   scale_color_manual(values=c(del_col, tol_col), name="") +
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
-  scale_y_continuous(limits=c(0, max(df_common_cds$snp_per_codon)+(max(df_common_cds$snp_per_codon)*0.2)))
+  #scale_y_continuous(limits=c(0, max(df_common_cds$snp_per_codon)+(max(df_common_cds$snp_per_codon)*0.2)))
+  scale_y_continuous(limits=c(0, 0.012))
 # Save plot
 ggsave(filename="dSNPs_per_codon_cds-hybrid_common.jpg", dpi=300)
+
+#########################################
+### Representative chromosomes figure ###
+#########################################
+# Prepare new df of only chr1H and 2H and add dataset labels
+chr1H_2H_mut_cds <- df_mut_cds[df_mut_cds$chr == "chr1H" | df_mut_cds$chr == "chr2H", ]
+chr1H_2H_mut_cds$dataset <- "Mutated"
+chr1H_2H_rare_cds <- df_rare_cds[df_rare_cds$chr == "chr1H" | df_rare_cds$chr == "chr2H", ]
+chr1H_2H_rare_cds$dataset <- "Rare"
+chr1H_2H_comm_cds <- df_common_cds[df_common_cds$chr == "chr1H" | df_common_cds$chr == "chr2H", ]
+chr1H_2H_comm_cds$dataset <- "Common"
+# Combine datasets
+df_cds_chr1H_2H <- rbind(chr1H_2H_mut_cds, chr1H_2H_rare_cds, chr1H_2H_comm_cds)
+
+# Plot chr1H and 2H of combined datasets
+ggplot(df_cds_chr1H_2H, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) +
+  geom_vline(data=centromere_df[centromere_df$chr == "chr1H" | centromere_df$chr == "chr2H", ], aes(xintercept=cent_pos_mbp), colour="darkgrey", size=1) +
+  geom_point() +
+  theme_bw() +
+  xlab("Position (Mbp)") +
+  ylab("SNPs per Codon") +
+  theme(panel.grid=element_blank(),
+        strip.background=element_blank(),
+        strip.text=element_text(size=10, face="bold")) +
+  facet_grid( factor(dataset, levels=c('Mutated', 'Rare', 'Common')) ~ chr, scales='free') +
+  scale_color_manual(values=c(del_col, tol_col), name="") +
+  scale_x_continuous(limits=c(0, 700), n.breaks=24)
+# Save plot
+ggsave(filename="dSNPs_per_codon_cds-chr1H_2H.jpg", width=20, height=5, units="in", dpi=300)
