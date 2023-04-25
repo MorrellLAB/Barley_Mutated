@@ -407,11 +407,13 @@ PRIMARY_TRANSCRIPTS="/panfs/jay/groups/9/morrellp/shared/Projects/WBDC_inversion
 # Run bad mutations predict
 sbatch --array=0-209 bad_mut_predict-hybrid_common.sh
 # Continue running timeout indices
-sbatch --array=0-7,10-61,63-193 bad_mut_predict-hybrid_common.sh
-# Continue running timout indices while debugging failed
-sbatch --array=0-6,10-37,39-61,64-65,70-90,98-114,117-119,122-142,145,147-149,152-174,176,178-181,183-184,186-193 bad_mut_predict-hybrid_common.sh
-# Re-run failed indices after update to code
-sbatch --array=7,38,63,66-69,91-97,115-116,120-121,143-144,146,150-151,175,177,182,185 bad_mut_predict-hybrid_common.sh
+sbatch --array=0-5,11-17,19-32,34-36,41-61,64-65,71-90,99,101-111,113-114,118-119,122-142,147-148,152-154,156-174,176,181-184,186-193 bad_mut_predict-hybrid_common.sh
+# Re-run failed and debug
+sbatch --array=100 bad_mut_predict-hybrid_common.sh
+# Continue running timeout indices
+sbatch --array=0,24,27,35,43-48,50-61,76-78,80-83,85,88,102-103,106-107,109,111,123,125-132,135-142,157,159-165,167-169,171,184,190-191,193 bad_mut_predict-hybrid_common.sh
+# Continue running timeout indices
+sbatch --array=142 bad_mut_predict-hybrid_common.sh
 ```
 
 ## Step 6: Compile predictions
@@ -577,6 +579,18 @@ module load python3/3.8.3_anaconda2020.07_mamba
     /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/predictions/hybrid13_rare_snps_deleterious_vs_tolerated.txt \
     /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/visualization \
     hybrid13.SNPs.rare
+```
+
+Count indels (even though we didn't run BAD_Mutations on indels since it takes SNPs, still wanted to get per sample counts with the same counting approach as in the count_dSNP_per_individual.py script).
+
+```bash
+# In dir: ~/GitHub/Barley_Mutated/02_analysis/bad_mutations
+module load python3/3.8.3_anaconda2020.07_mamba
+
+./count_indels_per_individual.py \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs/mut8_and_3mut10xGenomics.INDELs.private.vcf.gz \
+    /panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/bad_mutations/visualization \
+    mut_private_indels
 ```
 
 See `03_figures` directory for plottings scripts.
