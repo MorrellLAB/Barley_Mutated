@@ -118,7 +118,7 @@ ggplot(df_mut_mRNA, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) 
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_mut_mRNA$snp_per_codon)+(max(df_mut_mRNA$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_mRNA-mut.png", dpi=300)
+ggsave(filename="dSNPs_per_codon_mRNA-mut.jpg", dpi=300)
 
 # Plot dSNPs per codon: Deleterious vs Tolerated
 # CDS
@@ -136,7 +136,7 @@ ggplot(df_mut_cds, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) +
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_mut_cds$snp_per_codon)+(max(df_mut_cds$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_cds-mut.png", dpi=300)
+ggsave(filename="dSNPs_per_codon_cds-mut.jpg", dpi=300)
 
 ############
 ### Rare ###
@@ -160,7 +160,7 @@ ggplot(df_rare_mRNA, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol)))
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_rare_mRNA$snp_per_codon)+(max(df_rare_mRNA$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_mRNA-hybrid_rare.png", dpi=300)
+ggsave(filename="dSNPs_per_codon_mRNA-hybrid_rare.jpg", dpi=300)
 
 # Plot dSNPs per codon: Deleterious vs Tolerated
 # CDS
@@ -178,7 +178,7 @@ ggplot(df_rare_cds, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) 
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_rare_cds$snp_per_codon)+(max(df_rare_cds$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_cds-hybrid_rare.png", dpi=300)
+ggsave(filename="dSNPs_per_codon_cds-hybrid_rare.jpg", dpi=300)
 
 ##############
 ### Common ###
@@ -202,7 +202,7 @@ ggplot(df_common_mRNA, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol)
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_common_mRNA$snp_per_codon)+(max(df_common_mRNA$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_mRNA-hybrid_common.png", dpi=300)
+ggsave(filename="dSNPs_per_codon_mRNA-hybrid_common.jpg", dpi=300)
 
 # Plot dSNPs per codon: Deleterious vs Tolerated
 # CDS
@@ -220,4 +220,4 @@ ggplot(df_common_cds, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_common_cds$snp_per_codon)+(max(df_common_cds$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_cds-hybrid_common.png", dpi=300)
+ggsave(filename="dSNPs_per_codon_cds-hybrid_common.jpg", dpi=300)
