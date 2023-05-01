@@ -30,3 +30,26 @@ sbatch Vep-hybrid_common_indels.sh
 ```
 
 **Note:** When running VeP, don't use `--total_length` flag. Turning on this flag messes up the file format for BAD_Mutations `Vep_to_Subs.py` script.
+
+### Exploration
+
+Compare stop gain SNPs identified in VeP and Annovar.
+
+Pull out stop_gained only form VeP report.
+
+```bash
+# Dependencies
+module load perl/modules.centos7.5.26.1
+module load htslib/1.9
+export PATH=$PATH:/panfs/jay/groups/9/morrellp/shared/Software/ensembl-vep-release-108.1
+
+MUT_VEP_REPORT="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/VEP/HC_LC_gff_SNPs_private_all_samples/mut8_and_3mut10xGenomics.SNPs.private.txt"
+
+MUT_PREFIX=$(basename $MUT_VEP_REPORT .txt)
+MUT_OUT_DIR=$(dirname $MUT_VEP_REPORT)
+
+filter_vep -i $MUT_VEP_REPORT -o $MUT_OUT_DIR/$MUT_PREFIX.stop_gained.txt -filter "Consequence is stop_gained"
+
+# Get uniq lines
+uniq $MUT_OUT_DIR/$MUT_PREFIX.stop_gained.txt > $MUT_OUT_DIR/$MUT_PREFIX.stop_gained.uniq.txt
+```
