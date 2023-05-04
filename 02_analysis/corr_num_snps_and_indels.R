@@ -82,11 +82,14 @@ ggplot(vc_del_tol.long, aes(x=sample, y=count, fill=del_vs_tol)) +
   geom_bar(position="stack", stat="identity", width=0.75) +
   theme_bw() +
   scale_fill_manual(values=c(del_col, tol_col), labels=c("Deleterious", "Tolerated")) +
-  theme(axis.text.x=element_text(angle=45, hjust=1),
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=16),
+        legend.text=element_text(size=14),
+        axis.text.x=element_text(angle=45, hjust=1),
         plot.title=element_text(hjust=0.5),
         legend.title=element_blank()) +
   xlab("Sample Name") +
-  ylab("SNP Count")
+  ylab("SNV Count")
 # Save plot to file
 ggsave(paste0(out_dir, '/', bp_out_prefix, '-del_vs_tol.jpg'), width=10, height=6, dpi=300)
 
@@ -101,11 +104,13 @@ ggplot(vc_nonsyn_syn.long, aes(x=sample, y=count, fill=nonsyn_vs_syn)) +
   geom_bar(position="stack", stat="identity", width=0.75) +
   theme_bw() +
   scale_fill_manual(values=c(nonsyn_col, syn_col), labels=c("Nonsynonymous", "Synonymous")) +
-  theme(axis.text.x=element_text(angle=45, hjust=1),
+  theme(axis.text=element_text(size=14),
+        axis.title=element_text(size=16),
+        legend.text=element_text(size=14),
+        axis.text.x=element_text(angle=45, hjust=1),
         plot.title=element_text(hjust=0.5),
         legend.title=element_blank()) +
   xlab("Sample Name") +
-  ylab("SNP Count")
+  ylab("SNV Count")
 # Save Plot
 ggsave(paste0(out_dir, '/', bp_out_prefix, '-nonsyn_vs_syn.jpg'), width=10, height=6, dpi=300)
- 

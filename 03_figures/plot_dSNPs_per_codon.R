@@ -107,37 +107,43 @@ df_mut_cds <- prep_data_format(mut_del_snps_per_win_fp, mut_tol_snps_per_win_fp,
 ggplot(df_mut_mRNA, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) +
   #geom_rect(aes(xmin=pcent_start_mbp, xmax=pcent_end_mbp, ymin=-Inf, ymax=Inf), alpha=0.1, fill="grey", color="grey", na.rm=TRUE) +
   geom_vline(data=centromere_df, aes(xintercept=cent_pos_mbp), colour="darkgrey", size=1) +
-  geom_point() +
+  geom_point(size=3, alpha=0.8) +
   theme_bw() +
   xlab("Position (Mbp)") +
   ylab("SNPs per Codon") +
-  theme(panel.grid=element_blank(),
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=18),
+        legend.text=element_text(size=16),
+        panel.grid=element_blank(),
         strip.background=element_blank(),
-        strip.text=element_text(size=10, face="bold")) +
+        strip.text=element_text(size=16, face="bold")) +
   facet_wrap(~chr, ncol=1, scales='free') +
   scale_color_manual(values=c(del_col, tol_col), name="") +
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_mut_mRNA$snp_per_codon)+(max(df_mut_mRNA$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_mRNA-mut.jpg", dpi=300)
+ggsave(filename="dSNPs_per_codon_mRNA-mut.jpg", width=13, height=12, units="in", dpi=300)
 
 # Plot dSNPs per codon: Deleterious vs Tolerated
 # CDS
 ggplot(df_mut_cds, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) +
   geom_vline(data=centromere_df, aes(xintercept=cent_pos_mbp), colour="darkgrey", size=1) +
-  geom_point() +
+  geom_point(size=3, alpha=0.75) +
   theme_bw() +
   xlab("Position (Mbp)") +
   ylab("SNPs per Codon") +
-  theme(panel.grid=element_blank(),
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=18),
+        legend.text=element_text(size=16),
+        panel.grid=element_blank(),
         strip.background=element_blank(),
-        strip.text=element_text(size=10, face="bold")) +
+        strip.text=element_text(size=16, face="bold")) +
   facet_wrap(~chr, ncol=1, scales='free') +
   scale_color_manual(values=c(del_col, tol_col), name="") +
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_mut_cds$snp_per_codon)+(max(df_mut_cds$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_cds-mut.jpg", dpi=300)
+ggsave(filename="dSNPs_per_codon_cds-mut.jpg", width=13, height=12, units="in", dpi=300)
 
 ############
 ### Rare ###
@@ -149,38 +155,44 @@ df_rare_cds <- prep_data_format(rare_del_snps_per_win_fp, rare_tol_snps_per_win_
 # mRNA
 ggplot(df_rare_mRNA, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) +
   geom_vline(data=centromere_df, aes(xintercept=cent_pos_mbp), colour="darkgrey", size=1) +
-  geom_point() +
+  geom_point(size=3, alpha=0.75) +
   theme_bw() +
   xlab("Position (Mbp)") +
   ylab("SNPs per Codon") +
-  theme(panel.grid=element_blank(),
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=18),
+        legend.text=element_text(size=16),
+        panel.grid=element_blank(),
         strip.background=element_blank(),
-        strip.text=element_text(size=10, face="bold")) +
+        strip.text=element_text(size=16, face="bold")) +
   facet_wrap(~chr, ncol=1, scales='free') +
   scale_color_manual(values=c(del_col, tol_col), name="") +
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_rare_mRNA$snp_per_codon)+(max(df_rare_mRNA$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_mRNA-hybrid_rare.jpg", dpi=300)
+ggsave(filename="dSNPs_per_codon_mRNA-hybrid_rare.jpg", width=13, height=12, units="in", dpi=300)
 
 # Plot dSNPs per codon: Deleterious vs Tolerated
 # CDS
 ggplot(df_rare_cds, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) +
   geom_vline(data=centromere_df, aes(xintercept=cent_pos_mbp), colour="darkgrey", size=1) +
-  geom_point() +
+  geom_point(size=3, alpha=0.75) +
   theme_bw() +
   xlab("Position (Mbp)") +
   ylab("SNPs per Codon") +
-  theme(panel.grid=element_blank(),
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=18),
+        legend.text=element_text(size=16),
+        panel.grid=element_blank(),
         strip.background=element_blank(),
-        strip.text=element_text(size=10, face="bold")) +
+        strip.text=element_text(size=16, face="bold")) +
   facet_wrap(~chr, ncol=1, scales='free') +
   scale_color_manual(values=c(del_col, tol_col), name="") +
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   #scale_y_continuous(limits=c(0, max(df_rare_cds$snp_per_codon)+(max(df_rare_cds$snp_per_codon)*0.2)))
   scale_y_continuous(limits=c(0, 0.012))
 # Save plot
-ggsave(filename="dSNPs_per_codon_cds-hybrid_rare.jpg", dpi=300)
+ggsave(filename="dSNPs_per_codon_cds-hybrid_rare.jpg", width=13, height=12, units="in", dpi=300)
 
 ##############
 ### Common ###
@@ -192,38 +204,44 @@ df_common_cds <- prep_data_format(comm_del_snps_per_win_fp, comm_tol_snps_per_wi
 # mRNA
 ggplot(df_common_mRNA, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) +
   geom_vline(data=centromere_df, aes(xintercept=cent_pos_mbp), colour="darkgrey", size=1) +
-  geom_point() +
+  geom_point(size=3, alpha=0.75) +
   theme_bw() +
   xlab("Position (Mbp)") +
   ylab("SNPs per Codon") +
-  theme(panel.grid=element_blank(),
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=18),
+        legend.text=element_text(size=16),
+        panel.grid=element_blank(),
         strip.background=element_blank(),
-        strip.text=element_text(size=10, face="bold")) +
+        strip.text=element_text(size=16, face="bold")) +
   facet_wrap(~chr, ncol=1, scales='free') +
   scale_color_manual(values=c(del_col, tol_col), name="") +
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   scale_y_continuous(limits=c(0, max(df_common_mRNA$snp_per_codon)+(max(df_common_mRNA$snp_per_codon)*0.2)))
 # Save plot
-ggsave(filename="dSNPs_per_codon_mRNA-hybrid_common.jpg", dpi=300)
+ggsave(filename="dSNPs_per_codon_mRNA-hybrid_common.jpg", width=13, height=12, units="in", dpi=300)
 
 # Plot dSNPs per codon: Deleterious vs Tolerated
 # CDS
 ggplot(df_common_cds, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) +
   geom_vline(data=centromere_df, aes(xintercept=cent_pos_mbp), colour="darkgrey", size=1) +
-  geom_point() +
+  geom_point(size=3, alpha=0.75) +
   theme_bw() +
   xlab("Position (Mbp)") +
   ylab("SNPs per Codon") +
-  theme(panel.grid=element_blank(),
+  theme(axis.text=element_text(size=16),
+        axis.title=element_text(size=18),
+        legend.text=element_text(size=16),
+        panel.grid=element_blank(),
         strip.background=element_blank(),
-        strip.text=element_text(size=10, face="bold")) +
+        strip.text=element_text(size=16, face="bold")) +
   facet_wrap(~chr, ncol=1, scales='free') +
   scale_color_manual(values=c(del_col, tol_col), name="") +
   scale_x_continuous(limits=c(0, 700), n.breaks=24) +
   #scale_y_continuous(limits=c(0, max(df_common_cds$snp_per_codon)+(max(df_common_cds$snp_per_codon)*0.2)))
   scale_y_continuous(limits=c(0, 0.012))
 # Save plot
-ggsave(filename="dSNPs_per_codon_cds-hybrid_common.jpg", dpi=300)
+ggsave(filename="dSNPs_per_codon_cds-hybrid_common.jpg", width=13, height=12, units="in", dpi=300)
 
 #########################################
 ### Representative chromosomes figure ###
@@ -241,15 +259,19 @@ df_cds_chr1H_2H <- rbind(chr1H_2H_mut_cds, chr1H_2H_rare_cds, chr1H_2H_comm_cds)
 # Plot chr1H and 2H of combined datasets
 ggplot(df_cds_chr1H_2H, aes(x=midp_mbp, y=snp_per_codon, color=factor(del_vs_tol))) +
   geom_vline(data=centromere_df[centromere_df$chr == "chr1H" | centromere_df$chr == "chr2H", ], aes(xintercept=cent_pos_mbp), colour="darkgrey", size=1) +
-  geom_point() +
+  geom_point(size=3, alpha=0.75) +
   theme_bw() +
   xlab("Position (Mbp)") +
   ylab("SNPs per Codon") +
-  theme(panel.grid=element_blank(),
+  theme(axis.text=element_text(size=18),
+        axis.title=element_text(size=20),
+        legend.text=element_text(size=18),
+        legend.position="top",
+        panel.grid=element_blank(),
         strip.background=element_blank(),
-        strip.text=element_text(size=10, face="bold")) +
-  facet_grid( factor(dataset, levels=c('Mutated', 'Rare', 'Common')) ~ chr, scales='free') +
+        strip.text=element_text(size=18, face="bold")) +
+  facet_grid(factor(dataset, levels=c('Mutated', 'Rare', 'Common')) ~ chr, scales='free') +
   scale_color_manual(values=c(del_col, tol_col), name="") +
   scale_x_continuous(limits=c(0, 700), n.breaks=24)
 # Save plot
-ggsave(filename="dSNPs_per_codon_cds-chr1H_2H.jpg", width=20, height=5, units="in", dpi=300)
+ggsave(filename="dSNPs_per_codon_cds-chr1H_2H.jpg", width=18, height=8, units="in", dpi=300)

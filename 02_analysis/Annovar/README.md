@@ -43,6 +43,7 @@ OUT_DIR_HC="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/A
 REF_FASTA="/panfs/jay/groups/9/morrellp/shared/References/Reference_Sequences/Barley/Morex_v3/Barley_MorexV3_pseudomolecules_parts.fasta"
 
 MUT_VCF="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs/mut8_and_3mut10xGenomics.SNPs.private.vcf.gz"
+MUT_VCF_INDELs="/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/de_novo_vcfs/mut8_and_3mut10xGenomics.INDELs.private.vcf.gz"
 ```
 
 Generate the genePred file from the GFF3 file.
@@ -70,17 +71,28 @@ Prepare VCF file for Annovar. Convert VCF to Annovar's input format using Annova
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/Annovar
+# SNPs
 ./vcf_to_annovar_input.sh ${MUT_VCF} ${OUT_DIR}
 ./vcf_to_annovar_input.sh ${MUT_VCF} ${OUT_DIR_HC}
+
+# indels
+./vcf_to_annovar_input.sh ${MUT_VCF_INDELs} ${OUT_DIR}
+./vcf_to_annovar_input.sh ${MUT_VCF_INDELs} ${OUT_DIR_HC}
 ```
 
 Annotation with Annovar using the script `annotate_variation.pl`.
 
 ```bash
 # In dir: ~/GitHub/Barley_Mutated/02_analysis/Annovar
+# SNPs
 ./annotate_with_annovar.sh "/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/all/mut8_and_3mut10xGenomics.SNPs.private_annovar_input.txt" ${OUT_DIR} "hv_morex_v3_all"
 
 ./annotate_with_annovar.sh "/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/mut8_and_3mut10xGenomics.SNPs.private_annovar_input.txt" ${OUT_DIR_HC} "hv_morex_v3_HC"
+
+# indels
+./annotate_with_annovar.sh "/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/all/mut8_and_3mut10xGenomics.INDELs.private_annovar_input.txt" ${OUT_DIR} "hv_morex_v3_all"
+
+./annotate_with_annovar.sh "/panfs/jay/groups/9/morrellp/shared/Projects/Mutant_Barley/results/Annovar/HC/mut8_and_3mut10xGenomics.INDELs.private_annovar_input.txt" ${OUT_DIR_HC} "hv_morex_v3_HC"
 ```
 
 ---

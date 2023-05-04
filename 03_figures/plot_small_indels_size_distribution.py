@@ -34,11 +34,16 @@ def read_indels(vcf_fp, dataset_name):
                                   columns=['chr', 'pos', 'ref', 'alt', 'indel_size', 'var_type', 'dataset'])
     # Calculate proportion in each size group
     prop_df = indel_sizes_df.groupby('dataset')['indel_size'].value_counts(normalize=True).fillna(0).unstack(-1).transpose().reset_index()
+    # Get the count in each size group
+    count_df = indel_sizes_df.groupby('dataset')['indel_size'].value_counts().fillna(0).unstack(-1).transpose().reset_index()
     # Rename columns
     prop_df.rename(columns={dataset_name: "proportion"}, inplace=True)
+    count_df.rename(columns={dataset_name: "count"}, inplace=True)
+    # Merge df
+    merged_df = count_df.merge(prop_df, how='left', on='indel_size')
     # Add dataset category
-    prop_df['dataset'] = dataset_name
-    return(prop_df)
+    merged_df['dataset'] = dataset_name
+    return(merged_df)
 
 
 mut_df = read_indels(mut_vcf_fp, "Sodium azide")
@@ -50,7 +55,9 @@ combined_df = pd.concat([mut_df, rare_df, common_df], ignore_index=True)
 # Convert indel_size to numeric
 combined_df['indel_size'] = combined_df['indel_size'].apply(pd.to_numeric)
 # Add row for "0" as placeholder in plot
-combined_df.loc[len(combined_df.index)] = [0, 0, 'Sodium azide']
+combined_df.loc[len(combined_df.index)] = [0, 0, 0, 'Sodium azide']
+# Save to file
+combined_df.to_csv(out_dir + '/small_indel_sizes_prop.txt', sep='\t', index=False)
 
 # Print max indel sizes
 print('Largest insertion - sodium azide: ', max(combined_df[combined_df['dataset'] == 'Sodium azide']['indel_size']))

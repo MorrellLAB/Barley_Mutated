@@ -14,6 +14,7 @@ fp_plot_level_avg = "~/Dropbox/Projects/Barley_Mutated/field_data_and_planting/F
 # Field level averages
 fp_trial_avg = "~/Dropbox/Projects/Barley_Mutated/field_data_and_planting/Field_Testing/Raw_and_Spatially_Adjusted_2020-2022/mmx 2020-2022_trial avg_031623.csv"
 dsnps_counts_fp = "~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/visualization/mut_private_per_sample_counts.del_vs_tol.nonsyn_vs_syn.txt"
+indel_counts_fp = "~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/visualization/mut8_and_3mut10xGenomics.INDELs.private.1-3bp_per_sample_counts.txt"
 
 out_dir = "~/Dropbox/Projects/Barley_Mutated/analyses/bad_mutations/plots"
 out_prefix = "corr_mut_private_per_sample_counts"
@@ -23,6 +24,8 @@ check_lines <- c("CONLON", "FEG141-20", "LACEY", "ND_GENESIS", "ND20448", "ND261
 
 # Sequenced mutated lines
 seq_mut_lines <- c("M01-3-3", "M02-1", "M11-3-3", "M14-2-2", "M20-2-2", "M28-3-1", "M29-2-2", "M35-3-2", "M36-1-2", "M39-2-3", "M41-2-1")
+
+callable_820Mb_size <- 820594305
 
 #-----------------
 # Trial level average
@@ -52,6 +55,23 @@ dsnps_counts_short_names <- separate(dsnps_counts, col=sample, into=c("short_nam
 dsnps_counts$short_name <- dsnps_counts_short_names$short_name
 dsnps_counts <- dsnps_counts %>% select(short_name, everything())
 
+# Read indel counts table
+indel_counts <- read.delim(indel_counts_fp, header=TRUE)
+# Merge indel counts with snp counts
+dsnps_counts <- left_join(dsnps_counts, indel_counts, by="sample")
+
+############################
+# Calculate mutation rate
+# 1-3bp indels only
+dsnps_counts <- dsnps_counts %>%
+  mutate(snp_mut_rate_820Mbp = num_snps / callable_820Mb_size,
+         indel_mut_rate_820Mbp = num_indels / callable_820Mb_size)
+
+# Get average observed rate
+mean(dsnps_counts$snp_mut_rate_820Mbp)
+mean(dsnps_counts$indel_mut_rate_820Mbp)
+
+###################
 # Plot level average
 df.pl <- read.csv(file=fp_plot_level_avg, header=TRUE, skip=1)
 # Remove "FILLER" rows
@@ -108,6 +128,48 @@ df.pl.trait_means <- left_join(short_names_df, left_join(tmp.df.pl.yield, left_j
 # Per sample mean and move to first column
 dsnps_trait_means <- left_join(x=dsnps_counts, y=df.pl.trait_means, by="short_name") %>%
   select(short_name, everything())
+# Add noncoding
+dsnps_trait_means$noncoding = dsnps_trait_means$num_snps - dsnps_trait_means$total_nonsyn - dsnps_trait_means$total_syn
+
+############################
+# Calculate average diminution in yield relative to Morex W2017 parent
+# First get morex parent trait means
+morex_parent_yield <- df.pl %>%
+  select(c(line_name, yield_kgha_use, yield_bua_use, yield_kgha)) %>%
+  filter(line_name == "MOREX_W2017") %>%
+  group_by(line_name) %>%
+  summarise(across(everything(), mean))
+
+morex_parent_hdap <- df.pl %>%
+  select(c(line_name, heading_dap_use)) %>%
+  filter(line_name == "MOREX_W2017") %>%
+  filter(complete.cases(.)) %>%
+  group_by(line_name) %>%
+  summarise(across(everything(), mean))
+
+morex_parent_height <- df.pl %>%
+  select(c(line_name, height_cm_use)) %>%
+  filter(line_name == "MOREX_W2017") %>%
+  filter(complete.cases(.)) %>%
+  group_by(line_name) %>%
+  summarise(across(everything(), mean))
+
+# Combine trait means into single df
+df.morex.trait_means <- left_join(morex_parent_yield, left_join(morex_parent_hdap, morex_parent_height, by="line_name"), by="line_name")
+
+df.dsnps.trait_means <- dsnps_trait_means %>%
+  mutate(dim_yield_kgha_use = yield_kgha_use - df.morex.trait_means$yield_kgha_use,
+         dim_heading_dap_use = mean_heading_dap_use - df.morex.trait_means$heading_dap_use,
+         dim_height_cm_use = mean_height_cm_use - df.morex.trait_means$height_cm_use)
+
+# Average diminution in traits relative to Morex parent
+mean(df.dsnps.trait_means$dim_yield_kgha_use) / df.morex.trait_means$yield_kgha_use
+mean(df.dsnps.trait_means$dim_heading_dap_use) / df.morex.trait_means$heading_dap_use
+mean(df.dsnps.trait_means$dim_height_cm_use) / df.morex.trait_means$height_cm_use
+
+#############
+# Prepare base filepath
+out_fp_base = paste0(out_dir, '/', out_prefix)
 
 # Test for normality - all traits
 # Traits
@@ -126,6 +188,7 @@ shapiro.test(dsnps_trait_means$total_del)
 shapiro.test(dsnps_trait_means$total_tol)
 shapiro.test(dsnps_trait_means$total_syn)
 shapiro.test(dsnps_trait_means$total_nonsyn)
+shapiro.test(dsnps_trait_means$noncoding)
 # Check QQ plots - all traits
 # Traits
 ggqqplot(dsnps_trait_means$yield_kgha_use, ylab="Mean Grain Yield (kg/ha)")
@@ -138,14 +201,12 @@ ggqqplot(dsnps_trait_means$total_del, ylab="# deleterious SNPs")
 ggqqplot(dsnps_trait_means$total_tol, ylab="# tolerated SNPs")
 ggqqplot(dsnps_trait_means$total_syn, ylab="# synonynmous SNPs")
 ggqqplot(dsnps_trait_means$total_nonsyn, ylab="# nonsynonynmous SNPs")
+ggqqplot(dsnps_trait_means$noncoding, ylab="# Noncoding SNPs")
 
 # Correlation test
 res_del_vs_yield <- cor.test(dsnps_trait_means$total_del, dsnps_trait_means$yield_kgha_use, method="spearman", alternative="two.sided")
 res_del_vs_yield
 res_del_vs_yield$p.value
-
-# Prepare base filepath
-out_fp_base = paste0(out_dir, '/', out_prefix)
 
 # Number of deleterious
 jpeg(filename=paste0(out_fp_base, '-total_del_vs_yield_kgha_use.jpg'), width=8, height=6, units='in', res=300)
@@ -255,4 +316,26 @@ ggscatter(dsnps_trait_means, x="total_syn", y="mean_height_cm_use",
           add="reg.line", conf.int=TRUE,
           cor.coef=TRUE, cor.method="pearson",
           xlab="Number of synonymous SNPs", ylab="Mean Height (cm)")
+dev.off()
+
+# Number of noncoding
+jpeg(filename=paste0(out_fp_base, '-noncoding_vs_yield_kgha_use.jpg'), width=8, height=6, units='in', res=300)
+ggscatter(dsnps_trait_means, x="noncoding", y="yield_kgha_use",
+          add="reg.line", conf.int=TRUE,
+          cor.coef=TRUE, cor.method="pearson",
+          xlab="Number of noncoding SNPs", ylab="Yield (Kg/ha)")
+dev.off()
+
+jpeg(filename=paste0(out_fp_base, '-noncodingvs_mean_heading_dap_use.jpg'), width=8, height=6, units='in', res=300)
+ggscatter(dsnps_trait_means, x="noncoding", y="mean_heading_dap_use",
+          add="reg.line", conf.int=TRUE,
+          cor.coef=TRUE, cor.method="pearson",
+          xlab="Number of noncoding SNPs", ylab="Mean Heading Days After Planting")
+dev.off()
+
+jpeg(filename=paste0(out_fp_base, '-noncoding_vs_mean_height_cm_use.jpg'), width=8, height=6, units='in', res=300)
+ggscatter(dsnps_trait_means, x="noncoding", y="mean_height_cm_use",
+          add="reg.line", conf.int=TRUE,
+          cor.coef=TRUE, cor.method="pearson",
+          xlab="Number of noncoding SNPs", ylab="Mean Height (cm)")
 dev.off()

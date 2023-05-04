@@ -68,6 +68,8 @@ ms_list = mut_list + hyb_rare_list + hyb_common_list
 
 # Convert to pandas dataframe for plotting
 mdf = pd.DataFrame(ms_list, columns=['Group', 'Clean_Name', 'Mut_Cat', 'Mut', 'Count', 'Proportion']).sort_values(by=['Group', 'Proportion'])
+# Save to file
+mdf.to_csv(out_dir + '/mutation_spectrum_counts_prop.txt', sep='\t', index=False)
 
 # Output plot filepath
 pfp = out_dir + "/mutation_spectrum.png"
